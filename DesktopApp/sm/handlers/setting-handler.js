@@ -6,10 +6,9 @@ const db = new sqlite3.Database(common.getdbFilePath());
 
 ipcMain.handle("get-settings", async () => {
   return new Promise((resolve, reject) => {
-    const stmt = db.prepare(
-      "select * from settings s order by id desc limit 1"
-    );
+    const stmt = db.prepare("SELECT * FROM settings ORDER BY id DESC LIMIT 1");
     stmt.all((err, rows) => {
+      stmt.finalize(); // Clean up the statement
       if (err) {
         reject(err);
       } else {
@@ -23,6 +22,7 @@ ipcMain.handle("get-translations", async (event) => {
   return new Promise((resolve, reject) => {
     const stmt = db.prepare("SELECT * FROM translations");
     stmt.all((err, rows) => {
+      stmt.finalize(); // Clean up the statement
       if (err) {
         reject(err);
       } else {
@@ -41,16 +41,27 @@ ipcMain.handle(
     defaultcomplaintunit,
     defaultcomplaintduration
   ) => {
-    const stmt = db.prepare(
-      "UPDATE settings SET defaultdate = ? , defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?"
-    );
-    const result = stmt.run(
-      defaultdate,
-      defaultday,
-      defaultcomplaintunit,
-      defaultcomplaintduration
-    );
-    return result.changes;
+    return new Promise((resolve, reject) => {
+      const stmt = db.prepare(
+        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?"
+      );
+      stmt.run(
+        [
+          defaultdate,
+          defaultday,
+          defaultcomplaintunit,
+          defaultcomplaintduration,
+        ],
+        function (err) {
+          stmt.finalize(); // Clean up the statement
+          if (err) {
+            reject(err);
+          } else {
+            resolve(this.changes);
+          }
+        }
+      );
+    });
   }
 );
 
@@ -59,45 +70,51 @@ ipcMain.handle("save-translations", async (event, translations) => {
     throw new Error("Invalid data: Expected an array of translations.");
   }
 
-  // Delete existing translations for the diagnosis ID
-  const deleteTranslations = () => {
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    // Start a transaction
+    db.serialize(() => {
+      db.run("BEGIN TRANSACTION");
+
+      // 1. Delete existing translations
       db.run("DELETE FROM translations", function (err) {
-        if (err) reject(err);
-        resolve(); // Resolve when deletion is successful
+        if (err) {
+          return db.run("ROLLBACK", () => reject(err));
+        }
+
+        // 2. Insert new translations
+        const insertStmt = db.prepare(
+          "INSERT INTO translations (english, tourdu) VALUES (?, ?)"
+        );
+
+        let hasError = false;
+        for (const translation of translations) {
+          if (hasError) break;
+
+          insertStmt.run([translation.english, translation.tourdu], (err) => {
+            if (err) {
+              hasError = true;
+              insertStmt.finalize(); // Clean up the statement
+              return db.run("ROLLBACK", () => reject(err));
+            }
+          });
+        }
+
+        if (!hasError) {
+          insertStmt.finalize(); // Clean up the statement
+          db.run("COMMIT", (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve({ success: true, count: translations.length });
+            }
+          });
+        }
       });
     });
-  };
+  });
+});
 
-  const insertTranslation = (translation) => {
-    const { english, tourdu } = translation;
-
-    return new Promise((resolve, reject) => {
-      db.run(
-        "INSERT INTO translations (english, tourdu) VALUES (?, ?)",
-        [english, tourdu],
-        function (err) {
-          if (err) reject(err);
-          resolve({ id: this.lastID });
-        }
-      );
-    });
-  };
-
-  try {
-    // Step 1: Delete existing translations
-    await deleteTranslations();
-
-    // Step 2: Insert new translations
-    const results = [];
-    for (const translation of translations) {
-      const result = await insertTranslation(translation);
-      results.push(result);
-    }
-
-    return results; // Return an array of results with IDs for all inserted translations
-  } catch (error) {
-    console.error("Error save translations:", error);
-    throw error;
-  }
+// Close the database when the app exits
+process.on("exit", () => {
+  db.close();
 });
