@@ -337,9 +337,7 @@
       prescriptionDataInUrdu.patientInformation.selectedPatientInstructions[0]
         .title &&
       prescriptionDataInUrdu.patientInformation.selectedPatientInstructions[0]
-        .correctway &&
-      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions[0]
-        .incorrectway.length > 0
+        .detail.length > 0
     ) {
       // Group instructions by title
       const groupedInstructions = {};
@@ -369,14 +367,10 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; text-align: left;">
         `;
 
-        // Add correct and incorrect ways for the current title
         instructions.forEach((instruction) => {
           patientinstructionListHtml += `
               <div style="text-align: right;">
-                <span class="nastaleeq">${instruction.incorrectway} ❌</span>
-              </div>
-              <div style="text-align: right;">
-                <span class="nastaleeq">${instruction.correctway} ✅</span>
+                <span class="nastaleeq">${instruction.detail}</span>
               </div>
           `;
         });

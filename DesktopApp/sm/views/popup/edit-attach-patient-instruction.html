@@ -98,26 +98,10 @@
             isValid = false;
           }
 
-          // Check if patient-instruction type is selected
-          if (!patientinstruction.correctway.trim()) {
-            error.patientinstructiontype = `PatientInstruction type is required in ( ROW ${
-              index + 1
-            } )`;
+          if (!patientinstruction.detail.trim()) {
             $.toast({
               heading: "Error",
-              text: `Correct way is required in ROW ${index + 1}`,
-              showHideTransition: "fade",
-              icon: "error",
-              position: "top-right",
-            });
-            isValid = false;
-          }
-
-          // Check if quantity is empty
-          if (!patientinstruction.incorrectway.trim()) {
-            $.toast({
-              heading: "Error",
-              text: `In Correct way is required in ( ROW ${index + 1} )`,
+              text: `Detail is required in ( ROW ${index + 1} )`,
               showHideTransition: "fade",
               icon: "error",
               position: "top-right",
@@ -142,12 +126,7 @@
             title: patientinstructionRow
               .find(".patient-instruction-input")
               .val(),
-            correctway: patientinstructionRow
-              .find("[id^='correctwayText']")
-              .val(),
-            incorrectway: patientinstructionRow
-              .find("[id^='incorrectwayText']")
-              .val(),
+            detail: patientinstructionRow.find("[id^='textPInstDetail']").val(),
           };
 
           // Add the object to the patient-instructions array
@@ -198,21 +177,17 @@
       }
     }
 
-    // Function to populate a patient-instruction row with data
     function populatePatientInstructionRow(patientinstruction, row) {
-      // If no row is passed, add a new one
       if (!row) {
-        const newRowHtml = common.getPatientInstructionRow(); // Create a new row
-        $("#patient-instructionContainer tbody").append(newRowHtml); // Append to the container
+        const newRowHtml = common.getPatientInstructionRow();
+        $("#patient-instructionContainer tbody").append(newRowHtml);
         row = $(
           "#patient-instructionContainer .patient-instruction-row"
-        ).last(); // Select the newly added row
+        ).last();
       }
-
-      // Populate the row with the patient-instruction data
+      debugger;
       row.find(".patient-instruction-input").val(patientinstruction.title);
-      row.find("[id^='correctwayText']").val(patientinstruction.correctway);
-      row.find("[id^='incorrectwayText']").val(patientinstruction.incorrectway);
+      row.find("[id^='textPInstDetail']").val(patientinstruction.detail);
     }
 
     // Trigger initialization with the ID from the modal

@@ -28,7 +28,6 @@ ipcMain.handle("get-diagnosis-by-name", async (event, name) => {
           console.error("Database error:", err);
           reject(err);
         } else {
-          console.log("Database rows:", rows);
           resolve(rows);
         }
       }
@@ -47,7 +46,6 @@ ipcMain.handle("get-diagnosis-by-id", async (event, id) => {
           console.error("Database error:", err);
           reject(err);
         } else {
-          console.log("Database rows:", rows);
           resolve(rows);
         }
       }
@@ -92,7 +90,6 @@ ipcMain.handle(
           console.error("Database error:", err);
           reject(err);
         } else {
-          console.log("Database rows:", rows);
           resolve(rows);
         }
       });
@@ -265,7 +262,7 @@ ipcMain.handle(
           console.error("Database error:", err);
           reject(err);
         } else {
-          console.log("Database rows:", rows);
+          console.error("Database rows:", rows);
           resolve(rows);
         }
       });
@@ -297,7 +294,7 @@ ipcMain.handle(
     };
 
     const insertIntoExistingPatientInstruction = (patientinstruction) => {
-      const { title, correctway, incorrectway } = patientinstruction;
+      const { title, detail } = patientinstruction;
 
       return new Promise((resolve, reject) => {
         // First, check if the medicine already exists
@@ -320,8 +317,8 @@ ipcMain.handle(
             } else {
               // If it doesn't exist, insert it
               db.run(
-                "INSERT INTO patient_instruction (title, correctway, incorrectway) VALUES (?, ?, ?)",
-                [title, correctway, incorrectway],
+                "INSERT INTO patient_instruction (title, detail) VALUES (?, ?, ?)",
+                [title, detail],
                 function (err) {
                   if (err) {
                     reject(err); // Handle errors from INSERT
@@ -340,11 +337,11 @@ ipcMain.handle(
     };
 
     const insertPatientInstruction = (patientinstruction) => {
-      const { title, correctway, incorrectway } = patientinstruction;
+      const { title, detail } = patientinstruction;
       return new Promise((resolve, reject) => {
         db.run(
-          "INSERT INTO diagnosis_patient_instruction (diagnosisid, title, correctway, incorrectway) VALUES (?, ?, ?, ?)",
-          [id, title, correctway, incorrectway],
+          "INSERT INTO diagnosis_patient_instruction (diagnosisid, title, detail) VALUES (?, ?, ?, ?)",
+          [id, title, detail],
           function (err) {
             if (err) reject(err);
             resolve({ id: this.lastID });

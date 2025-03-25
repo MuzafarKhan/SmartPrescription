@@ -193,8 +193,7 @@
 
       // Populate the row with the patient-instruction data
       row.find(".patient-instruction-input").val(patientinstruction.title);
-      row.find("[id^='correctwayText']").val(patientinstruction.correctway);
-      row.find("[id^='incorrectwayText']").val(patientinstruction.incorrectway);
+      row.find("[id^='textPInstDetail']").val(patientinstruction.detail);
     }
 
     async function loadInvestigation() {

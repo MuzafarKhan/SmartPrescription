@@ -28,7 +28,6 @@ ipcMain.handle("get-patient-instruction-by-name", async (event, name) => {
           console.error("Database error:", err);
           reject(err);
         } else {
-          console.log("Database rows:", rows);
           resolve(rows);
         }
       }
@@ -47,7 +46,6 @@ ipcMain.handle("get-patient-instruction-by-id", async (event, id) => {
           console.error("Database error:", err);
           reject(err);
         } else {
-          console.log("Database rows:", rows);
           resolve(rows);
         }
       }
@@ -55,24 +53,21 @@ ipcMain.handle("get-patient-instruction-by-id", async (event, id) => {
   });
 });
 
-ipcMain.handle(
-  "add-patient-instruction",
-  async (event, title, correctway, incorrectway) => {
-    const stmt = db.prepare(
-      "INSERT INTO patient_instruction (title, correctway, incorrectway) VALUES (?, ?, ?)"
-    );
-    const result = stmt.run(title, correctway, incorrectway);
-    return result.lastInsertRowid;
-  }
-);
+ipcMain.handle("add-patient-instruction", async (event, title, detail) => {
+  const stmt = db.prepare(
+    "INSERT INTO patient_instruction (title, detail) VALUES (?, ?)"
+  );
+  const result = stmt.run(title, detail);
+  return result.lastInsertRowid;
+});
 
 ipcMain.handle(
   "update-patient-instruction",
-  async (event, id, title, correctway, incorrectway) => {
+  async (event, id, title, detail) => {
     const stmt = db.prepare(
-      "UPDATE patient_instruction SET title = ?, correctway = ?, incorrectway = ? WHERE id = ?"
+      "UPDATE patient_instruction SET title = ?, detail = ? WHERE id = ?"
     );
-    const result = stmt.run(title, correctway, incorrectway, id);
+    const result = stmt.run(title, detail, id);
     return result.changes;
   }
 );

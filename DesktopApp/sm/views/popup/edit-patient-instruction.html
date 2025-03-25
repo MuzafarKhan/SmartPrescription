@@ -32,24 +32,12 @@
             />
           </div>
           <div class="mb-3">
-            <label for="moredetailText" class="form-label">Correct Way</label>
+            <label for="moredetailText" class="form-label">Detail</label>
             <input
               type="text"
               class="form-control"
-              id="correctwayText"
-              placeholder="Enter Correct Way"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="moredetailText" class="form-label"
-              >In Correct Way</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="incorrectwayText"
-              placeholder="Enter In Correct Way"
+              id="textPInstDetail"
+              placeholder="Enter Detail"
               required
             />
           </div>
@@ -83,22 +71,12 @@
     async function savePatientInstruction() {
       var id = $("#hdnId").html();
       var patientinstructionTitle = $("#patientinstructionTitle").val().trim();
-      var correctwayText = $("#correctwayText").val().trim();
-      var incorrectwayText = $("#incorrectwayText").val().trim();
+      var textPInstDetail = $("#textPInstDetail").val().trim();
 
       if (id) {
-        updatePatientInstruction(
-          id,
-          patientinstructionTitle,
-          correctwayText,
-          incorrectwayText
-        );
+        updatePatientInstruction(id, patientinstructionTitle, textPInstDetail);
       } else {
-        addPatientInstruction(
-          patientinstructionTitle,
-          correctwayText,
-          incorrectwayText
-        );
+        addPatientInstruction(patientinstructionTitle, textPInstDetail);
       }
       $("#addPatientInstructionModal").modal("hide");
       loadPageContent(
@@ -110,27 +88,23 @@
     async function updatePatientInstruction(
       id,
       patientinstructionTitle,
-      correctwayText,
-      incorrectwayText
+      textPInstDetail
     ) {
       const results = await window.electronAPI.updatePatientInstruction(
         id,
         patientinstructionTitle,
-        correctwayText,
-        incorrectwayText
+        textPInstDetail
       );
       common.showUpdatedSuccessfullyMessage();
     }
 
     async function addPatientInstruction(
       patientinstructionTitle,
-      correctwayText,
-      incorrectwayText
+      textPInstDetail
     ) {
       const results = await window.electronAPI.addPatientInstruction(
         patientinstructionTitle,
-        correctwayText,
-        incorrectwayText
+        textPInstDetail
       );
       common.showSavedSuccessfullyMessage();
     }
@@ -146,20 +120,10 @@
         });
         return false;
       }
-      if (!$("#correctwayText").val().trim()) {
+      if (!$("#textPInstDetail").val().trim()) {
         $.toast({
           heading: "Error",
-          text: "Correct Way is required",
-          showHideTransition: "fade",
-          icon: "error",
-          position: "top-right",
-        });
-        return false;
-      }
-      if (!$("#incorrectwayText").val().trim()) {
-        $.toast({
-          heading: "Error",
-          text: "In Correct Way is required",
+          text: "Detail is required",
           showHideTransition: "fade",
           icon: "error",
           position: "top-right",
@@ -176,8 +140,7 @@
         .getPatientInstructionById(id)
         .then((result) => {
           $("#patientinstructionTitle").val(result[0].title);
-          $("#correctwayText").val(result[0].correctway);
-          $("#incorrectwayText").val(result[0].incorrectway);
+          $("#textPInstDetail").val(result[0].detail);
         })
         .catch((error) => {
           $.toast({

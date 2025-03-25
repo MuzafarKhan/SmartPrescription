@@ -28,7 +28,6 @@ ipcMain.handle("get-rehabilitation-aids-by-name", async (event, name) => {
           console.error("Database error:", err);
           reject(err);
         } else {
-          console.log("Database rows:", rows);
           resolve(rows);
         }
       }
@@ -47,7 +46,6 @@ ipcMain.handle("get-rehabilitation-aids-by-id", async (event, id) => {
           console.error("Database error:", err);
           reject(err);
         } else {
-          console.log("Database rows:", rows);
           resolve(rows);
         }
       }

@@ -5,8 +5,7 @@
       <thead>
         <tr>
           <th scope="col">Title</th>
-          <th scope="col">Correct Way</th>
-          <th scope="col">In Correct Way</th>
+          <th scope="col">Detail</th>
           <th scope="col">Action</th>
         </tr>
       </thead>
@@ -28,16 +27,8 @@
             <input
               type="text"
               class="form-control"
-              id="correctwayText"
-              placeholder="Enter Correct Way"
-            />
-          </td>
-          <td>
-            <input
-              type="text"
-              class="form-control"
-              id="incorrectwayText"
-              placeholder="Enter In Correct Way"
+              id="textPInstDetail"
+              placeholder="Enter Detail"
             />
           </td>
           <td>
@@ -112,11 +103,8 @@
 
         // Populate the current row with the patient-instruction details
         patientinstructionRow
-          .find("input#correctwayText")
-          .val(patientinstructionDetails.correctway);
-        patientinstructionRow
-          .find("input#incorrectwayText")
-          .val(patientinstructionDetails.incorrectway);
+          .find("input#textPInstDetail")
+          .val(patientinstructionDetails.detail);
       }
     });
 

@@ -178,30 +178,6 @@
       </div>
 
       <div class="section-container">
-        <div class="section-header">Chief Complaint</div>
-        <div class="section-body">
-          <div id="chief-complaint-section"></div>
-        </div>
-      </div>
-
-      <script>
-        $("#chief-complaint-section").load(
-          "./sections/chief-complaint-section.html"
-        );
-      </script>
-
-      <div class="section-container">
-        <div class="section-header">Diagnosis - Investigation - Plan</div>
-        <div class="section-body">
-          <div id="diagnosis-section"></div>
-        </div>
-      </div>
-
-      <script>
-        $("#diagnosis-section").load("./sections/diagnosis-section.html");
-      </script>
-
-      <div class="section-container">
         <div class="section-header">EXAM FINDINGS</div>
         <div class="section-body">
           <div>
@@ -344,6 +320,30 @@
           </div>
         </div>
       </div>
+
+      <div class="section-container">
+        <div class="section-header">Diagnosis - Investigation - Plan</div>
+        <div class="section-body">
+          <div id="diagnosis-section"></div>
+        </div>
+      </div>
+
+      <div class="section-container">
+        <div class="section-header">Chief Complaint</div>
+        <div class="section-body">
+          <div id="chief-complaint-section"></div>
+        </div>
+      </div>
+
+      <script>
+        $("#chief-complaint-section").load(
+          "./sections/chief-complaint-section.html"
+        );
+      </script>
+
+      <script>
+        $("#diagnosis-section").load("./sections/diagnosis-section.html");
+      </script>
 
       <div class="section-container">
         <div class="section-header">Medicine</div>
@@ -812,12 +812,7 @@
             title: patientinstructionRow
               .find(".patient-instruction-input")
               .val(),
-            correctway: patientinstructionRow
-              .find("[id^='correctwayText']")
-              .val(),
-            incorrectway: patientinstructionRow
-              .find("[id^='incorrectwayText']")
-              .val(),
+            detail: patientinstructionRow.find("[id^='textPInstDetail']").val(),
           };
 
           // Add the object to the patient-instructions array

@@ -28,7 +28,6 @@ ipcMain.handle("get-medicine-by-name", async (event, name) => {
           console.error("Database error:", err);
           reject(err);
         } else {
-          console.log("Database rows:", rows);
           resolve(rows);
         }
       }
@@ -44,7 +43,6 @@ ipcMain.handle("get-medicine-by-id", async (event, id) => {
         console.error("Database error:", err);
         reject(err);
       } else {
-        console.log("Database rows:", rows);
         resolve(rows);
       }
     });

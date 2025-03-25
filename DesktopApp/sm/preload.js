@@ -39,21 +39,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("get-patient-instruction-by-name", name),
   getPatientInstructionById: (id) =>
     ipcRenderer.invoke("get-patient-instruction-by-id", id),
-  addPatientInstruction: (title, correctway, incorrectway) =>
-    ipcRenderer.invoke(
-      "add-patient-instruction",
-      title,
-      correctway,
-      incorrectway
-    ),
-  updatePatientInstruction: (id, title, correctway, incorrectway) =>
-    ipcRenderer.invoke(
-      "update-patient-instruction",
-      id,
-      title,
-      correctway,
-      incorrectway
-    ),
+  addPatientInstruction: (title, detail) =>
+    ipcRenderer.invoke("add-patient-instruction", title, detail),
+  updatePatientInstruction: (id, title, detail) =>
+    ipcRenderer.invoke("update-patient-instruction", id, title, detail),
   deletePatientInstructionById: (id) =>
     ipcRenderer.invoke("delete-patient-instruction-by-id", id),
 

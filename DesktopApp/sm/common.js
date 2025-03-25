@@ -175,17 +175,8 @@ const common = {
             <input
               type="text"
               class="form-control"
-              id="correctwayText"
-              placeholder="Enter Correct Way"
-              required
-            />
-          </td>
-          <td>
-            <input
-              type="text"
-              class="form-control"
-              id="incorrectwayText"
-              placeholder="Enter In Correct Way"
+              id="textPInstDetail"
+              placeholder="Enter Detail"
               required
             />
           </td>
