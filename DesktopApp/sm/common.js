@@ -78,6 +78,10 @@ const common = {
               <option value="Syrup">SYP</option>
               <option value="Inj">INJ</option>
               <option value="Cream">CREAM</option>
+              <option value="DROPS">DROPS</option>
+              <option value="GEL">GEL</option>
+              <option value="OINT">OINT</option>
+              <option value="LOTION">LOTION</option>
             </select>
           </td>
           <td>
