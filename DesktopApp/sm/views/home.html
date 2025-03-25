@@ -1,0 +1,997 @@
+<div>
+  <form id="prescriptionForm">
+    <div class="scrollable">
+      <div class="row">
+        <div class="section-container">
+          <div class="section-header">Patient Details</div>
+          <div class="section-body">
+            <div class="row">
+              <div class="col-7">
+                <div class="row">
+                  <div class="col-6">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Type Name"
+                      id="txtName"
+                      name="name"
+                    />
+                  </div>
+                  <div class="col-2">
+                    <input
+                      type="number"
+                      class="form-control"
+                      placeholder="Type Age"
+                      id="txtAge"
+                      name="age"
+                    />
+                  </div>
+                  <div class="col-4">
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="txtDate"
+                      name="date"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-5">
+                <div>
+                  <button
+                    type="button"
+                    class="btn btn-success btn-sm comorbidity-tab"
+                    id="DM"
+                  >
+                    DM
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-success comorbidity-tab"
+                    id="HTN"
+                  >
+                    HTN
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-success comorbidity-tab"
+                    id="CVA"
+                  >
+                    CVA
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-success comorbidity-tab"
+                    id="CAD"
+                  >
+                    CAD
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-success comorbidity-tab"
+                    id="HEPATITIS"
+                  >
+                    HEPATITIS
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-success comorbidity-tab"
+                    id="TRAUMA"
+                  >
+                    TRAUMA
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 row">
+              <div class="col-45Per mt-5px">
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input syrgry-input"
+                    type="checkbox"
+                    name="syrgery"
+                    role="switch"
+                    id="laminectomyCheckChecked"
+                  />
+                  <label class="form-check-label" for="laminectomyCheckChecked"
+                    >Laminectomy</label
+                  >
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input syrgry-input"
+                    type="checkbox"
+                    name="syrgery"
+                    role="switch"
+                    id="tPFCheckChecked"
+                  />
+                  <label class="form-check-label" for="tPFCheckChecked"
+                    >TPF</label
+                  >
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input syrgry-input"
+                    type="checkbox"
+                    name="syrgery"
+                    role="switch"
+                    id="craniotomyCheckChecked"
+                  />
+                  <label class="form-check-label" for="craniotomyCheckChecked"
+                    >Craniotomy</label
+                  >
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input syrgry-input"
+                    type="checkbox"
+                    name="syrgery"
+                    role="switch"
+                    id="vPshuntCheckChecked"
+                  />
+                  <label class="form-check-label" for="vPshuntCheckChecked"
+                    >VP shunt</label
+                  >
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input syrgry-input"
+                    type="checkbox"
+                    name="syrgery"
+                    role="switch"
+                    id="mMCCheckChecked"
+                  />
+                  <label class="form-check-label" for="mMCCheckChecked"
+                    >MMC</label
+                  >
+                </div>
+              </div>
+              <div class="col-1">
+                <input
+                  type="number"
+                  class="form-control duration-syrgery-select"
+                  placeholder="Enter Complaint"
+                  value="1"
+                />
+              </div>
+              <div class="col-2">
+                <!-- Unit Dropdown -->
+                <select class="form-select unit-syrgery-select">
+                  <option value="" selected>Select Unit</option>
+                  <option value="day">day</option>
+                  <option value="week">week</option>
+                  <option value="month">month</option>
+                  <option value="year">year</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <input
+                  type="input"
+                  class="form-control"
+                  placeholder="Type Further details"
+                  id="txtSyrgeryFurtherdetails"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-container">
+        <div class="section-header">Chief Complaint</div>
+        <div class="section-body">
+          <div id="chief-complaint-section"></div>
+        </div>
+      </div>
+
+      <script>
+        $("#chief-complaint-section").load(
+          "./sections/chief-complaint-section.html"
+        );
+      </script>
+
+      <div class="section-container">
+        <div class="section-header">Diagnosis - Investigation - Plan</div>
+        <div class="section-body">
+          <div id="diagnosis-section"></div>
+        </div>
+      </div>
+
+      <script>
+        $("#diagnosis-section").load("./sections/diagnosis-section.html");
+      </script>
+
+      <div class="section-container">
+        <div class="section-header">EXAM FINDINGS</div>
+        <div class="section-body">
+          <div>
+            <div class="row">
+              <div class="col-1">
+                <div class="row">
+                  <label>BP</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="bpTxtbox"
+                    name="BP"
+                    value="120/80"
+                  />
+                </div>
+              </div>
+              <div class="col-1 ms-2">
+                <label>GCS</label>
+                <div>
+                  <input
+                    style="display: inline; width: 44%"
+                    type="text"
+                    id="gcsTxtBox"
+                    class="form-control"
+                    name="GCS"
+                    value="15"
+                  />
+                  <span>/15</span>
+                </div>
+              </div>
+
+              <div class="col-2 ms-2">
+                <label>Power</label>
+                <div>
+                  <label>UL</label>
+                  <input
+                    style="display: inline; width: 16%"
+                    type="text"
+                    class="form-control"
+                    id="powerUL1TxtBox"
+                    value="5"
+                  />
+                  <span>/5</span>
+
+                  <input
+                    style="display: inline; width: 16%"
+                    type="text"
+                    class="form-control"
+                    id="powerUL2TxtBox"
+                    value="5"
+                  />
+                  <span>/5</span>
+                </div>
+                <div class="ms-1">
+                  <label>LL</label>
+                  <input
+                    style="display: inline; width: 16%"
+                    type="text"
+                    class="form-control"
+                    id="powerLL1TxtBox"
+                    value="5"
+                  />
+                  <span>/5</span>
+
+                  <input
+                    style="display: inline; width: 16%"
+                    type="text"
+                    class="form-control"
+                    id="powerLL2TxtBox"
+                    value="5"
+                  />
+                  <span>/5</span>
+                </div>
+              </div>
+              <div class="col-12Per">
+                <label>Sensations</label>
+                <div>
+                  <select id="select-sensations" class="form-select">
+                    <option select>INTACT</option>
+                    <option>LOST</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-12Per">
+                <label>SLR</label>
+                <div>
+                  <select id="select-slr" class="form-select">
+                    <option select>NORMAL</option>
+                    <option>RESTRICTED</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-4 mt-4">
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="PHALLENSIGNCheckChecked"
+                  />
+                  <label class="form-check-label" for="PHALLENSIGNCheckChecked"
+                    >PHALLEN SIGN</label
+                  >
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="TINNELSIGNCheckChecked"
+                  />
+                  <label class="form-check-label" for="TINNELSIGNCheckChecked"
+                    >TINNEL SIGN</label
+                  >
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="SPERLINGSIGNCheckChecked"
+                  />
+                  <label class="form-check-label" for="SPERLINGSIGNCheckChecked"
+                    >SPERLING SIGN</label
+                  >
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="HOFFSIGNCheckChecked"
+                  />
+                  <label class="form-check-label" for="HOFFSIGNCheckChecked"
+                    >HOFF MAN SIGN</label
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-container">
+        <div class="section-header">Medicine</div>
+        <div class="section-body">
+          <div id="medicine-section"></div>
+        </div>
+      </div>
+
+      <script>
+        $("#medicine-section").load("./sections/medicine-section.html");
+      </script>
+
+      <div class="section-container">
+        <div class="section-header">Rehabilitation Aids</div>
+        <div class="section-body">
+          <div id="rehabilitation-aids-section"></div>
+        </div>
+      </div>
+
+      <script>
+        $("#rehabilitation-aids-section").load(
+          "./sections/rehabilitation-aids-section.html"
+        );
+      </script>
+
+      <div class="section-container">
+        <div class="section-header">Patient Instructions</div>
+        <div class="section-body">
+          <div id="patient-instruction-section"></div>
+        </div>
+      </div>
+      <script>
+        $("#patient-instruction-section").load(
+          "./sections/patient-instruction-section.html"
+        );
+      </script>
+    </div>
+    <!-- Save Prescription -->
+    <div class="sticky-footer">
+      <div class="row">
+        <div class="mt-4 text-end">
+          <!-- Added 'text-end' class -->
+          <input
+            type="date"
+            class="form-control"
+            style="display: inline; width: 16%"
+            placeholder="FollowUp Date"
+            id="txtboxNextFollowUpDate"
+            name="name"
+          />
+          <button type="submit" class="btn btn-success" id="printPrescription">
+            Print
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-secondary"
+            id="printAndGeneratePrescription"
+            disabled
+          >
+            Print & Generate
+          </button>
+          <button
+            type="submit"
+            class="btn btn-info"
+            onclick="window.location.reload();"
+            id="resetData"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#bpTxtbox").mask("000/00");
+    const settings = common.getSettings();
+    const date = new Date();
+
+    const defaultdate = common.getSettings()[0].defaultdate;
+    const defaultday = common.getSettings()[0].defaultday;
+    const defaultcomplaintunit = common.getSettings()[0].defaultcomplaintunit;
+    const defaultcomplaintduration =
+      common.getSettings()[0].defaultcomplaintduration;
+
+    if (defaultdate) {
+      document.getElementById("txtDate").value = defaultdate;
+    } else if (defaultday) {
+      var addDays = 0;
+      if (defaultday.toLowerCase() == "tomorrow") {
+        addDays = 1;
+      } else if (defaultday.toLowerCase() == "yesterday") {
+        addDays = -1;
+      }
+      date.setDate(date.getDate() + addDays);
+      const formattedDate = date.toISOString().split("T")[0];
+      $("#txtDate").val(formattedDate);
+      $(".duration-select").val(defaultcomplaintduration);
+      $(".unit-select").val(defaultcomplaintunit);
+    }
+
+    // Select all checkboxes with class "syrgry-input"
+    document.querySelectorAll(".syrgry-input").forEach((checkbox) => {
+      checkbox.addEventListener("change", function () {
+        // Uncheck all other checkboxes
+        document.querySelectorAll(".syrgry-input").forEach((otherCheckbox) => {
+          if (otherCheckbox !== this) {
+            otherCheckbox.checked = false;
+          }
+        });
+
+        // Debugging: Check the current state of checkboxes
+        console.log("Selected checkbox:", this.id, "Checked:", this.checked);
+
+        // Load data from localStorage if the checkbox is checked
+        if (this.checked) {
+          let value = "";
+          switch (this.id) {
+            case "laminectomyCheckChecked":
+              value = JSON.parse(localStorage.getItem("laminectomy"));
+              break;
+            case "tPFCheckChecked":
+              value = JSON.parse(localStorage.getItem("tpf"));
+              break;
+            case "craniotomyCheckChecked":
+              value = JSON.parse(localStorage.getItem("craniotomy"));
+              break;
+            case "vPshuntCheckChecked":
+              value = JSON.parse(localStorage.getItem("vpshunt"));
+              break;
+            case "mMCCheckChecked":
+              value = JSON.parse(localStorage.getItem("mmc"));
+              break;
+          }
+          if (
+            value &&
+            value.syrgeryDataState &&
+            value.syrgeryDataState.unitsyrgery &&
+            value.syrgeryDataState.durationsyrgery &&
+            value.syrgeryDataState.patientSyrgeryFurtherDetail
+          ) {
+            document.querySelector(".unit-syrgery-select").value =
+              value.syrgeryDataState.unitsyrgery;
+            document.querySelector(".duration-syrgery-select").value =
+              value.syrgeryDataState.durationsyrgery;
+            document.querySelector("#txtSyrgeryFurtherdetails").value =
+              value.syrgeryDataState.patientSyrgeryFurtherDetail;
+          }
+        } else {
+          document.querySelector(".unit-syrgery-select").value = "";
+          document.querySelector(".duration-syrgery-select").value = 1;
+          document.querySelector("#txtSyrgeryFurtherdetails").value = "";
+        }
+      });
+    });
+
+    document.querySelectorAll(".comorbidity-tab").forEach((button) => {
+      button.addEventListener("click", function () {
+        // Toggle the 'btn-success' and 'btn-danger' classes
+        this.classList.toggle("btn-success");
+        this.classList.toggle("btn-danger");
+        prescriptionForm;
+      });
+    });
+
+    $(".tab").click(function () {
+      var tabId = $(this).attr("id");
+      if ($(this).hasClass("tab-unselected")) {
+        $(this).removeClass("tab-unselected").addClass("tab-selected");
+        $("input[name='comorbidities']").val(function (index, value) {
+          return value + tabId + "+ve ";
+        });
+      } else {
+        $(this).removeClass("tab-selected").addClass("tab-unselected");
+        $("input[name='comorbidities']").val(function (index, value) {
+          return value.replace(tabId + "+ve ", "");
+        });
+      }
+    });
+
+    // Toggle medicine options visibility
+    $("#medicineButton").click(function () {
+      $("#medicineOptions").toggleClass("d-none");
+    });
+
+    // Submit the form
+    $("#prescriptionForm").submit(function (event) {
+      event.preventDefault();
+    });
+
+    $("#printPrescription").on("click", async function () {
+      let prescriptionData = getPrescriptionData();
+      if (validatePrescriptionData(prescriptionData)) {
+        openPrintData(prescriptionData);
+      }
+    });
+    const prescriptionForm = document.getElementById("prescriptionForm");
+
+    prescriptionForm.addEventListener("click", (event) => {
+      var dataState = getPrescriptionData();
+      localStorage.setItem("getPrescriptionData", JSON.stringify(dataState));
+    });
+
+    async function openPrintData(prescriptionData) {
+      $("#addEditModel").load("views/popup/print.html", function () {
+        // After loading, pass the id dynamically
+        $("#addEditModel").data(
+          "prescriptionData",
+          JSON.stringify(prescriptionData)
+        );
+        savesyrgerytolocalstorage();
+      });
+    }
+
+    function savesyrgerytolocalstorage() {
+      var dataState = getPrescriptionData();
+      localStorage.setItem("getPrescriptionData", JSON.stringify(dataState));
+
+      var syrgeryDataState = {
+        syrgeryDataState: {
+          unitsyrgery: $(".unit-syrgery-select").val()
+            ? $(".unit-syrgery-select").val()
+            : "",
+
+          durationsyrgery: $(".duration-syrgery-select").val()
+            ? $(".duration-syrgery-select").val()
+            : "",
+          patientSyrgeryFurtherDetail: $("#txtSyrgeryFurtherdetails").val()
+            ? $("#txtSyrgeryFurtherdetails").val()
+            : "",
+        },
+      };
+
+      if (
+        syrgeryDataState &&
+        syrgeryDataState.syrgeryDataState &&
+        syrgeryDataState.syrgeryDataState.unitsyrgery &&
+        syrgeryDataState.syrgeryDataState.durationsyrgery &&
+        syrgeryDataState.syrgeryDataState.patientSyrgeryFurtherDetail
+      ) {
+        if (
+          dataState &&
+          dataState.patientInformation &&
+          dataState.patientInformation.laminectomy
+        )
+          localStorage.setItem("laminectomy", JSON.stringify(syrgeryDataState));
+        if (
+          dataState &&
+          dataState.patientInformation &&
+          dataState.patientInformation.tpf
+        )
+          localStorage.setItem("tpf", JSON.stringify(syrgeryDataState));
+        if (
+          dataState &&
+          dataState.patientInformation &&
+          dataState.patientInformation.vpshunt
+        )
+          localStorage.setItem("vpshunt", JSON.stringify(syrgeryDataState));
+        if (
+          dataState &&
+          dataState.patientInformation &&
+          dataState.patientInformation.craniotomy
+        )
+          localStorage.setItem("craniotomy", JSON.stringify(syrgeryDataState));
+        if (
+          dataState &&
+          dataState.patientInformation &&
+          dataState.patientInformation.mmc
+        )
+          localStorage.setItem("mmc", JSON.stringify(syrgeryDataState));
+      }
+    }
+    $("#printAndGeneratePrescription").on("click", async function () {
+      let prescriptionData = getPrescriptionData();
+      if (validatePrescriptionData(prescriptionData)) {
+        await printAndGeneratePrescription(prescriptionData);
+      }
+    });
+    async function printAndGeneratePrescription(prescriptionData) {
+      return true;
+    }
+
+    function getPrescriptionData() {
+      var prescriptionData = {
+        patientInformation: {
+          patientname: $("#txtName").val() ? $("#txtName").val() : "",
+          patientage: $("#txtAge").val() ? $("#txtAge").val() : "",
+          checkupDate: $("#txtDate").val() ? $("#txtDate").val() : "",
+          dm: $("#DM").hasClass("btn-success"),
+          htn: $("#HTN").hasClass("btn-success"),
+          cva: $("#CVA").hasClass("btn-success"),
+          cad: $("#CAD").hasClass("btn-success"),
+          hepatitis: $("#HEPATITIS").hasClass("btn-success"),
+          trauma: $("#TRAUMA").hasClass("btn-success"),
+          laminectomy: $("#laminectomyCheckChecked").prop("checked"),
+          tpf: $("#tPFCheckChecked").prop("checked"),
+          craniotomy: $("#craniotomyCheckChecked").prop("checked"),
+          vpshunt: $("#vPshuntCheckChecked").prop("checked"),
+          mmc: $("#mMCCheckChecked").prop("checked"),
+          unitsyrgery: $(".unit-syrgery-select").val()
+            ? $(".unit-syrgery-select").val()
+            : "",
+
+          durationsyrgery: $(".duration-syrgery-select").val()
+            ? $(".duration-syrgery-select").val()
+            : "",
+          patientSyrgeryFurtherDetail: $("#txtSyrgeryFurtherdetails").val()
+            ? $("#txtSyrgeryFurtherdetails").val()
+            : "",
+
+          complaintData: getAllComplaints(),
+          selectedDiagnosis: getSelectedDiagnosis(),
+          selectedInvestigation: getSelectedInvestigation(),
+          investigationMoreDetail: $("#txtinvestigationMoreDetail").val()
+            ? $("#txtinvestigationMoreDetail").val()
+            : "",
+          selectedPlan: getSelectedPlan(),
+          gcs: $("#gcsTxtBox").val() ? $("#gcsTxtBox").val() : "",
+          bp: $("#bpTxtbox").val() ? $("#bpTxtbox").val() : "",
+
+          powerUL1: $("#powerUL1TxtBox").val()
+            ? $("#powerUL1TxtBox").val()
+            : "",
+          powerUL2: $("#powerUL2TxtBox").val()
+            ? $("#powerUL2TxtBox").val()
+            : "",
+          powerLL1: $("#powerLL1TxtBox").val()
+            ? $("#powerLL1TxtBox").val()
+            : "",
+          powerLL2: $("#powerLL2TxtBox").val()
+            ? $("#powerLL2TxtBox").val()
+            : "",
+          sensations: $("#select-sensations").val()
+            ? $("#select-sensations").val()
+            : "",
+          slr: $("#select-slr").val() ? $("#select-slr").val() : "",
+          PHALLENSIGN: $("#PHALLENSIGNCheckChecked").prop("checked"),
+          TINNELSIGN: $("#TINNELSIGNCheckChecked").prop("checked"),
+          SPERLINGSIGN: $("#SPERLINGSIGNCheckChecked").prop("checked"),
+          HOFFSIGN: $("#HOFFSIGNCheckChecked").prop("checked"),
+
+          selectedMedicines: getAllMedicines(),
+          selectedRehabilitationAids: getRehabilitationAids(),
+          selectedPatientInstructions: getAllPatientInstructions(),
+          nextFollowUpDate: $("#txtboxNextFollowUpDate").val(),
+        },
+      };
+      return prescriptionData;
+    }
+    function getAllComplaints() {
+      const complaints = [];
+
+      // Loop through each row in the table body
+      document
+        .querySelectorAll("#chiefComplaintsContainer .complaint-row")
+        .forEach((row) => {
+          const complaintInput = row.querySelector(".complaint-input").value;
+          const durationSelect = row.querySelector(".duration-select").value;
+          const unitSelect = row.querySelector(".unit-select").value;
+
+          // Push the data as an object into the complaints array
+          complaints.push({
+            complaint: complaintInput || null,
+            duration: durationSelect || null,
+            unit: unitSelect || null,
+          });
+        });
+
+      return complaints;
+    }
+    function getSelectedDiagnosis() {
+      const diagnosisSuggest = $("#diagnosisList").magicSuggest();
+      const selectedDiagnoses = diagnosisSuggest.getSelection();
+
+      // Map the selected diagnoses to an array of values
+      const selectedValues = selectedDiagnoses.map(
+        (diagnosis) => diagnosis.name
+      );
+
+      return selectedValues;
+    }
+    function getSelectedInvestigation() {
+      const investigationSuggest = $("#investigationList").magicSuggest();
+      const selectedInvestigations = investigationSuggest.getSelection();
+
+      // Map the selected investigations to an array of values
+      const selectedValues = selectedInvestigations.map(
+        (investigation) => investigation.name
+      );
+
+      return selectedValues;
+    }
+    function getSelectedPlan() {
+      const planSuggest = $("#planList").magicSuggest();
+      const selectedPlans = planSuggest.getSelection();
+
+      // Map the selected plans to an array of values
+      const selectedValues = selectedPlans.map((plan) => plan.name);
+
+      return selectedValues;
+    }
+    function getAllMedicines() {
+      const medicines = [];
+
+      $("#medicineContainer .medicine-row").each(function () {
+        const medicineRow = $(this);
+
+        // Create an object for each medicine row
+        const medicine = {
+          medicinename: medicineRow.find(".medicine-input").val(),
+          medicinetype: medicineRow.find("[id^='medicineType']").val(),
+          quantity: medicineRow.find("[id^='quantity']").val(),
+          morning: medicineRow.find("[id^='inlineMorning']").is(":checked"),
+          afternoon: medicineRow.find("[id^='inlineAfternoon']").is(":checked"),
+          night: medicineRow.find("[id^='inlineNight']").is(":checked"),
+          duration: medicineRow.find("[id^='slctDuration']").val(),
+          durationnumber: medicineRow.find("[id^='durationnumber']").val(),
+          beforemeal: medicineRow
+            .find("[id^='beforeMealCheckChecked']")
+            .is(":checked"),
+          moredetail: medicineRow.find("[id^='moredetail']").val(),
+        };
+
+        // Add the object to the medicines array
+        medicines.push(medicine);
+      });
+
+      return medicines;
+    }
+    function getRehabilitationAids() {
+      const aidsData = [];
+
+      // Loop through each rehabilitation-aids row
+      $("#rehabilitationAidsContainer .rehabilitation-aids-row").each(
+        function () {
+          const rehabilitationAid = $(this)
+            .find(".rehabilitation-aids-input")
+            .val();
+          const moreDetail = $(this).find(".moredetail-input").val();
+
+          // Push the data to the aidsData array
+          if (rehabilitationAid || moreDetail) {
+            aidsData.push({
+              name: rehabilitationAid,
+              moreDetail: moreDetail,
+            });
+          }
+        }
+      );
+
+      return aidsData;
+    }
+
+    function getAllPatientInstructions() {
+      const patientinstructions = [];
+
+      $("#patient-instructionContainer .patient-instruction-row").each(
+        function () {
+          const patientinstructionRow = $(this);
+
+          // Create an object for each patient-instruction row
+          const patientinstruction = {
+            title: patientinstructionRow
+              .find(".patient-instruction-input")
+              .val(),
+            correctway: patientinstructionRow
+              .find("[id^='correctwayText']")
+              .val(),
+            incorrectway: patientinstructionRow
+              .find("[id^='incorrectwayText']")
+              .val(),
+          };
+
+          // Add the object to the patient-instructions array
+          patientinstructions.push(patientinstruction);
+        }
+      );
+
+      return patientinstructions;
+    }
+
+    function validatePrescriptionData(prescriptionData) {
+      var patientInformation = prescriptionData.patientInformation;
+      let isValid = true;
+      if (!patientInformation.patientname) {
+        $.toast({
+          heading: "Error",
+          text: `Patient Name is required`,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        isValid = false;
+      } else if (!patientInformation.patientage) {
+        $.toast({
+          heading: "Error",
+          text: `Patient Age is required`,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        isValid = false;
+      } else if (!patientInformation.checkupDate) {
+        $.toast({
+          heading: "Error",
+          text: `Patient Checkup Date is required`,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        isValid = false;
+      } else if (patientInformation.selectedDiagnosis.length <= 0) {
+        $.toast({
+          heading: "Error",
+          text: `Atlease One Diagnosis is required`,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        isValid = false;
+      } else if (patientInformation.selectedDiagnosis.length <= 0) {
+        $.toast({
+          heading: "Error",
+          text: `Atlease One Diagnosis is required`,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        isValid = false;
+      } else if (
+        !attachMedicineValidated(patientInformation.selectedMedicines)
+      ) {
+        isValid = false;
+      }
+      return isValid;
+    }
+  });
+
+  function attachMedicineValidated(medicinesArray) {
+    let isValid = true;
+    medicinesArray.forEach((medicine, index) => {
+      if (isValid) {
+        const error = {};
+
+        // Check if medicine name is empty
+        if (!medicine.medicinename.trim()) {
+          $.toast({
+            heading: "Error",
+            text: `Medicine name is required in ( ROW ${index + 1} )`,
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+          isValid = false;
+        }
+
+        // Check if medicine type is selected
+        if (!medicine.medicinetype.trim()) {
+          error.medicinetype = `Medicine type is required in ( ROW ${
+            index + 1
+          } )`;
+          $.toast({
+            heading: "Error",
+            text: `Medicine name is required in ROW ${index + 1}`,
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+          isValid = false;
+        }
+
+        // Check if quantity is empty
+        if (!medicine.quantity.trim()) {
+          $.toast({
+            heading: "Error",
+            text: `Quantity is required in ( ROW ${index + 1} )`,
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+          isValid = false;
+        }
+
+        // Check if at least one checkbox (morning, afternoon, night) is selected
+        if (!medicine.morning && !medicine.afternoon && !medicine.night) {
+          $.toast({
+            heading: "Error",
+            text: `At least one timing (morning, afternoon, night) must be selected in (ROW ${
+              index + 1
+            } )`,
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+          isValid = false;
+        }
+      }
+    });
+
+    return isValid;
+  }
+  function setDynamicDropdown(selectId, fetchFunction) {
+    const multiSelect = new Choices(`#${selectId}`, {
+      searchEnabled: true,
+      removeItemButton: true,
+    });
+
+    // Fetch data dynamically based on input
+    async function fetchOptions(query) {
+      if (query) {
+        try {
+          const results = await fetchFunction(query);
+          const options = results.map((item) => ({
+            value: item.Id,
+            label: item.label || item.Name || item.description, // Fallback for label
+          }));
+
+          return options;
+        } catch (error) {
+          console.error(`Error fetching options for ${selectId}:`, error);
+          return [];
+        }
+      }
+    }
+
+    // Event listener for searching
+    multiSelect.passedElement.element.addEventListener(
+      "search",
+      async function (event) {
+        const query = event.detail.value;
+
+        // Fetch new options based on search query
+        const options = await fetchOptions(query);
+        multiSelect.clearChoices();
+        multiSelect.setChoices(options, "value", "label", true);
+      }
+    );
+
+    // Event listener for selection changes
+    document
+      .querySelector(`#${selectId}`)
+      .addEventListener("change", function (event) {
+        const selectedOptions = Array.from(event.target.selectedOptions).map(
+          (option) => option.value
+        );
+      });
+  }
+</script>

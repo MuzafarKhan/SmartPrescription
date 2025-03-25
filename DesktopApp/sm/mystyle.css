@@ -1,0 +1,276 @@
+#menu a {
+  text-decoration: none;
+  color: #fff;
+}
+.navbar {
+  margin-bottom: 20px;
+}
+
+.container {
+  margin-top: 10px;
+  max-width: 1600px;
+}
+
+.tab {
+  cursor: pointer;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  margin-right: 5px;
+  border-radius: 5px;
+}
+.tab-selected {
+  background-color: red;
+  color: white;
+}
+.tab-unselected {
+  background-color: green;
+  color: white;
+}
+
+.bordersolid1 {
+  border: 1px solid;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1030; /* Ensure it's above other elements */
+}
+body {
+  padding-top: 56px; /* Adjust for the fixed navbar height */
+}
+
+.active-nav {
+  color: black;
+  font-size: large;
+}
+
+.scrollable {
+  max-height: 80vh; /* Adjust height as needed */
+  overflow-y: auto; /* Enables vertical scroll */
+  overflow-x: hidden; /* Hides horizontal scroll */
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background: #f8f9fa; /* Light gray background */
+  padding: 10px;
+  text-align: right; /* Align button to the right */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+  border-top: 1px solid #ddd; /* Light border at the top */
+}
+
+.btn-success {
+  background: linear-gradient(
+    135deg,
+    #28a745 0%,
+    #218838 100%
+  ); /* Gradient green */
+  border: none;
+  color: white;
+  padding: 10px 20px; /* Larger padding for a modern look */
+  font-size: 13px; /* Larger font size */
+  border-radius: 25px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow */
+  transition: all 0.3s ease; /* Smooth transition */
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Add hover shadow */
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+.section-container {
+  border: 1px solid #dee2e6; /* Border around the container */
+  border-radius: 4px; /* Slightly rounded corners */
+  background-color: #f8f9fa; /* Light background */
+}
+.section-header {
+  background-color: #e9ecef; /* Header background */
+  padding: 10px 15px; /* Spacing inside the header */
+  font-weight: bold; /* Bold text */
+  color: #000; /* Text color */
+  border-bottom: 1px solid #dee2e6; /* Divider below the header */
+}
+.section-body {
+  padding: 15px; /* Spacing inside the body */
+  background-color: #fff; /* Body background color */
+}
+
+.comorbidity-tab {
+  border-radius: 0.375rem; /* Standard rounded corners for all buttons */
+}
+
+.ms-res-ctn {
+  z-index: 1050 !important;
+  position: absolute !important;
+}
+
+.form-control {
+  overflow: visible;
+}
+
+.width-70 {
+  max-width: 70%;
+}
+
+.width-100 {
+  max-width: 100%;
+}
+
+.width-for-print {
+  max-width: 1056px;
+}
+
+.col-45Per {
+  flex: 0 0 auto;
+  width: 45%;
+}
+.col-12Per {
+  flex: 0 0 auto;
+  width: 12%;
+}
+
+.mt-5Px {
+  margin-top: 5%;
+}
+
+/*Urdu font*/
+@font-face {
+  font-family: "NotoNastaliqUrdu-VariableFont_wght";
+  src: url("./fonts/Noto_Nastaliq_Urdu/NotoNastaliqUrdu-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Apply the font */
+.nastaleeq {
+  font-family: "NotoNastaliqUrdu-VariableFont_wght", cursive;
+  font-size: 0.7rem;
+  direction: rtl; /* Right-to-left for Urdu text */
+}
+
+/*Print*/
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    width: 210mm; /* A4 width */
+    height: 227mm; /* A4 height */
+  }
+
+  #printableafterGap {
+    margin-top: 50mm;
+    width: 210mm; /* Slightly smaller than A4 width to avoid browser margins */
+    height: 220; /* Adjust height automatically to fit content */
+    font-family: Arial, sans-serif;
+    box-sizing: border-box; /* Include padding in the width/height calculation */
+  }
+
+  /* Hide all elements that should not appear in print */
+  .no-print,
+  .modal-footer,
+  .modal-header {
+    display: none !important;
+  }
+
+  /* Remove extra margin or padding */
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+.middle-section {
+  height: 220mm;
+  display: flex;
+  border-bottom: 1px solid black;
+  flex-direction: column; /* Arrange children in a column */
+}
+
+.patient-information {
+  height: 10mm; /* Adjust height as needed */
+  border: 1px solid black;
+  display: flex;
+  padding: 10px;
+  align-items: center; /* Vertically align content */
+  justify-content: space-between; /* Space out content evenly */
+  box-sizing: border-box; /* Include padding in width */
+}
+
+.left-right-container {
+  display: flex; /* Arrange left and right sections side by side */
+  flex-grow: 1; /* Let this section take up the remaining space */
+}
+
+.left-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Take full height of the container */
+  width: 30%; /* 25% width of the parent container */
+  border-right: 1px solid black;
+  box-sizing: border-box; /* Include padding in width */
+  padding: 5px;
+}
+
+#divNextFollowUpDate {
+  align-self: flex-end;
+  margin-top: auto; /* Ensures it stays at the bottom */
+  padding-top: 10px; /* Adjust as needed */
+  font-size: x-small;
+}
+
+.right-section {
+  height: 100%; /* Take full height of the container */
+  width: 70%; /* 75% width of the parent container */
+  padding: 10px;
+  box-sizing: border-box; /* Include padding in width */
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+#patientinstructionDivList {
+  margin-top: auto; /* Push the content to the bottom */
+}
+
+.title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-decoration: underline;
+  font-size: 12px;
+}
+
+.zero-margin {
+  margin: 0px;
+}
+
+.list-container {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 10px;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.label {
+  text-align: left;
+}
+
+.value {
+  text-align: right;
+}
+
+.negativecomorbids {
+  background-color: aliceblue;
+}

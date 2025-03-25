@@ -1,0 +1,224 @@
+<div
+  class="modal fade"
+  id="addAttachPatientInstruction"
+  tabindex="-1"
+  aria-labelledby="addAttachPatientInstructionLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <label id="hdnId" class="d-none"></label>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addAttachPatientInstructionLabel">
+          Attach Patient Instruction
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="addDiagnosisForm">
+          <div class="section-container">
+            <div class="section-header">Patient Instructions</div>
+            <div class="section-body">
+              <div id="patient-instruction-section"></div>
+            </div>
+          </div>
+
+          <script>
+            $("#patient-instruction-section").load(
+              "./sections/patient-instruction-section.html"
+            );
+          </script>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="attachPatientInstruction"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#addAttachPatientInstruction").modal("show");
+    $(".modal-dialog").addClass("width-100");
+    $("#attachPatientInstruction").on("click", function () {
+      const patientinstructionsArray = getAllPatientInstructions();
+      if (attachPatientInstructionValidated(patientinstructionsArray)) {
+        attachPatientInstructionC(patientinstructionsArray);
+      }
+    });
+
+    async function attachPatientInstructionC(patientinstructionsArray) {
+      var id = $("#hdnId").html();
+      attachPatientInstruction(id, patientinstructionsArray);
+      $("#addAttachPatientInstruction").modal("hide");
+      loadPageContent(
+        "diagnosis",
+        "diagnosisTable",
+        $("#diagnosisTable").DataTable().page()
+      );
+    }
+    async function attachPatientInstruction(id, patientinstructionsArray) {
+      const results = await window.electronAPI.attachPatientInstruction(
+        id,
+        patientinstructionsArray
+      );
+      common.showSavedSuccessfullyMessage();
+    }
+
+    function attachPatientInstructionValidated(patientinstructionsArray) {
+      let isValid = true;
+      patientinstructionsArray.forEach((patientinstruction, index) => {
+        if (isValid) {
+          const error = {};
+
+          // Check if patient-instruction name is empty
+          if (!patientinstruction.title.trim()) {
+            $.toast({
+              heading: "Error",
+              text: `Title is required in ( ROW ${index + 1} )`,
+              showHideTransition: "fade",
+              icon: "error",
+              position: "top-right",
+            });
+            isValid = false;
+          }
+
+          // Check if patient-instruction type is selected
+          if (!patientinstruction.correctway.trim()) {
+            error.patientinstructiontype = `PatientInstruction type is required in ( ROW ${
+              index + 1
+            } )`;
+            $.toast({
+              heading: "Error",
+              text: `Correct way is required in ROW ${index + 1}`,
+              showHideTransition: "fade",
+              icon: "error",
+              position: "top-right",
+            });
+            isValid = false;
+          }
+
+          // Check if quantity is empty
+          if (!patientinstruction.incorrectway.trim()) {
+            $.toast({
+              heading: "Error",
+              text: `In Correct way is required in ( ROW ${index + 1} )`,
+              showHideTransition: "fade",
+              icon: "error",
+              position: "top-right",
+            });
+            isValid = false;
+          }
+        }
+      });
+
+      return isValid;
+    }
+
+    function getAllPatientInstructions() {
+      const patientinstructions = [];
+
+      $("#patient-instructionContainer .patient-instruction-row").each(
+        function () {
+          const patientinstructionRow = $(this);
+
+          // Create an object for each patient-instruction row
+          const patientinstruction = {
+            title: patientinstructionRow
+              .find(".patient-instruction-input")
+              .val(),
+            correctway: patientinstructionRow
+              .find("[id^='correctwayText']")
+              .val(),
+            incorrectway: patientinstructionRow
+              .find("[id^='incorrectwayText']")
+              .val(),
+          };
+
+          // Add the object to the patient-instructions array
+          patientinstructions.push(patientinstruction);
+        }
+      );
+
+      return patientinstructions;
+    }
+
+    async function init(id) {
+      $("#hdnId").html(id);
+      try {
+        // Fetch the patient-instructions associated with the diagnosis ID
+        const result =
+          await window.electronAPI.getAttachPatientInstructionByDiagnosisIds(
+            id.toString()
+          );
+
+        if (result && result.length > 0) {
+          // Clear existing rows before populating
+          $("#patient-instructionContainer .patient-instruction-row").remove();
+
+          result.forEach((patientinstruction, index) => {
+            // For each patient-instruction, either populate an existing row or add a new row
+            if (index === 0) {
+              populatePatientInstructionRow(patientinstruction); // Populate the first row
+            } else {
+              const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+              $("#patient-instructionContainer tbody").append(newRowHtml);
+              populatePatientInstructionRow(
+                patientinstruction,
+                $(
+                  "#patient-instructionContainer .patient-instruction-row"
+                ).last()
+              ); // Populate the new row
+            }
+          });
+        }
+      } catch (error) {
+        $.toast({
+          heading: "Error",
+          text: error,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+      }
+    }
+
+    // Function to populate a patient-instruction row with data
+    function populatePatientInstructionRow(patientinstruction, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+        $("#patient-instructionContainer tbody").append(newRowHtml); // Append to the container
+        row = $(
+          "#patient-instructionContainer .patient-instruction-row"
+        ).last(); // Select the newly added row
+      }
+
+      // Populate the row with the patient-instruction data
+      row.find(".patient-instruction-input").val(patientinstruction.title);
+      row.find("[id^='correctwayText']").val(patientinstruction.correctway);
+      row.find("[id^='incorrectwayText']").val(patientinstruction.incorrectway);
+    }
+
+    // Trigger initialization with the ID from the modal
+    const id = $("#addEditModel").data("id");
+    if (id) {
+      init(id);
+    }
+  });
+</script>

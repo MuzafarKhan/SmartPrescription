@@ -1,0 +1,279 @@
+<div
+  class="modal fade"
+  id="addMedicineModal"
+  tabindex="-1"
+  aria-labelledby="addMedicineModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <label id="hdnId" class="d-none"></label>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addMedicineModalLabel">Add New Medicine</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="addMedicineForm">
+          <div class="mb-3">
+            <label for="medicineName" class="form-label">Medicine Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="medicineName"
+              placeholder="Enter medicine name"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="medicineType" class="form-label">Medicine Type</label>
+            <select
+              id="medicineType"
+              class="form-select"
+              name="medicineType"
+              required
+            >
+              <option value="">Select Type</option>
+              <option value="Tab">TAB</option>
+              <option value="Cap">CAP</option>
+              <option value="Syrup">SYP</option>
+              <option value="Inj">INJ</option>
+              <option value="Cream">CREAM</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input
+              type="text"
+              class="form-control"
+              id="quantity"
+              placeholder="1 Tab - 1 Spoon"
+              required
+            />
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="morning" />
+                <label class="form-check-label" for="morning">Morning</label>
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="afternoon"
+                />
+                <label class="form-check-label" for="afternoon"
+                  >Afternoon</label
+                >
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="night" />
+                <label class="form-check-label" for="night">Night</label>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="beforemeal"
+                />
+                <label class="form-check-label" for="beforemeal"
+                  >Before Meal</label
+                >
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="durationnumber" class="form-label"
+                >Duration Number</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="durationnumber"
+                placeholder="1"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="duration" class="form-label">Duration</label>
+              <select id="slctDuration" class="form-select" required>
+                <option value="">Select Duration</option>
+                <option value="day">day</option>
+                <option value="week" selected>week</option>
+                <option value="month">month</option>
+                <option value="year">year</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="moreDetails" class="form-label">More Details</label>
+            <input
+              type="text"
+              class="form-control"
+              id="moreDetails"
+              placeholder="Enter more detail"
+              required
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="saveMedicine">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#addMedicineModal").modal("show");
+    $("#saveMedicine").on("click", function () {
+      if (medicineValidated()) {
+        saveMedicine();
+      }
+    });
+
+    async function saveMedicine() {
+      var id = $("#hdnId").html();
+      var medicineName = $("#medicineName").val().trim();
+      var morning = $("#morning").prop("checked") ? 1 : 0;
+      var afternoon = $("#afternoon").prop("checked") ? 1 : 0;
+      var night = $("#night").prop("checked") ? 1 : 0;
+      var beforemeal = $("#beforemeal").prop("checked") ? 1 : 0;
+      var durationnumber = Number($("#durationnumber").val().trim());
+      var duration = $("#slctDuration").val().trim();
+      var medicineType = $("#medicineType").val().trim();
+      var quantity = $("#quantity").val().trim();
+      var moreDetails = $("#moreDetails").val().trim();
+
+      var medicineModel = {
+        id,
+        medicineName,
+        morning,
+        afternoon,
+        night,
+        beforemeal,
+        durationnumber,
+        duration,
+        medicineType,
+        quantity,
+        moreDetails,
+      };
+
+      if (id) {
+        updateMedicine(id, medicineModel);
+      } else {
+        addMedicine(medicineModel);
+      }
+      $("#addMedicineModal").modal("hide");
+      loadPageContent(
+        "medicine",
+        "medicineTable",
+        $("#medicineTable").DataTable().page()
+      );
+    }
+
+    async function updateMedicine(id, medicineModel) {
+      const results = await window.electronAPI.updateMedicineById(
+        id,
+        medicineModel
+      );
+      common.showUpdatedSuccessfullyMessage();
+    }
+
+    async function addMedicine(medicineModel) {
+      try {
+        const results = await window.electronAPI.addMedicine(medicineModel);
+        common.showSavedSuccessfullyMessage();
+      } catch (error) {
+        common.showErrorMessage(error);
+      }
+    }
+
+    function medicineValidated() {
+      if (!$("#medicineName").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "Medicine Name is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+      if (!$("#durationnumber").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "Duration Number is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+      if (!$("#slctDuration").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "Duration is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+
+      return true;
+    }
+
+    function init(id) {
+      $("#hdnId").html(id);
+      window.electronAPI
+        .getMedicineById(id)
+        .then((result) => {
+          $("#medicineName").val(result[0].medicinename);
+          $("#morning").prop("checked", result[0].morning === 1);
+          $("#afternoon").prop("checked", result[0].afternoon === 1);
+          $("#night").prop("checked", result[0].night === 1);
+          $("#beforemeal").prop("checked", result[0].beforemeal === 1);
+          $("#durationnumber").val(result[0].durationnumber);
+          $("#duration").val(result[0].duration);
+          $("#medicineType").val(result[0].medicinetype);
+          $("#quantity").val(result[0].quantity);
+          $("#moreDetails").val(result[0].moredetail);
+        })
+        .catch((error) => {
+          $.toast({
+            heading: "Error",
+            text: "Error fetching data:",
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        });
+    }
+
+    const id = $("#addEditModel").data("id");
+    if (id) {
+      init(id);
+    }
+  });
+</script>

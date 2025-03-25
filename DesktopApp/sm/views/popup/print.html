@@ -1,0 +1,616 @@
+<div
+  class="modal fade"
+  id="addAttachpatientinstruction"
+  tabindex="-1"
+  aria-labelledby="addAttachpatientinstructionLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <label id="hdnId" class="d-none"></label>
+    <div class="modal-content">
+      <div class="modal-header">
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div
+        class="modal-body"
+        style="padding: 0px !important; margin: 0 !important"
+      >
+        <div id="printableArea">
+          <div id="printableafterGap">
+            <div class="page width-for-print">
+              <div class="middle-section">
+                <!-- Patient Information Row -->
+                <div class="patient-information">
+                  <span
+                    >Name: <span id="spanpatientname">Muzafar Khan</span></span
+                  >
+                  <span>Age: <span id="spanpatientage">64</span></span>
+                  <span
+                    >Date:
+                    <span id="spanpatientcheckupdate">01-01-2025</span></span
+                  >
+                </div>
+
+                <!-- Left and Right Sections -->
+                <div class="left-right-container">
+                  <div class="left-section">
+                    <div
+                      id="divExtraDetailLikeSurgery"
+                      style="font-size: x-small"
+                    ></div>
+                    <div id="divCOMORBIDSList" style="font-size: x-small"></div>
+
+                    <div id="divCHIEFCOMPLAINTS">
+                      <div class="title">CHIEF COMPLAINTS</div>
+                      <div>
+                        <ul class="list-container" id="ulcomplaintList"></ul>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="title">EXAM FINDINGS</div>
+                      <div>
+                        <ul class="list-container">
+                          <li class="list-item">
+                            <span class="label">BP:</span>
+                            <span class="value" id="spanbp">120/80</span>
+                          </li>
+                          <li class="list-item">
+                            <span class="label">GCS:</span>
+                            <span class="value" id="spangcs">15/15</span>
+                          </li>
+                          <li class="list-item">
+                            <span class="label">Power UL:</span>
+                            <span class="value" id="powerUL">5/5</span>
+                          </li>
+                          <li class="list-item">
+                            <span class="label">Power LL:</span>
+                            <span class="value" id="powerLL">5/5</span>
+                          </li>
+                          <li class="list-item">
+                            <span class="label">Sensations:</span>
+                            <span class="value" id="sensations">INTACT</span>
+                          </li>
+                          <li class="list-item">
+                            <span class="label">SLR:</span>
+                            <span class="value" id="slr">NORMAL</span>
+                          </li>
+                          <li class="list-item">
+                            <span class="label">PHALLEN SIGN:</span>
+                            <span class="value" id="PHALLENSIGN">-ve</span>
+                          </li>
+                          <li class="list-item">
+                            <span class="label">TINNEL SIGN:</span>
+                            <span class="value" id="TINNELSIGN">-ve</span>
+                          </li>
+                          <li class="list-item">
+                            <span class="label">SPERLING SIGN:</span>
+                            <span class="value" id="SPERLINGSIGN">-ve</span>
+                          </li>
+                          <li class="list-item">
+                            <span class="label">HOFF MAN SIGN:</span>
+                            <span class="value" id="HOFFSIGN">-ve</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div id="divINVESTIGATIONS">
+                      <div class="title">INVESTIGATIONS</div>
+                      <div>
+                        <ul
+                          class="list-container"
+                          id="ulinvestigationList"
+                        ></ul>
+                      </div>
+                    </div>
+                    <div id="divDiagnosis">
+                      <div class="title">Diagnosis</div>
+                      <div
+                        id="divDiagnosisList"
+                        style="font-size: x-small"
+                      ></div>
+                    </div>
+                    <div id="divPlan">
+                      <div class="title">Plan</div>
+                      <div>
+                        <ul class="list-container" id="ulplanList"></ul>
+                      </div>
+                    </div>
+                    <div id="divNextFollowUpDate" class="nastaleeq"></div>
+                  </div>
+
+                  <div class="right-section">
+                    <div class="title">Rx:</div>
+                    <div class="content" id="medicineDivList"></div>
+                    <div
+                      class="content"
+                      id="rehabilitationaidsDivList"
+                      style="margin-top: 25px"
+                    ></div>
+                    <div class="content" id="patientinstructionDivList"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="no-print modal-footer">
+            <div class="text-center my-3">
+              <button class="btn btn-primary" onclick="printPrescription()">
+                Print Prescription
+              </button>
+            </div>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="attachpatientinstruction"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(async function () {
+    $("#addAttachpatientinstruction").modal("show");
+    $(".modal-dialog").addClass("width-for-print");
+    const prescriptionData = JSON.parse(
+      $("#addEditModel").data("prescriptionData")
+    );
+
+    await init(prescriptionData);
+
+    async function init(prescriptionData) {
+      // Assuming translations array is available
+      const translations = await common.getTranslations();
+
+      // Recursive function to translate field values to Urdu
+      async function translateToUrdu(data, translations) {
+        if (Array.isArray(data)) {
+          // If data is an array, map each item and translate recursively
+          return Promise.all(
+            data.map((item) => translateToUrdu(item, translations))
+          );
+        } else if (typeof data === "object" && data !== null) {
+          // If data is an object, recursively translate its keys and values
+          const translatedData = {};
+          for (const [key, value] of Object.entries(data)) {
+            translatedData[key] = await translateToUrdu(value, translations);
+          }
+          return translatedData;
+        } else if (typeof data === "string") {
+          // Convert the string to lowercase
+          const lowerCaseData = data.toLowerCase();
+
+          // Find its Urdu translation
+          const translation = translations.find(
+            (t) => t.english.toLowerCase() === lowerCaseData
+          );
+          return translation ? translation.tourdu : data;
+        } else {
+          // Return other data types (numbers, booleans, null) as is
+          return data;
+        }
+      }
+
+      // Convert prescriptionData to Urdu
+      const prescriptionDataInUrdu = await translateToUrdu(
+        prescriptionData,
+        translations
+      );
+      setComplaintPrintData(prescriptionDataInUrdu);
+      setDiagnosisPrintData(prescriptionDataInUrdu);
+      setMedicinePrintData(prescriptionDataInUrdu);
+      setOtherDetailPrintData(prescriptionDataInUrdu);
+      setInvestigationPrintData(prescriptionDataInUrdu);
+      setPlanPrintData(prescriptionDataInUrdu);
+      setpatientinstructionPrintData(prescriptionDataInUrdu);
+      setrehabilitationaidsPrintData(prescriptionDataInUrdu);
+    }
+  });
+
+  function setDiagnosisPrintData(prescriptionDataInUrdu) {
+    if (
+      prescriptionDataInUrdu &&
+      prescriptionDataInUrdu.patientInformation &&
+      prescriptionDataInUrdu.patientInformation.selectedDiagnosis.length > 0
+    ) {
+      let diagnosis =
+        prescriptionDataInUrdu.patientInformation.selectedDiagnosis.join(", ");
+      $("#divDiagnosisList").html(diagnosis);
+    }
+  }
+
+  function setOtherDetailPrintData(prescriptionDataInUrdu) {
+    var syrgerytext = "";
+
+    if (prescriptionDataInUrdu.patientInformation.laminectomy) {
+      syrgerytext += "Post Op laminectomy ";
+    }
+    if (prescriptionDataInUrdu.patientInformation.tpf) {
+      syrgerytext += "Post Op tpf ";
+    }
+    if (prescriptionDataInUrdu.patientInformation.craniotomy) {
+      syrgerytext += "Post Op craniotomy ";
+    }
+    if (prescriptionDataInUrdu.patientInformation.vpshunt) {
+      syrgerytext += "Post Op vpshunt ";
+    }
+    if (prescriptionDataInUrdu.patientInformation.mmc) {
+      syrgerytext += "Post Op mmc ";
+    }
+
+    if (
+      prescriptionDataInUrdu.patientInformation.durationsyrgery &&
+      prescriptionDataInUrdu.patientInformation.unitsyrgery
+    ) {
+      syrgerytext +=
+        prescriptionDataInUrdu.patientInformation.durationsyrgery +
+        " " +
+        prescriptionDataInUrdu.patientInformation.unitsyrgery +
+        " ";
+    }
+    syrgerytext +=
+      prescriptionDataInUrdu.patientInformation.patientSyrgeryFurtherDetail;
+
+    $("#divExtraDetailLikeSurgery").html(syrgerytext.toUpperCase());
+
+    var COMORBIDSText = "";
+    COMORBIDSText += `DM${
+      prescriptionDataInUrdu.patientInformation.dm ? "-ve" : "+ve"
+    }, HTN${
+      prescriptionDataInUrdu.patientInformation.htn ? "-ve" : "+ve"
+    }, CVA${
+      prescriptionDataInUrdu.patientInformation.cva ? "-ve" : "+ve"
+    }, CAD${
+      prescriptionDataInUrdu.patientInformation.cad ? "-ve" : "+ve"
+    }, HEPATITIS${
+      prescriptionDataInUrdu.patientInformation.hepatitis ? "-ve" : "+ve"
+    }, TRAUMA${prescriptionDataInUrdu.patientInformation.trauma ? "-ve" : "+ve"}
+                      `;
+
+    $("#divCOMORBIDSList").html(COMORBIDSText.toUpperCase());
+
+    $("#spanpatientname").html(
+      prescriptionDataInUrdu.patientInformation.patientname
+    );
+    $("#spanpatientage").html(
+      prescriptionDataInUrdu.patientInformation.patientage + " Year(s)"
+    );
+    $("#spanpatientcheckupdate").html(
+      prescriptionDataInUrdu.patientInformation.checkupDate
+    );
+
+    if (prescriptionDataInUrdu.patientInformation.nextFollowUpDate)
+      $("#divNextFollowUpDate").html(
+        `براہ کرم ${prescriptionDataInUrdu.patientInformation.nextFollowUpDate} کو دوبارہ معائنہ کے لیے آئیں۔`
+      );
+
+    $("#HOFFSIGN").text(
+      prescriptionDataInUrdu.patientInformation.HOFFSIGN ? "-ve" : "+ve"
+    );
+    $("#SPERLINGSIGN").text(
+      prescriptionDataInUrdu.patientInformation.SPERLINGSIGN ? "-ve" : "+ve"
+    );
+    $("#TINNELSIGN").text(
+      prescriptionDataInUrdu.patientInformation.TINNELSIGN ? "-ve" : "+ve"
+    );
+    $("#PHALLENSIGN").text(
+      prescriptionDataInUrdu.patientInformation.PHALLENSIGN ? "-ve" : "+ve"
+    );
+    $("#slr").text(prescriptionDataInUrdu.patientInformation.slr);
+    $("#sensations").text(prescriptionDataInUrdu.patientInformation.sensations);
+    $("#powerLL").text(
+      prescriptionDataInUrdu.patientInformation.powerLL1 +
+        "/" +
+        prescriptionDataInUrdu.patientInformation.powerLL2
+    );
+    $("#powerUL").text(
+      prescriptionDataInUrdu.patientInformation.powerUL1 +
+        "/" +
+        prescriptionDataInUrdu.patientInformation.powerUL2
+    );
+    $("#spangcs").text(prescriptionDataInUrdu.patientInformation.gcs + "/15");
+    $("#spanbp").text(prescriptionDataInUrdu.patientInformation.bp);
+  }
+
+  function setpatientinstructionPrintData(prescriptionDataInUrdu) {
+    if (
+      prescriptionDataInUrdu &&
+      prescriptionDataInUrdu.patientInformation &&
+      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions &&
+      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions[0]
+        .title &&
+      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions[0]
+        .correctway &&
+      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions[0]
+        .incorrectway.length > 0
+    ) {
+      // Group instructions by title
+      const groupedInstructions = {};
+      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions.forEach(
+        (instruction) => {
+          if (!groupedInstructions[instruction.title]) {
+            groupedInstructions[instruction.title] = [];
+          }
+          groupedInstructions[instruction.title].push(instruction);
+        }
+      );
+
+      let patientinstructionListHtml = `
+        <div style="margin-bottom: 15px;">
+          <div style="display: flex; flex-direction: column; gap: 10px; text-align: center;">
+            <!-- Heading Section -->
+      `;
+
+      // Iterate over grouped instructions
+      for (const [title, instructions] of Object.entries(groupedInstructions)) {
+        patientinstructionListHtml += `
+            <!-- Patient Instruction Title -->
+            <div style="text-align: right; margin-top: 10px;">
+              <span class="nastaleeq" style="font-size: large; font-weight: bold; text-align: right;">پرہیز - </span>
+              <span class="nastaleeq" style="text-align: right;"> (${title})</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; text-align: left;">
+        `;
+
+        // Add correct and incorrect ways for the current title
+        instructions.forEach((instruction) => {
+          patientinstructionListHtml += `
+              <div style="text-align: right;">
+                <span class="nastaleeq">${instruction.incorrectway} ❌</span>
+              </div>
+              <div style="text-align: right;">
+                <span class="nastaleeq">${instruction.correctway} ✅</span>
+              </div>
+          `;
+        });
+
+        patientinstructionListHtml += `
+            </div>
+        `;
+      }
+
+      patientinstructionListHtml += `
+          </div>
+        </div>
+      `;
+
+      $("#patientinstructionDivList").html(patientinstructionListHtml);
+    } else {
+      $("#patientinstructionDivList").html("");
+    }
+  }
+
+  function setrehabilitationaidsPrintData(prescriptionDataInUrdu) {
+    if (
+      prescriptionDataInUrdu &&
+      prescriptionDataInUrdu.patientInformation &&
+      prescriptionDataInUrdu.patientInformation.selectedRehabilitationAids
+        .length > 0
+    ) {
+      let rehabilitationaidsListHtml = "";
+      prescriptionDataInUrdu.patientInformation.selectedRehabilitationAids.forEach(
+        (rehabilitationaids) => {
+          rehabilitationaidsListHtml += `
+               <div style="margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                  <div style="display: grid; grid-template-columns: 2fr 2fr; gap: 10px; align-items: start;">
+                      <span class="nastaleeq" style="font-size: large; text-align: left;">
+                    ${rehabilitationaids.name}</span>
+                      <div>
+                          <span class="nastaleeq" style="display: block; text-align: right;"> ${rehabilitationaids.moreDetail}</span>
+                      </div>
+                  </div>
+              </div>
+                `;
+        }
+      );
+
+      $("#rehabilitationaidsDivList").html(rehabilitationaidsListHtml);
+    } else {
+      $("#rehabilitationaidsDivList").html("");
+    }
+  }
+
+  function setComplaintPrintData(prescriptionDataInUrdu) {
+    if (
+      prescriptionDataInUrdu &&
+      prescriptionDataInUrdu.patientInformation &&
+      prescriptionDataInUrdu.patientInformation.complaintData.length > 0 &&
+      prescriptionDataInUrdu.patientInformation.complaintData[0].complaint
+    ) {
+      var complaintListHtml = "";
+
+      prescriptionDataInUrdu.patientInformation.complaintData.forEach(
+        (complaint) => {
+          complaintListHtml += "" + "";
+          complaint.unit =
+            complaint.duration === "1" ? complaint.unit : complaint.unit + "s";
+          complaintListHtml += `
+                      <li class="list-item">
+                          <span class="label">${complaint.complaint} </span>
+                          <span class="value"> More than ${complaint.duration} ${complaint.unit}</span>
+                      </li>
+                `;
+        }
+      );
+      $("#ulcomplaintList").html(complaintListHtml);
+    } else {
+      $("#divCHIEFCOMPLAINTS").html("");
+    }
+  }
+
+  function setInvestigationPrintData(prescriptionDataInUrdu) {
+    if (
+      prescriptionDataInUrdu &&
+      prescriptionDataInUrdu.patientInformation &&
+      prescriptionDataInUrdu.patientInformation.selectedInvestigation.length >
+        0 &&
+      prescriptionDataInUrdu.patientInformation.selectedInvestigation[0]
+    ) {
+      var investigationListHtml = "";
+
+      prescriptionDataInUrdu.patientInformation.selectedInvestigation.forEach(
+        (investigation) => {
+          investigationListHtml += `
+                      <li class="list-item">
+                          <span class="label">${investigation} </span>
+                      </li>
+                `;
+        }
+      );
+      $("#ulinvestigationList").html(investigationListHtml);
+    } else {
+      $("#divINVESTIGATIONS").html("");
+    }
+  }
+
+  function setPlanPrintData(prescriptionDataInUrdu) {
+    if (
+      prescriptionDataInUrdu &&
+      prescriptionDataInUrdu.patientInformation &&
+      prescriptionDataInUrdu.patientInformation.selectedPlan.length > 0 &&
+      prescriptionDataInUrdu.patientInformation.selectedPlan[0]
+    ) {
+      var planListHtml = "";
+
+      prescriptionDataInUrdu.patientInformation.selectedPlan.forEach((plan) => {
+        planListHtml += `
+                      <li class="list-item">
+                          <span class="label">${plan} </span>
+                      </li>
+                `;
+      });
+      $("#ulplanList").html(planListHtml);
+    } else {
+      $("#divPlan").html("");
+    }
+  }
+
+  function setMedicinePrintData(prescriptionDataInUrdu) {
+    if (
+      prescriptionDataInUrdu &&
+      prescriptionDataInUrdu.patientInformation &&
+      prescriptionDataInUrdu.patientInformation.selectedMedicines.length > 0
+    ) {
+      var medicineListHtml = "";
+
+      prescriptionDataInUrdu.patientInformation.selectedMedicines.forEach(
+        (medicine, index) => {
+          const {
+            medicinename,
+            duration,
+            durationnumber,
+            morningInUrdu,
+            morning,
+            afternoon,
+            night,
+            beforemeal,
+            quantity,
+            medicinetype,
+          } = medicine;
+
+          const durationMapping = {
+            day: { singular: "دن", plural: "دنوں" },
+            week: { singular: "ہفتہ", plural: "ہفتوں" },
+            month: { singular: "مہینہ", plural: "مہینوں" },
+            year: { singular: "سال", plural: "سالوں" },
+          };
+          const timings = [];
+          if (morning) timings.push("صبح");
+          if (afternoon) timings.push("دوپہر");
+          if (night) timings.push("رات");
+
+          // Timings
+          let timingText = "";
+          if (beforemeal) {
+            timingText += "(کھانے سے پہلے)";
+          }
+          medicineListHtml += "" + "";
+          const durationText =
+            durationnumber === "1"
+              ? `ایک ${durationMapping[duration].singular} کے لئے استعمال کریں۔`
+              : `${durationnumber} ${durationMapping[duration].plural} کے لئے استعمال کریں۔`;
+
+          medicineListHtml += `
+               <div style="margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                  <div style="display: grid; grid-template-columns: 2fr 2fr; gap: 10px; align-items: start;">
+                      <span style="font-size: large; text-align: left;">${
+                        index + 1
+                      } - (${medicinetype}) ${medicinename}</span>
+                      <div>
+                          <span class="nastaleeq" style="display: block; text-align: right;"> ${quantity} - (${timings})</span>
+                          <div class="nastaleeq" style="text-align: right;">${durationText}</div>
+                      </div>
+                  </div>
+              </div>
+                `;
+        }
+      );
+      $("#medicineDivList").html(medicineListHtml);
+    }
+  }
+
+  function printPrescription() {
+    const printContent = document.getElementById("printableArea").innerHTML;
+
+    // Get all stylesheets (including external ones)
+    const stylesheets = [...document.styleSheets]
+      .map((sheet) =>
+        sheet.href ? `<link rel="stylesheet" href="${sheet.href}">` : ""
+      )
+      .join("\n");
+
+    // Extract inline styles from the document
+    const inlineStyles = [...document.styleSheets]
+      .map((styleSheet) => {
+        try {
+          return [...styleSheet.cssRules]
+            .map((rule) => rule.cssText)
+            .join("\n");
+        } catch (e) {
+          return ""; // Handle cross-origin restrictions
+        }
+      })
+      .join("\n");
+
+    // Open new print window
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Prescription</title>
+            ${stylesheets}  <!-- Include external styles -->
+            <style>${inlineStyles}</style> <!-- Include inline styles -->
+        </head>
+        <body>
+            ${printContent}
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+
+    // Wait a bit to ensure styles are loaded before printing
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+  }
+</script>

@@ -1,0 +1,126 @@
+<div>
+  <!-- Medicine Table -->
+  <div id="patient-instructionContainer">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Correct Way</th>
+          <th scope="col">In Correct Way</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Medicine Row Template -->
+        <tr class="patient-instruction-row">
+          <td>
+            <input
+              type="text"
+              class="form-control patient-instruction-input"
+              placeholder="Enter Medicine"
+              list="patient-instructionSuggestions"
+            />
+
+            <!-- Suggestions -->
+            <datalist id="patient-instructionSuggestions"> </datalist>
+          </td>
+          <td>
+            <input
+              type="text"
+              class="form-control"
+              id="correctwayText"
+              placeholder="Enter Correct Way"
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              class="form-control"
+              id="incorrectwayText"
+              placeholder="Enter In Correct Way"
+            />
+          </td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-danger remove-patient-instruction"
+            >
+              <i class="bi bi-trash"></i> Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Button to add new patient-instruction -->
+  <div class="d-flex justify-content-end">
+    <button id="addPatientInstructionBtn" class="btn btn-primary mt-1">
+      Add Patient Instruction
+    </button>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    // Store the patient-instructions in an object for easy lookup
+    let patientinstructionsData = {};
+
+    async function init() {
+      try {
+        // Fetch patient-instructions from the backend (Electron API)
+        const patientinstructions =
+          await window.electronAPI.getPatientInstruction();
+        const dataList = $("#patient-instructionSuggestions");
+        dataList.empty();
+
+        // Populate patient-instructionsData object and datalist
+        patientinstructions.forEach((patientinstruction) => {
+          patientinstructionsData[patientinstruction.title] =
+            patientinstruction; // Store patient-instruction in object
+          dataList.append(
+            `<option value="${patientinstruction.title}"></option>`
+          ); // Add to datalist
+        });
+      } catch (error) {
+        console.error("Error fetching patient-instructions:", error);
+      }
+    }
+
+    // Add new patient-instruction row when the button is clicked
+    $("#addPatientInstructionBtn").on("click", function (event) {
+      init();
+      event.preventDefault();
+      newRowHtml = common.getPatientInstructionRow();
+      $("#patient-instructionContainer tbody").append(newRowHtml);
+    });
+
+    // Remove a patient-instruction row
+    $(document).on("click", ".remove-patient-instruction", function (event) {
+      event.preventDefault();
+      $(this).closest("tr").remove();
+    });
+
+    // Fetch patient-instruction details when a patient-instruction is selected
+    $(document).on("input", ".patient-instruction-input", function () {
+      const selectedMedicine = $(this).val();
+      const patientinstructionRow = $(this).closest("tr");
+
+      if (patientinstructionsData[selectedMedicine]) {
+        const patientinstructionDetails =
+          patientinstructionsData[selectedMedicine];
+
+        // Populate the current row with the patient-instruction details
+        patientinstructionRow
+          .find("input#correctwayText")
+          .val(patientinstructionDetails.correctway);
+        patientinstructionRow
+          .find("input#incorrectwayText")
+          .val(patientinstructionDetails.incorrectway);
+      }
+    });
+
+    // Initialize patient-instructions and datalist
+    init();
+  });
+</script>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Diagnosis</title>
+  </head>
+
+  <body>
+    <div class="form-container">
+      <div class="d-flex justify-content-end">
+        <button id="btnAddDiagnosisModal" class="btn btn-primary mt-1">
+          Add New Diagnosis
+        </button>
+      </div>
+      <form>
+        <div class="row m-1">
+          <table id="diagnosisTable" class="display" style="width: 100%">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        // Initialize DataTable
+        const table = $("#diagnosisTable").DataTable();
+
+        // Fetch and populate table
+        window.electronAPI
+          .getDiagnosis()
+          .then((diagnosiss) => {
+            table.clear();
+            diagnosiss.forEach((diagnosis) => {
+              table.row
+                .add([
+                  diagnosis.id,
+                  diagnosis.name,
+                  '<button class="btn btn-warning btn-sm" onclick="openEditDiagnosis(' +
+                    diagnosis.id +
+                    ',event)">Update</button>' +
+                    '<button class="btn btn-danger btn-sm ms-1" onclick="deleteDiagnosis(' +
+                    diagnosis.id +
+                    ',event)">Delete</button>' +
+                    '<button class="btn btn-info btn-sm ms-1" onclick="attachMedicine(' +
+                    diagnosis.id +
+                    ',event)">Attach Medicine</button>' +
+                    '<button class="btn btn-info btn-sm ms-1" onclick="attachPatientInstruction(' +
+                    diagnosis.id +
+                    ',event)">Attach Patient Instruction</button>',
+                ])
+                .draw();
+            });
+            common.refreshTablePaging();
+          })
+          .catch((error) => {
+            $.toast({
+              heading: "Error",
+              text: "Error fetching data:",
+              showHideTransition: "fade",
+              icon: "error",
+              position: "top-right",
+            });
+          });
+
+        $("#btnAddDiagnosisModal").on("click", function () {
+          $("#addEditModel").data("id", 0);
+          $("#addEditModel").load("views/popup/edit-diagnosis.html");
+        });
+      });
+
+      function deleteDiagnosis(id, event) {
+        event.preventDefault();
+        window.electronAPI.deleteDiagnosisById(id);
+        common.showDeletedSuccessfullyMessage();
+        loadPageContent(
+          "diagnosis",
+          "diagnosisTable",
+          $("#diagnosisTable").DataTable().page()
+        );
+      }
+
+      function openEditDiagnosis(id, event) {
+        event.preventDefault();
+        $("#addEditModel").load("views/popup/edit-diagnosis.html", function () {
+          // After loading, pass the id dynamically
+          $("#addEditModel").data("id", id);
+        });
+      }
+
+      function attachMedicine(id, event) {
+        event.preventDefault();
+        $("#addEditModel").load(
+          "views/popup/edit-attach-medicine.html",
+          function () {
+            // After loading, pass the id dynamically
+            $("#addEditModel").data("id", id);
+          }
+        );
+      }
+      function attachPatientInstruction(id, event) {
+        event.preventDefault();
+        $("#addEditModel").load(
+          "views/popup/edit-attach-patient-instruction.html",
+          function () {
+            // After loading, pass the id dynamically
+            $("#addEditModel").data("id", id);
+          }
+        );
+      }
+    </script>
+  </body>
+</html>

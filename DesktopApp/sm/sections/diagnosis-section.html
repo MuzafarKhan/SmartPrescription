@@ -1,0 +1,229 @@
+<div>
+  <div>
+    Diagnosis:
+    <div id="diagnosisList" class="form-control"></div>
+  </div>
+  <div class="mt-1">
+    Investigation:
+    <div class="row">
+      <div class="col-6">
+        <div id="investigationList" class="form-control"></div>
+      </div>
+      <div class="col-6">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="More Detail"
+          id="txtinvestigationMoreDetail"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="mt-1">
+    Plan:
+    <div id="planList" class="form-control"></div>
+  </div>
+</div>
+
+<style>
+  .ms-res-ctn {
+    z-index: 1050 !important;
+    position: absolute !important;
+  }
+
+  .form-control {
+    overflow: visible;
+  }
+</style>
+
+<script>
+  $(document).ready(function () {
+    let diagnosisData = {};
+
+    function init() {
+      loaddiagnosis();
+      loadInvestigation();
+      loadPlan();
+    }
+
+    async function loaddiagnosis() {
+      try {
+        const diagnosisListData = await window.electronAPI.getDiagnosis();
+        const diagnosisSuggest = $("#diagnosisList").magicSuggest({
+          data: diagnosisListData,
+          placeholder: "Type or select Diagnose",
+          maxSelection: 5,
+        });
+
+        // Add event listener for selection change
+        $(diagnosisSuggest).on("selectionchange", function () {
+          const selectedDiagnoses = diagnosisSuggest.getSelection();
+          if (selectedDiagnoses && selectedDiagnoses.length > 0) {
+            const diagnosisIds = selectedDiagnoses
+              .map((diagnosis) => diagnosis.id)
+              .join(",");
+            handleDiagnosisSelection(diagnosisIds);
+          } else {
+            $("#medicineContainer .medicine-row").remove();
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching diagnosis:", error);
+      }
+    }
+
+    async function handleDiagnosisSelection(diagnosisIds) {
+      await getAttachMedicine(diagnosisIds);
+      await getAttachPatientInstruction(diagnosisIds);
+    }
+
+    async function getAttachMedicine(diagnosisIds) {
+      if (diagnosisIds) {
+        try {
+          // Fetch the medicines associated with the selected diagnoses IDs
+          const result =
+            await window.electronAPI.getAttachMedicineByDiagnosisIds(
+              diagnosisIds
+            );
+
+          if (result && result.length > 0) {
+            // Clear existing rows before populating new data
+            $("#medicineContainer .medicine-row").remove();
+
+            result.forEach((medicine, index) => {
+              // For each medicine, either populate an existing row or add a new row
+              if (index === 0) {
+                populateMedicineRow(medicine); // Populate the first row
+              } else {
+                const newRowHtml = common.getMedicineRow(); // Create a new row
+                $("#medicineContainer tbody").append(newRowHtml);
+                populateMedicineRow(
+                  medicine,
+                  $("#medicineContainer .medicine-row").last()
+                ); // Populate the new row
+              }
+            });
+          }
+        } catch (error) {
+          $.toast({
+            heading: "Error",
+            text: error,
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        }
+      }
+    }
+    function populateMedicineRow(medicine, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getMedicineRow(); // Create a new row
+        $("#medicineContainer tbody").append(newRowHtml); // Append to the container
+        row = $("#medicineContainer .medicine-row").last(); // Select the newly added row
+      }
+
+      // Populate the row with the medicine data
+      row.find(".medicine-input").val(medicine.medicinename);
+      row.find("[id^='medicineType']").val(medicine.medicinetype);
+      row.find("[id^='quantity']").val(medicine.quantity);
+      row.find("[id^='inlineMorning']").prop("checked", medicine.morning);
+      row.find("[id^='inlineAfternoon']").prop("checked", medicine.afternoon);
+      row.find("[id^='inlineNight']").prop("checked", medicine.night);
+      row.find("[id^='durationnumber']").val(medicine.durationnumber);
+      row.find("[id^='slctDuration']").val(medicine.duration);
+      row
+        .find("[id^='beforeMealCheckChecked']")
+        .prop("checked", medicine.beforeMeal);
+      row.find("[id^='moredetail']").val(medicine.moredetail);
+    }
+
+    async function getAttachPatientInstruction(diagnosisIds) {
+      if (diagnosisIds) {
+        try {
+          // Fetch the medicines associated with the selected diagnoses IDs
+          const result =
+            await window.electronAPI.getAttachPatientInstructionByDiagnosisIds(
+              diagnosisIds
+            );
+
+          if (result && result.length > 0) {
+            // Clear existing rows before populating new data
+            $(
+              "#patient-instructionContainer .patient-instruction-row"
+            ).remove();
+
+            result.forEach((medicine, index) => {
+              // For each medicine, either populate an existing row or add a new row
+              if (index === 0) {
+                populatePatientInstructionRow(medicine); // Populate the first row
+              } else {
+                const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+                $("#patient-instructionContainer tbody").append(newRowHtml);
+                populatePatientInstructionRow(
+                  medicine,
+                  $(
+                    "#patient-instructionContainer .patient-instruction-row"
+                  ).last()
+                ); // Populate the new row
+              }
+            });
+          }
+        } catch (error) {
+          $.toast({
+            heading: "Error",
+            text: error,
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        }
+      }
+    }
+    // Function to populate a medicine row with data
+    function populatePatientInstructionRow(patientinstruction, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+        $("#patient-instructionContainer tbody").append(newRowHtml); // Append to the container
+        row = $(
+          "#patient-instructionContainer .patient-instruction-row"
+        ).last(); // Select the newly added row
+      }
+
+      // Populate the row with the patient-instruction data
+      row.find(".patient-instruction-input").val(patientinstruction.title);
+      row.find("[id^='correctwayText']").val(patientinstruction.correctway);
+      row.find("[id^='incorrectwayText']").val(patientinstruction.incorrectway);
+    }
+
+    async function loadInvestigation() {
+      try {
+        const investigationListData =
+          await window.electronAPI.getInvestigation();
+        $("#investigationList").magicSuggest({
+          data: investigationListData,
+          placeholder: "Type or select Investigation",
+          maxSelection: 1,
+        });
+      } catch (error) {
+        console.error("Error fetching investigation", error);
+      }
+    }
+
+    async function loadPlan() {
+      try {
+        const planListData = await window.electronAPI.getPlan();
+        $("#planList").magicSuggest({
+          data: planListData,
+          placeholder: "Type or select Plan",
+          maxSelection: 1,
+        });
+      } catch (error) {
+        console.error("Error fetching plan:", error);
+      }
+    }
+
+    init();
+  });
+</script>

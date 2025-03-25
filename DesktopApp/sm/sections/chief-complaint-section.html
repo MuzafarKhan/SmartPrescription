@@ -1,0 +1,165 @@
+<div>
+  <!-- Complaints Table -->
+  <table id="chiefComplaintsContainer" class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Complaint</th>
+        <th>Duration</th>
+        <th>Unit</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Complaint Row Template -->
+      <tr class="complaint-row">
+        <!-- Complaint Input -->
+        <td>
+          <input
+            type="text"
+            class="form-control complaint-input"
+            placeholder="Enter Complaint"
+            list="complaintSuggestions"
+          />
+          <!-- Suggestions -->
+          <datalist id="complaintSuggestions"></datalist>
+        </td>
+
+        <!-- Duration Dropdown -->
+        <td>
+          <input
+            type="number"
+            class="form-control duration-select"
+            placeholder="Enter Complaint"
+            value="1"
+          />
+        </td>
+
+        <!-- Unit Dropdown -->
+        <td>
+          <select class="form-select unit-select">
+            <option value="" selected>Select Unit</option>
+            <option value="day">day</option>
+            <option value="week">week</option>
+            <option value="month">month</option>
+            <option value="year">year</option>
+          </select>
+        </td>
+
+        <!-- Remove Button -->
+        <td>
+          <button type="button" class="btn btn-danger remove-complaint">
+            Remove
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Button to add new complaint -->
+  <div class="d-flex justify-content-end">
+    <!-- <button id="addNewComplaintBtn" class="btn btn-primary ms-1">
+      Add New Complaint
+    </button> -->
+    <button id="addComplaintBtn" class="btn btn-primary ms-1">
+      Add Complaint
+    </button>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    let complaintsData = {};
+
+    // Fetch complaints and populate datalist
+    async function init() {
+      try {
+        const complaints = await window.electronAPI.getChiefComplaint();
+        const dataList = $("#complaintSuggestions");
+        dataList.empty();
+
+        complaints.forEach((complaint) => {
+          complaintsData[complaint.complaint] = complaint;
+          dataList.append(`<option value="${complaint.complaint}"></option>`);
+        });
+      } catch (error) {
+        console.error("Error fetching complaints:", error);
+      }
+    }
+
+    // Add new complaint row
+    function addComplaintRow() {
+      const rowCount = $("#chiefComplaintsContainer .complaint-row").length;
+      const newRow = $(
+        "#chiefComplaintsContainer .complaint-row:first"
+      ).clone();
+
+      // Set unique IDs for input, select, and remove button
+      newRow.find("input").attr("id", `complaint-input-${rowCount}`);
+      newRow
+        .find("iput.duration-select")
+        .attr("id", `duration-select-${rowCount}`);
+      newRow.find("select.unit-select").attr("id", `unit-select-${rowCount}`);
+      newRow
+        .find("button.remove-complaint")
+        .attr("id", `remove-complaint-${rowCount}`);
+
+      // Clear the values of the new row
+      newRow
+        .find("input.duration-select")
+        .val(common.getSettings()[0].defaultcomplaintduration);
+      newRow.find("select").val(common.getSettings()[0].defaultcomplaintunit);
+
+      // Append the new row to the table body
+      $("#chiefComplaintsContainer tbody").append(newRow);
+    }
+
+    // Remove complaint row
+    $(document)
+      .off("click", ".remove-complaint")
+      .on("click", ".remove-complaint", function () {
+        if ($("#chiefComplaintsContainer .complaint-row").length > 1) {
+          $(this).closest("tr").remove();
+        } else {
+          $.toast({
+            heading: "Error",
+            text: "At least one complaint must be present!",
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        }
+      });
+
+    // Add new row button
+    $("#addComplaintBtn").on("click", function (event) {
+      event.preventDefault();
+      addComplaintRow();
+    });
+
+    // Add new row button
+    $("#addNewComplaintBtn").on("click", function (event) {
+      event.preventDefault();
+      $("#addEditModel").data("id", 0);
+      $("#addEditModel").load("views/popup/edit-chief-complaint.html");
+    });
+
+    // Get all complaints with durations
+    function getComplaints() {
+      const complaints = [];
+      $(".complaint-row").each(function () {
+        const complaint = $(this).find(".complaint-input").val();
+        const duration = $(this).find(".duration-select").val();
+        const unit = $(this).find(".unit-select").val();
+        complaints.push({ complaint, duration, unit });
+      });
+      return complaints;
+    }
+
+    // Example: Log complaints on double-click
+    $("#addComplaintBtn").on("dblclick", function () {
+      console.log(getComplaints());
+    });
+
+    init();
+  });
+</script>

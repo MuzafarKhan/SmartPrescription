@@ -1,0 +1,123 @@
+<div
+  class="modal fade"
+  id="addComplaintModal"
+  tabindex="-1"
+  aria-labelledby="addComplaintModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <label id="hdnId" class="d-none"></label>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addComplaintModalLabel">
+          Add New Complaint
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="addComplaintForm">
+          <div class="mb-3">
+            <label for="complaintText" class="form-label">Complaint</label>
+            <input
+              type="text"
+              class="form-control"
+              id="complaintText"
+              placeholder="Enter complaint"
+              required
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="saveComplaint">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#addComplaintModal").modal("show");
+    $("#saveComplaint").on("click", function () {
+      if (complaintValidated()) {
+        saveComplaints();
+      }
+    });
+
+    async function saveComplaints() {
+      var id = $("#hdnId").html();
+      var complaintText = $("#complaintText").val().trim();
+
+      if (id) {
+        updateComplaints(id, complaintText);
+      } else {
+        addComplaint(complaintText);
+      }
+      $("#addComplaintModal").modal("hide");
+      loadPageContent(
+        "chief-complaint",
+        "complaintsTable",
+        $("#complaintsTable").DataTable().page()
+      );
+    }
+    async function updateComplaints(id, complaintText) {
+      const results = await window.electronAPI.updateChiefComplaint(
+        id,
+        complaintText
+      );
+      common.showUpdatedSuccessfullyMessage();
+    }
+
+    async function addComplaint(complaintText) {
+      const results = await window.electronAPI.addChiefComplaint(complaintText);
+      common.showSavedSuccessfullyMessage();
+    }
+
+    function complaintValidated() {
+      if (!$("#complaintText").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "Complaint Text is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+
+      return true;
+    }
+
+    function init(id) {
+      $("#hdnId").html(id);
+      window.electronAPI
+        .getChiefComplaintById(id)
+        .then((result) => {
+          $("#complaintText").val(result[0].Name);
+        })
+        .catch((error) => {
+          $.toast({
+            heading: "Error",
+            text: "Error fetching data:",
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        });
+    }
+    const id = $("#addEditModel").data("id");
+    if (id) {
+      init(id);
+    }
+  });
+</script>

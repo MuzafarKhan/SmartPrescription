@@ -1,0 +1,122 @@
+<div
+  class="modal fade"
+  id="addInvestigationModal"
+  tabindex="-1"
+  aria-labelledby="addInvestigationModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <label id="hdnId" class="d-none"></label>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addInvestigationModalLabel">
+          Add New Investigation
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="addInvestigationForm">
+          <div class="mb-3">
+            <label for="investigationText" class="form-label"
+              >Investigation</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="investigationText"
+              placeholder="Enter Investigation"
+              required
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="saveInvestigation">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#addInvestigationModal").modal("show");
+    $("#saveInvestigation").on("click", function () {
+      if (investigationValidated()) {
+        saveInvestigation();
+      }
+    });
+
+    async function saveInvestigation() {
+      var id = $("#hdnId").html();
+      var investigationText = $("#investigationText").val().trim();
+
+      if (id) {
+        updateInvestigation(id, investigationText);
+      } else {
+        addInvestigation(investigationText);
+      }
+      $("#addInvestigationModal").modal("hide");
+      loadPageContent(
+        "investigation",
+        "investigationTable",
+        $("#investigationTable").DataTable().page()
+      );
+    }
+    async function updateInvestigation(id, name) {
+      const results = await window.electronAPI.updateInvestigation(id, name);
+      common.showUpdatedSuccessfullyMessage();
+    }
+
+    async function addInvestigation(name) {
+      const results = await window.electronAPI.addInvestigation(name);
+      common.showSavedSuccessfullyMessage();
+    }
+
+    function investigationValidated() {
+      if (!$("#investigationText").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "Investigation Text is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+
+      return true;
+    }
+
+    function init(id) {
+      $("#hdnId").html(id);
+      window.electronAPI
+        .getInvestigationById(id)
+        .then((result) => {
+          $("#investigationText").val(result[0].name);
+        })
+        .catch((error) => {
+          $.toast({
+            heading: "Error",
+            text: "Error fetching data:",
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        });
+    }
+    const id = $("#addEditModel").data("id");
+    if (id) {
+      init(id);
+    }
+  });
+</script>

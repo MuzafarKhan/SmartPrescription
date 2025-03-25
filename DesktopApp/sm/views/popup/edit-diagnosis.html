@@ -1,0 +1,120 @@
+<div
+  class="modal fade"
+  id="addDiagnosisModal"
+  tabindex="-1"
+  aria-labelledby="addDiagnosisModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <label id="hdnId" class="d-none"></label>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addDiagnosisModalLabel">
+          Add New Diagnosis
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="addDiagnosisForm">
+          <div class="mb-3">
+            <label for="diagnosisText" class="form-label">Diagnosis</label>
+            <input
+              type="text"
+              class="form-control"
+              id="diagnosisText"
+              placeholder="Enter Diagnosis"
+              required
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="saveDiagnosis">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#addDiagnosisModal").modal("show");
+    $("#saveDiagnosis").on("click", function () {
+      if (diagnosisValidated()) {
+        saveDiagnosis();
+      }
+    });
+
+    async function saveDiagnosis() {
+      var id = $("#hdnId").html();
+      var diagnosisText = $("#diagnosisText").val().trim();
+
+      if (id) {
+        updateDiagnosis(id, diagnosisText);
+      } else {
+        addDiagnosis(diagnosisText);
+      }
+      $("#addDiagnosisModal").modal("hide");
+      loadPageContent(
+        "diagnosis",
+        "diagnosisTable",
+        $("#diagnosisTable").DataTable().page()
+      );
+    }
+    async function updateDiagnosis(id, name) {
+      const results = await window.electronAPI.updateDiagnosis(id, name);
+      common.showUpdatedSuccessfullyMessage();
+    }
+
+    async function addDiagnosis(name) {
+      const results = await window.electronAPI.addDiagnosis(name);
+      common.showSavedSuccessfullyMessage();
+    }
+
+    function diagnosisValidated() {
+      if (!$("#diagnosisText").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "Diagnosis Text is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+
+      return true;
+    }
+
+    function init(id) {
+      $("#hdnId").html(id);
+      window.electronAPI
+        .getDiagnosisById(id)
+        .then((result) => {
+          $("#diagnosisText").val(result[0].name);
+        })
+        .catch((error) => {
+          $.toast({
+            heading: "Error",
+            text: "Error fetching data:",
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        });
+    }
+    const id = $("#addEditModel").data("id");
+    if (id) {
+      init(id);
+    }
+  });
+</script>

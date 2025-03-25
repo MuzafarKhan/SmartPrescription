@@ -1,0 +1,143 @@
+<div>
+  <table id="rehabilitationAidsContainer" class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>More Details</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Complaint Row Template -->
+      <tr class="rehabilitation-aids-row">
+        <!-- Complaint Input -->
+        <td>
+          <input
+            type="text"
+            class="form-control rehabilitation-aids-input"
+            id="rehabilitation-aids-input"
+            placeholder="Enter Complaint"
+            list="rehabilitation-aidsSuggestions"
+          />
+          <!-- Suggestions -->
+          <datalist id="rehabilitation-aidsSuggestions"></datalist>
+        </td>
+
+        <td>
+          <input
+            type="text"
+            class="form-control moredetail-input"
+            id="moredetail"
+            placeholder="Enter More Detail"
+          />
+        </td>
+
+        <!-- Remove Button -->
+        <td>
+          <button
+            type="button"
+            class="btn btn-danger remove-rehabilitation-aids"
+          >
+            Remove
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Button to add new rehabilitation-aids -->
+  <div class="d-flex justify-content-end">
+    <button id="addRehabilitationAidsBtn" class="btn btn-primary mt-1">
+      Add Rehabilitation Aids
+    </button>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    let rehabilitationaidsData = {};
+
+    // Fetch rehabilitation aids and populate datalist
+    async function init() {
+      try {
+        const rehabilitationaids =
+          await window.electronAPI.getRehabilitationAids();
+        const dataList = $("#rehabilitation-aidsSuggestions");
+        dataList.empty();
+
+        rehabilitationaids.forEach((rehabilitationaid) => {
+          rehabilitationaidsData[rehabilitationaid.name] = rehabilitationaid;
+          dataList.append(
+            `<option value="${rehabilitationaid.name}"></option>`
+          );
+        });
+      } catch (error) {
+        console.error("Error fetching rehabilitation aids:", error);
+      }
+    }
+
+    // Add new rehabilitationaids row
+    function addRehabilitationAidsRow() {
+      const newRow = $(
+        "#rehabilitationAidsContainer .rehabilitation-aids-row:first"
+      ).clone();
+      const rowIndex = $(
+        "#rehabilitationAidsContainer .rehabilitation-aids-row"
+      ).length;
+      newRow.find("input").val(""); // Clear input values
+
+      // Update dynamic IDs for the new row
+      newRow
+        .find(".rehabilitation-aids-input")
+        .attr("id", `rehabilitation-aids-input-${rowIndex}`);
+      newRow.find(".moredetail-input").attr("id", `moredetail-${rowIndex}`);
+
+      // Append the new row
+      $("#rehabilitationAidsContainer tbody").append(newRow);
+    }
+
+    // Remove rehabilitationaids row
+    $(document)
+      .off("click", ".remove-rehabilitation-aids")
+      .on("click", ".remove-rehabilitation-aids", function () {
+        if (
+          $("#rehabilitationAidsContainer .rehabilitation-aids-row").length > 1
+        ) {
+          $(this).closest("tr").remove();
+        } else {
+          const selectedRehabilitationAids = $(this).val();
+          const rehabilitationRow = $(this).closest("tr");
+
+          rehabilitationRow
+            .find("[id^='moredetail']") // Find elements whose ID starts with "moredetail"
+            .val(""); // Set more details
+          rehabilitationRow
+            .find("[id^='rehabilitation-aids-input']") // Find elements whose ID starts with "moredetail"
+            .val(""); // Set more details
+        }
+      });
+
+    // Add new row button
+    $("#addRehabilitationAidsBtn").on("click", function (event) {
+      event.preventDefault();
+      addRehabilitationAidsRow();
+    });
+
+    $(document).on("input", ".rehabilitation-aids-input", function () {
+      const selectedRehabilitationAids = $(this).val();
+      const rehabilitationRow = $(this).closest("tr");
+
+      if (rehabilitationaidsData[selectedRehabilitationAids]) {
+        const rehabilitationAidDetails =
+          rehabilitationaidsData[selectedRehabilitationAids];
+
+        // Find elements with IDs that start with "moredetail" and update the value
+        rehabilitationRow
+          .find("[id^='moredetail']") // Find elements whose ID starts with "moredetail"
+          .val(rehabilitationAidDetails.moredetail); // Set more details
+      }
+    });
+
+    init();
+  });
+</script>

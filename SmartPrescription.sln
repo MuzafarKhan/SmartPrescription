@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35013.160
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DesktopApp", "DesktopApp", "{7C57642F-9178-450D-B9F6-6DA12627BADE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CloudApp", "CloudApp", "{44DA4646-E664-4FF0-8650-CD69D45957CD}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "sm", "DesktopApp\sm\", "{CEEAC9AD-0AAF-43A8-8AD3-3C4940AD0F28}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_3563"
+		Debug.AspNetCompiler.PhysicalPath = "DesktopApp\sm\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_3563\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_3563"
+		Release.AspNetCompiler.PhysicalPath = "DesktopApp\sm\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_3563\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "3563"
+		SlnRelativePath = "DesktopApp\sm\"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CEEAC9AD-0AAF-43A8-8AD3-3C4940AD0F28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEEAC9AD-0AAF-43A8-8AD3-3C4940AD0F28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CEEAC9AD-0AAF-43A8-8AD3-3C4940AD0F28} = {7C57642F-9178-450D-B9F6-6DA12627BADE}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AA1B9F6A-4871-4A32-947F-8C5DED2FABA8}
+	EndGlobalSection
+EndGlobal

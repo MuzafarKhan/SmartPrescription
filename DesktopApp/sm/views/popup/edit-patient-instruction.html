@@ -1,0 +1,197 @@
+<div
+  class="modal fade"
+  id="addPatientInstructionModal"
+  tabindex="-1"
+  aria-labelledby="addPatientInstructionModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <label id="hdnId" class="d-none"></label>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPatientInstructionModalLabel">
+          Add New Patient Instruction
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="addPatientInstructionForm">
+          <div class="mb-3">
+            <label for="patientinstructionText" class="form-label">Title</label>
+            <input
+              type="text"
+              class="form-control"
+              id="patientinstructionTitle"
+              placeholder="Enter Patient Instruction Title"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="moredetailText" class="form-label">Correct Way</label>
+            <input
+              type="text"
+              class="form-control"
+              id="correctwayText"
+              placeholder="Enter Correct Way"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="moredetailText" class="form-label"
+              >In Correct Way</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="incorrectwayText"
+              placeholder="Enter In Correct Way"
+              required
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="savePatientInstruction"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#addPatientInstructionModal").modal("show");
+    $("#savePatientInstruction").on("click", function () {
+      if (patientinstructionValidated()) {
+        savePatientInstruction();
+      }
+    });
+
+    async function savePatientInstruction() {
+      var id = $("#hdnId").html();
+      var patientinstructionTitle = $("#patientinstructionTitle").val().trim();
+      var correctwayText = $("#correctwayText").val().trim();
+      var incorrectwayText = $("#incorrectwayText").val().trim();
+
+      if (id) {
+        updatePatientInstruction(
+          id,
+          patientinstructionTitle,
+          correctwayText,
+          incorrectwayText
+        );
+      } else {
+        addPatientInstruction(
+          patientinstructionTitle,
+          correctwayText,
+          incorrectwayText
+        );
+      }
+      $("#addPatientInstructionModal").modal("hide");
+      loadPageContent(
+        "patient-instruction",
+        "patientinstructionTable",
+        $("#patientinstructionTable").DataTable().page()
+      );
+    }
+    async function updatePatientInstruction(
+      id,
+      patientinstructionTitle,
+      correctwayText,
+      incorrectwayText
+    ) {
+      const results = await window.electronAPI.updatePatientInstruction(
+        id,
+        patientinstructionTitle,
+        correctwayText,
+        incorrectwayText
+      );
+      common.showUpdatedSuccessfullyMessage();
+    }
+
+    async function addPatientInstruction(
+      patientinstructionTitle,
+      correctwayText,
+      incorrectwayText
+    ) {
+      const results = await window.electronAPI.addPatientInstruction(
+        patientinstructionTitle,
+        correctwayText,
+        incorrectwayText
+      );
+      common.showSavedSuccessfullyMessage();
+    }
+
+    function patientinstructionValidated() {
+      if (!$("#patientinstructionTitle").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "Patient Instruction Title is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+      if (!$("#correctwayText").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "Correct Way is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+      if (!$("#incorrectwayText").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "In Correct Way is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+
+      return true;
+    }
+
+    function init(id) {
+      $("#hdnId").html(id);
+      window.electronAPI
+        .getPatientInstructionById(id)
+        .then((result) => {
+          $("#patientinstructionTitle").val(result[0].title);
+          $("#correctwayText").val(result[0].correctway);
+          $("#incorrectwayText").val(result[0].incorrectway);
+        })
+        .catch((error) => {
+          $.toast({
+            heading: "Error",
+            text: error,
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        });
+    }
+    const id = $("#addEditModel").data("id");
+    if (id) {
+      init(id);
+    }
+  });
+</script>

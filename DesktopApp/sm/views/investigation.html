@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Investigation</title>
+  </head>
+
+  <body>
+    <div class="form-container">
+      <div class="d-flex justify-content-end">
+        <button id="btnAddInvestigationModal" class="btn btn-primary mt-1">
+          Add New Investigation
+        </button>
+      </div>
+      <form>
+        <div class="row m-1">
+          <table id="investigationTable" class="display" style="width: 100%">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        // Initialize DataTable
+        const table = $("#investigationTable").DataTable();
+
+        // Fetch and populate table
+        window.electronAPI
+          .getInvestigation()
+          .then((investigations) => {
+            table.clear();
+            investigations.forEach((investigation) => {
+              table.row
+                .add([
+                  investigation.id,
+                  investigation.name,
+                  '<button class="btn btn-warning btn-sm" onclick="openEditInvestigation(' +
+                    investigation.id +
+                    ',event)">Update</button>' +
+                    '<button class="btn btn-danger btn-sm delete-row ms-1" onclick="deleteInvestigation(' +
+                    investigation.id +
+                    ',event)">Delete</button>',
+                ])
+                .draw();
+            });
+            common.refreshTablePaging();
+          })
+          .catch((error) => {
+            $.toast({
+              heading: "Error",
+              text: "Error fetching data:",
+              showHideTransition: "fade",
+              icon: "error",
+              position: "top-right",
+            });
+          });
+
+        $("#btnAddInvestigationModal").on("click", function () {
+          $("#addEditModel").data("id", 0);
+          $("#addEditModel").load("views/popup/edit-investigation.html");
+        });
+      });
+
+      function deleteInvestigation(id, event) {
+        event.preventDefault();
+        window.electronAPI.deleteInvestigationById(id);
+        common.showDeletedSuccessfullyMessage();
+        loadPageContent(
+          "investigation",
+          "investigationTable",
+          $("#investigationTable").DataTable().page()
+        );
+      }
+
+      function openEditInvestigation(id, event) {
+        event.preventDefault();
+        $("#addEditModel").load(
+          "views/popup/edit-investigation.html",
+          function () {
+            // After loading, pass the id dynamically
+            $("#addEditModel").data("id", id);
+          }
+        );
+      }
+    </script>
+  </body>
+</html>

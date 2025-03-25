@@ -1,0 +1,114 @@
+<div
+  class="modal fade"
+  id="addPlanModal"
+  tabindex="-1"
+  aria-labelledby="addPlanModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <label id="hdnId" class="d-none"></label>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPlanModalLabel">Add New Plan</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="addPlanForm">
+          <div class="mb-3">
+            <label for="planText" class="form-label">Plan</label>
+            <input
+              type="text"
+              class="form-control"
+              id="planText"
+              placeholder="Enter Plan"
+              required
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="savePlan">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#addPlanModal").modal("show");
+    $("#savePlan").on("click", function () {
+      if (planValidated()) {
+        savePlan();
+      }
+    });
+
+    async function savePlan() {
+      var id = $("#hdnId").html();
+      var planText = $("#planText").val().trim();
+
+      if (id) {
+        updatePlan(id, planText);
+      } else {
+        addPlan(planText);
+      }
+      $("#addPlanModal").modal("hide");
+      loadPageContent("plan", "planTable", $("#planTable").DataTable().page());
+    }
+    async function updatePlan(id, name) {
+      const results = await window.electronAPI.updatePlan(id, name);
+      common.showUpdatedSuccessfullyMessage();
+    }
+
+    async function addPlan(name) {
+      const results = await window.electronAPI.addPlan(name);
+      common.showSavedSuccessfullyMessage();
+    }
+
+    function planValidated() {
+      if (!$("#planText").val().trim()) {
+        $.toast({
+          heading: "Error",
+          text: "Plan Text is required",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
+
+      return true;
+    }
+
+    function init(id) {
+      $("#hdnId").html(id);
+      window.electronAPI
+        .getPlanById(id)
+        .then((result) => {
+          $("#planText").val(result[0].name);
+        })
+        .catch((error) => {
+          $.toast({
+            heading: "Error",
+            text: "Error fetching data:",
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        });
+    }
+    const id = $("#addEditModel").data("id");
+    if (id) {
+      init(id);
+    }
+  });
+</script>

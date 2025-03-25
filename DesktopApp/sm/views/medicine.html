@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Medicine</title>
+
+    <style>
+      /* Define the font using @font-face */
+      @font-face {
+        font-family: "NotoNastaliqUrdu-VariableFont_wght";
+        src: url("../fonts/Noto_Nastaliq_Urdu/NotoNastaliqUrdu-VariableFont_wght.ttf")
+          format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      /* Apply the font */
+      .nastaleeq {
+        font-family: "NotoNastaliqUrdu-VariableFont_wght", cursive;
+        font-size: 1.5rem;
+        direction: rtl; /* Right-to-left for Urdu text */
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="form-container">
+      <div class="d-flex justify-content-end">
+        <button id="btnAddMedicineModal" class="btn btn-primary mt-1">
+          Add Medicine
+        </button>
+      </div>
+      <form>
+        <div class="row m-1">
+          <table id="medicineTable" class="display" style="width: 100%">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Medicine</th>
+                <th>Timing</th>
+                <th>Quantity</th>
+                <th>Duration</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        // Initialize DataTable
+        const table = $("#medicineTable").DataTable();
+
+        // Fetch and populate table
+        window.electronAPI
+          .getMedicine()
+          .then((medicine) => {
+            table.clear();
+            medicine.forEach((medicine) => {
+              let nightText = table.row
+                .add([
+                  medicine.id,
+                  medicine.medicinename,
+                  getTimingInEnglish(medicine),
+                  medicine.quantity,
+                  medicine.durationnumber + " " + medicine.duration,
+                  '<button class="btn btn-warning btn-sm" onclick="openEditMedicine(' +
+                    medicine.id +
+                    ',event)">Update</button>' +
+                    '<button class="btn btn-danger btn-sm delete-row ms-1" onclick="deleteMedicine(' +
+                    medicine.id +
+                    ',event)">Delete</button>',
+                ])
+                .draw();
+            });
+            common.refreshTablePaging();
+          })
+          .catch((error) => {
+            $.toast({
+              heading: "Error",
+              text: "Error fetching data:",
+              showHideTransition: "fade",
+              icon: "error",
+              position: "top-right",
+            });
+          });
+
+        $("#btnAddMedicineModal").on("click", function () {
+          $("#addEditModel").data("id", 0);
+          $("#addEditModel").load("views/popup/edit-medicine.html");
+        });
+      });
+      function getTimingInEnglish(medicine) {
+        var timing = "";
+
+        if (medicine.morning === 1) {
+          timing += "<span>Morning</span>";
+        }
+
+        if (medicine.afternoon === 1) {
+          // Append comma if timing is not empty
+          if (timing) timing += " , ";
+          timing += "<span>Afternoon</span>";
+        }
+
+        if (medicine.night === 1) {
+          // Append comma if timing is not empty
+          if (timing) timing += " , ";
+          timing += "<span>Afternoon</span>";
+        }
+
+        if (medicine.beforemeal) {
+          timing += '<span style="font-size:12px;">(Before Meals)</span>';
+        }
+
+        return timing;
+      }
+
+      function getTimingInUrdu(medicine) {
+        var timing = "";
+
+        if (medicine.morning === 1) {
+          timing += '<span class="nastaleeq">صبح</span>';
+        }
+
+        if (medicine.afternoon === 1) {
+          // Append dash if timing is not empty
+          if (timing) timing += " , ";
+          timing += '<span class="nastaleeq">دوپہر</span>';
+        }
+
+        if (medicine.night === 1) {
+          // Append dash if timing is not empty
+          if (timing) timing += " , ";
+          timing += '<span class="nastaleeq">شام</span>';
+        }
+
+        if (medicine.beforemeal) {
+          timing +=
+            '<span class="nastaleeq" style="font-size:12px;">(کھانے سے پہلے)</span>';
+        }
+
+        return timing;
+      }
+
+      function deleteMedicine(id, event) {
+        event.preventDefault();
+        window.electronAPI.deleteMedicineById(id);
+        common.showDeletedSuccessfullyMessage();
+        loadPageContent(
+          "medicine",
+          "medicineTable",
+          $("#medicineTable").DataTable().page()
+        );
+      }
+
+      function openEditMedicine(id, event) {
+        event.preventDefault();
+        $("#addEditModel").load("views/popup/edit-medicine.html", function () {
+          // After loading, pass the id dynamically
+          $("#addEditModel").data("id", id);
+        });
+      }
+    </script>
+  </body>
+</html>
