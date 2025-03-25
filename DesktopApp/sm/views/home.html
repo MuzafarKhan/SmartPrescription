@@ -28,8 +28,8 @@
                   </div>
                   <div class="col-4">
                     <input
-                      type="date"
-                      class="form-control"
+                      type="text"
+                      class="form-control date"
                       id="txtDate"
                       name="date"
                     />
@@ -432,8 +432,14 @@
     const defaultcomplaintduration =
       common.getSettings()[0].defaultcomplaintduration;
 
+    $("#txtDate").datepicker({
+      dateFormat: "dd/mm/yy", //check change
+      changeMonth: true,
+      changeYear: true,
+    });
+    debugger;
     if (defaultdate) {
-      document.getElementById("txtDate").value = defaultdate;
+      $("#txtDate").datepicker("setDate", defaultdate);
     } else if (defaultday) {
       var addDays = 0;
       if (defaultday.toLowerCase() == "tomorrow") {
@@ -442,8 +448,9 @@
         addDays = -1;
       }
       date.setDate(date.getDate() + addDays);
-      const formattedDate = date.toISOString().split("T")[0];
-      $("#txtDate").val(formattedDate);
+
+      $("#txtDate").datepicker("setDate", date);
+
       $(".duration-select").val(defaultcomplaintduration);
       $(".unit-select").val(defaultcomplaintunit);
     }

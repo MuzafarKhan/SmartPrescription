@@ -28,7 +28,7 @@
                     >Default Date (Patient Detail)</label
                   >
                   <input
-                    type="date"
+                    type="text"
                     class="form-control"
                     id="txtDefaultDate"
                     name="DefaultDate"
@@ -199,7 +199,13 @@
       const setting = common.getSettings();
       debugger;
       if (setting && setting.length > 0) {
-        $("#txtDefaultDate").val(setting[0].defaultdate);
+        $("#txtDefaultDate").datepicker({
+          dateFormat: "dd/mm/yy", //check change
+          changeMonth: true,
+          changeYear: true,
+        });
+        $("#txtDefaultDate").datepicker("setDate", setting[0].defaultdate);
+
         $("#selectDefaultDay").val(setting[0].defaultday);
         $(".default-complaint-unit").val(setting[0].defaultcomplaintunit);
         $("#txtDefaultComplaintDurationSetting").val(
