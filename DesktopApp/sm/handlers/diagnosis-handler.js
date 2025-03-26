@@ -21,7 +21,7 @@ ipcMain.handle("get-diagnosis-by-name", async (event, name) => {
   console.log("Query received:", name);
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT id as Id, name FROM diagnosis WHERE name LIKE ?",
+      "SELECT id as Id, name, nameAlter FROM diagnosis WHERE name LIKE ?",
       [`%${name}%`],
       (err, rows) => {
         if (err) {
@@ -39,7 +39,7 @@ ipcMain.handle("get-diagnosis-by-id", async (event, id) => {
   console.log("Query received:", id);
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT id as Id, name from diagnosis WHERE Id = ?",
+      "SELECT id as Id, name, nameAlter from diagnosis WHERE Id = ?",
       [`${id}`],
       (err, rows) => {
         if (err) {
@@ -53,15 +53,19 @@ ipcMain.handle("get-diagnosis-by-id", async (event, id) => {
   });
 });
 
-ipcMain.handle("add-diagnosis", async (event, name) => {
-  const stmt = db.prepare("INSERT INTO diagnosis (name) VALUES (?)");
-  const result = stmt.run(name);
+ipcMain.handle("add-diagnosis", async (event, name, nameAlter) => {
+  const stmt = db.prepare(
+    "INSERT INTO diagnosis (name,nameAlter) VALUES (?,?)"
+  );
+  const result = stmt.run(name, nameAlter);
   return result.lastInsertRowid;
 });
 
-ipcMain.handle("update-diagnosis", async (event, id, name) => {
-  const stmt = db.prepare("UPDATE diagnosis SET name = ?  WHERE id = ?");
-  const result = stmt.run(name, id);
+ipcMain.handle("update-diagnosis", async (event, id, name, nameAlter) => {
+  const stmt = db.prepare(
+    "UPDATE diagnosis SET name = ?, nameAlter = ?  WHERE id = ?"
+  );
+  const result = stmt.run(name, nameAlter, id);
   return result.changes;
 });
 

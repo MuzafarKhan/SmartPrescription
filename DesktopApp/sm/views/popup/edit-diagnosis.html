@@ -31,6 +31,18 @@
               required
             />
           </div>
+          <div class="mb-3">
+            <label for="diagnosisAlterName" class="form-label"
+              >Diagnosis Alter Name</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="diagnosisAlterText"
+              placeholder="Enter Diagnosis Alter Name"
+              required
+            />
+          </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -57,11 +69,12 @@
     async function saveDiagnosis() {
       var id = $("#hdnId").html();
       var diagnosisText = $("#diagnosisText").val().trim();
+      var diagnosisAlterText = $("#diagnosisAlterText").val().trim();
 
       if (id) {
-        updateDiagnosis(id, diagnosisText);
+        updateDiagnosis(id, diagnosisText, diagnosisAlterText);
       } else {
-        addDiagnosis(diagnosisText);
+        addDiagnosis(diagnosisText, diagnosisAlterText);
       }
       $("#addDiagnosisModal").modal("hide");
       loadPageContent(
@@ -70,13 +83,20 @@
         $("#diagnosisTable").DataTable().page()
       );
     }
-    async function updateDiagnosis(id, name) {
-      const results = await window.electronAPI.updateDiagnosis(id, name);
+    async function updateDiagnosis(id, name, diagnosisAlterText) {
+      const results = await window.electronAPI.updateDiagnosis(
+        id,
+        name,
+        diagnosisAlterText
+      );
       common.showUpdatedSuccessfullyMessage();
     }
 
-    async function addDiagnosis(name) {
-      const results = await window.electronAPI.addDiagnosis(name);
+    async function addDiagnosis(name, diagnosisAlterText) {
+      const results = await window.electronAPI.addDiagnosis(
+        name,
+        diagnosisAlterText
+      );
       common.showSavedSuccessfullyMessage();
     }
 
@@ -101,6 +121,7 @@
         .getDiagnosisById(id)
         .then((result) => {
           $("#diagnosisText").val(result[0].name);
+          $("#diagnosisAlterText").val(result[0].nameAlter);
         })
         .catch((error) => {
           $.toast({

@@ -76,6 +76,15 @@
               >
             </li>
             <li class="nav-item">
+              <a
+                class="nav-link active-nav"
+                data-page="pending-patients"
+                href="#"
+                >Pending Patients</a
+              >
+            </li>
+
+            <li class="nav-item">
               <a class="nav-link" data-page="chief-complaint" href="#"
                 >Chief Complaint</a
               >
@@ -179,6 +188,8 @@
           case "settings":
             $("#content").load("./views/settings.html");
             break;
+          case "pending-patients":
+            $("#content").load("./views/pending-patients.html");
           default:
             $("#content").html("<h1>Page Not Found</h1>");
         }
