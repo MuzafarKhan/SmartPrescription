@@ -121,6 +121,7 @@
                 class="form-control"
                 id="durationnumber"
                 placeholder="1"
+                value="1"
                 required
               />
             </div>
@@ -193,7 +194,7 @@
       var duration = $("#slctDuration").val().trim();
       var medicineType = $("#medicineType").val().trim();
       var injType =
-        $("#medicineType").val().trim() == "INJ"
+        $("#medicineType").val().trim() == "Inj"
           ? $("#injType").val().trim()
           : "";
       var quantity = $("#quantity").val().trim();
@@ -213,7 +214,7 @@
         quantity,
         moreDetails,
       };
-
+      debugger;
       if (id) {
         updateMedicine(id, medicineModel);
       } else {
@@ -295,7 +296,12 @@
           $("#durationnumber").val(result[0].durationnumber);
           $("#duration").val(result[0].duration);
           $("#medicineType").val(result[0].medicinetype);
-          $("#injType").val(result[0].injType);
+          debugger;
+          if (result[0].medicinetype == "Inj") {
+            $("#divinjType").show();
+            $("#injType").val(result[0].injType);
+          }
+
           $("#quantity").val(result[0].quantity);
           $("#moreDetails").val(result[0].moredetail);
         })
