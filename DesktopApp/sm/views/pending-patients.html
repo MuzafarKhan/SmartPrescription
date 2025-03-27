@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Pending Patients</title>
+  </head>
+
+  <body>
+    <div class="form-container">
+      <div class="d-flex justify-content-end">
+        <button id="btnClearPendingPatientsModal" class="btn btn-primary mt-1">
+          Clear All Pending Patients
+        </button>
+      </div>
+      <form>
+        <div class="row m-1">
+          <table id="pendingPatientTable" class="display" style="width: 100%">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        // Initialize DataTable
+        const table = $("#pendingPatientTable").DataTable();
+        const allPatients =
+          JSON.parse(localStorage.getItem("allPatients")) || {};
+
+        table.clear();
+        Object.entries(allPatients).forEach((pendingpatient) => {
+          table.row
+            .add([
+              pendingpatient[1].patientInformation.patientname,
+              pendingpatient[1].patientInformation.patientage,
+              pendingpatient[1].patientInformation.checkupDate,
+              '<button class="btn btn-warning btn-sm" onclick="openEditPendingPatient(' +
+                "'" +
+                pendingpatient[1].patientInformation.patientname +
+                "'" +
+                ',event)">Update</button>' +
+                '<button class="btn btn-danger btn-sm delete-row ms-1" onclick="deletePendingPatient(' +
+                "'" +
+                pendingpatient[1].patientInformation.patientname +
+                "'" +
+                ',event)">Delete</button>',
+            ])
+            .draw();
+        });
+        common.refreshTablePaging();
+      });
+
+      $("#btnClearPendingPatientsModal").click(function () {
+        localStorage.removeItem("allPatients");
+        debugger;
+        common.refreshTablePaging();
+        common.showDeletedSuccessfullyMessage();
+
+        loadPageContent(
+          "pending-patients",
+          "pendingPatientTable",
+          $("#pendingPatientTable").DataTable().page()
+        );
+      });
+
+      function deletePendingPatient(patientName, event) {
+        event.preventDefault();
+        const allPatients =
+          JSON.parse(localStorage.getItem("allPatients")) || {};
+        delete allPatients[patientName];
+        localStorage.setItem("allPatients", JSON.stringify(allPatients));
+        common.showDeletedSuccessfullyMessage();
+        loadPageContent(
+          "pending-patients",
+          "pendingPatientTable",
+          $("#pendingPatientTable").DataTable().page()
+        );
+      }
+
+      function openEditPendingPatient(patientName, event) {
+        event.preventDefault();
+        debugger;
+        const allPatients =
+          JSON.parse(localStorage.getItem("allPatients")) || {};
+
+        $("#content").load("./views/home.html?patientName=" + patientName);
+      }
+    </script>
+  </body>
+</html>

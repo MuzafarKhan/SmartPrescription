@@ -55,7 +55,7 @@ ipcMain.handle("add-medicine", async (event, medicine) => {
     morning,
     afternoon,
     night,
-    beforemeal,
+    isPrintableOnPrescription,
     durationnumber,
     duration,
     medicineType,
@@ -66,16 +66,17 @@ ipcMain.handle("add-medicine", async (event, medicine) => {
 
   return new Promise((resolve, reject) => {
     db.run(
-      "INSERT INTO medicine (medicinename, morning, afternoon, night, beforemeal, durationnumber, duration, medicinetype, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ? ,?, ?)",
+      "INSERT INTO medicine (medicinename, morning, afternoon, night, isPrintableOnPrescription, durationnumber, duration, medicinetype, injType, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)",
       [
         medicineName,
         morning,
         afternoon,
         night,
-        beforemeal,
+        isPrintableOnPrescription,
         durationnumber,
         duration,
         medicineType,
+        injType,
         quantity,
         moreDetails,
       ],
@@ -93,26 +94,28 @@ ipcMain.handle("update-medicine-by-id", (event, id, medicine) => {
     morning,
     afternoon,
     night,
-    beforemeal,
+    isPrintableOnPrescription,
     durationnumber,
     duration,
     medicineType,
+    injType,
     quantity,
     moreDetails,
   } = medicine;
   console.log(medicine);
   return new Promise((resolve, reject) => {
     db.run(
-      "UPDATE medicine SET medicinename = ?, morning = ?, afternoon = ?, night = ?, beforemeal = ?, durationnumber = ?, duration = ?, medicinetype = ?, quantity = ?, moredetail = ? WHERE id = ?",
+      "UPDATE medicine SET medicinename = ?, morning = ?, afternoon = ?, night = ?, isPrintableOnPrescription = ?, durationnumber = ?, duration = ?, medicinetype = ?, injType = ?, quantity = ?, moredetail = ? WHERE id = ?",
       [
         medicineName,
         morning,
         afternoon,
         night,
-        beforemeal,
+        isPrintableOnPrescription,
         durationnumber,
         duration,
         medicineType,
+        injType,
         quantity,
         moreDetails,
         id,

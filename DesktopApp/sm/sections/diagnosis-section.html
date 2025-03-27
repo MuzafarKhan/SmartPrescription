@@ -1,5 +1,5 @@
 <div>
-  <div>
+  <div id="divDiagnosisSection">
     Diagnosis:
     <div id="diagnosisList" class="form-control"></div>
   </div>
@@ -126,6 +126,7 @@
       // Populate the row with the medicine data
       row.find(".medicine-input").val(medicine.medicinename);
       row.find("[id^='medicineType']").val(medicine.medicinetype);
+      row.find("[id^='injType']").val(medicine.injType);
       row.find("[id^='quantity']").val(medicine.quantity);
       row.find("[id^='inlineMorning']").prop("checked", medicine.morning);
       row.find("[id^='inlineAfternoon']").prop("checked", medicine.afternoon);
@@ -133,8 +134,8 @@
       row.find("[id^='durationnumber']").val(medicine.durationnumber);
       row.find("[id^='slctDuration']").val(medicine.duration);
       row
-        .find("[id^='beforeMealCheckChecked']")
-        .prop("checked", medicine.beforeMeal);
+        .find("[id^='isPrintableOnPrescriptionCheckChecked']")
+        .prop("checked", medicine.isPrintableOnPrescription);
       row.find("[id^='moredetail']").val(medicine.moredetail);
     }
 
@@ -203,7 +204,6 @@
         $("#investigationList").magicSuggest({
           data: investigationListData,
           placeholder: "Type or select Investigation",
-          maxSelection: 1,
         });
       } catch (error) {
         console.error("Error fetching investigation", error);

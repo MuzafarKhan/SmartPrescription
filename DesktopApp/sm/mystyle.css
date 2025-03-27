@@ -274,3 +274,7 @@ body {
 .negativecomorbids {
   background-color: aliceblue;
 }
+
+.hidden {
+  display: none;
+}

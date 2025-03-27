@@ -514,7 +514,7 @@
             morning,
             afternoon,
             night,
-            beforemeal,
+            isPrintableOnPrescription,
             quantity,
             medicinetype,
           } = medicine;
@@ -532,7 +532,7 @@
 
           // Timings
           let timingText = "";
-          if (beforemeal) {
+          if (isPrintableOnPrescription) {
             timingText += "(کھانے سے پہلے)";
           }
           medicineListHtml += "" + "";

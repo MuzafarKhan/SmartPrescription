@@ -114,10 +114,6 @@
           timing += "<span>Afternoon</span>";
         }
 
-        if (medicine.beforemeal) {
-          timing += '<span style="font-size:12px;">(Before Meals)</span>';
-        }
-
         return timing;
       }
 
@@ -140,7 +136,7 @@
           timing += '<span class="nastaleeq">شام</span>';
         }
 
-        if (medicine.beforemeal) {
+        if (medicine.isPrintableOnPrescription) {
           timing +=
             '<span class="nastaleeq" style="font-size:12px;">(کھانے سے پہلے)</span>';
         }

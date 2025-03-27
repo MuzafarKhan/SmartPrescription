@@ -9,7 +9,7 @@
     <label id="hdnId" class="d-none"></label>
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addAttachMedicineLabel">Attach Medicine</h5>
+        <h5 class="modal-title" id="addAttachMedicineLabel">Create Template</h5>
         <button
           type="button"
           class="btn-close"
@@ -17,6 +17,31 @@
           aria-label="Close"
         ></button>
       </div>
+
+      <div class="section-container">
+        <div class="section-header">Diagnosis - Investigation - Plan</div>
+        <div class="section-body">
+          <div id="diagnosis-section"></div>
+        </div>
+      </div>
+
+      <script>
+        $("#diagnosis-section").load("./sections/diagnosis-section.html");
+      </script>
+
+      <div class="section-container">
+        <div class="section-header">Chief Complaint</div>
+        <div class="section-body">
+          <div id="chief-complaint-section"></div>
+        </div>
+      </div>
+
+      <script>
+        $("#chief-complaint-section").load(
+          "./sections/chief-complaint-section.html"
+        );
+      </script>
+
       <div class="modal-body">
         <form id="addDiagnosisForm">
           <div class="section-container">
@@ -28,6 +53,36 @@
 
           <script>
             $("#medicine-section").load("./sections/medicine-section.html");
+          </script>
+        </form>
+      </div>
+
+      <div class="section-container">
+        <div class="section-header">Rehabilitation Aids</div>
+        <div class="section-body">
+          <div id="rehabilitation-aids-section"></div>
+        </div>
+      </div>
+
+      <script>
+        $("#rehabilitation-aids-section").load(
+          "./sections/rehabilitation-aids-section.html"
+        );
+      </script>
+
+      <div class="modal-body">
+        <form id="addDiagnosisForm">
+          <div class="section-container">
+            <div class="section-header">Patient Instructions</div>
+            <div class="section-body">
+              <div id="patient-instruction-section"></div>
+            </div>
+          </div>
+
+          <script>
+            $("#patient-instruction-section").load(
+              "./sections/patient-instruction-section.html"
+            );
           </script>
         </form>
       </div>
@@ -46,6 +101,7 @@
 <script>
   $(document).ready(function () {
     $("#addAttachMedicine").modal("show");
+    $("#divDiagnosisSection").hide();
     $(".modal-dialog").addClass("width-100");
     $("#attachMedicine").on("click", function () {
       const medicinesArray = getAllMedicines();
@@ -215,10 +271,14 @@
       // Populate the row with the medicine data
       row.find(".medicine-input").val(medicine.medicinename);
       row.find("[id^='medicineType']").val(medicine.medicinetype);
+      row.find("[id^='injType']").val(medicine.injType);
       row.find("[id^='quantity']").val(medicine.quantity);
       row.find("[id^='inlineMorning']").prop("checked", medicine.morning);
       row.find("[id^='inlineAfternoon']").prop("checked", medicine.afternoon);
       row.find("[id^='inlineNight']").prop("checked", medicine.night);
+      row
+        .find("[id^='isPrintableOnPrescriptionCheckChecked']")
+        .prop("checked", medicine.isPrintableOnPrescription);
       row.find("[id^='durationnumber']").val(medicine.durationnumber);
       row.find("[id^='slctDuration']").val(medicine.duration);
       row

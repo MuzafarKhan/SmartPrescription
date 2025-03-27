@@ -197,7 +197,6 @@
     async function getSettings() {
       await common.refreshSettings();
       const setting = common.getSettings();
-      debugger;
       if (setting && setting.length > 0) {
         $("#txtDefaultDate").datepicker({
           dateFormat: "dd/mm/yy", //check change

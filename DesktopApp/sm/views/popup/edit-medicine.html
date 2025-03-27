@@ -29,25 +29,34 @@
               required
             />
           </div>
-          <div class="mb-3">
-            <label for="medicineType" class="form-label">Medicine Type</label>
-            <select
-              id="medicineType"
-              class="form-select"
-              name="medicineType"
-              required
-            >
-              <option value="">Select Type</option>
-              <option value="Tab">TAB</option>
-              <option value="Cap">CAP</option>
-              <option value="Syrup">SYP</option>
-              <option value="Inj">INJ</option>
-              <option value="Cream">CREAM</option>
-              <option value="DROPS">DROPS</option>
-              <option value="GEL">GEL</option>
-              <option value="OINT">OINT</option>
-              <option value="LOTION">LOTION</option>
-            </select>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="medicineType" class="form-label">Medicine Type</label>
+              <select
+                id="medicineType"
+                class="form-select"
+                name="medicineType"
+                required
+              >
+                <option value="">Select Type</option>
+                <option value="Tab">TAB</option>
+                <option value="Cap">CAP</option>
+                <option value="Syrup">SYP</option>
+                <option value="Inj">INJ</option>
+                <option value="Cream">CREAM</option>
+                <option value="DROPS">DROPS</option>
+                <option value="GEL">GEL</option>
+                <option value="OINT">OINT</option>
+                <option value="LOTION">LOTION</option>
+              </select>
+            </div>
+            <div class="col-md-4" id="divinjType">
+              <label for="injType" class="form-label">INJ Type</label>
+              <select id="injType" class="form-select" name="injType" required>
+                <option value="IV">IV</option>
+                <option value="IM">IM</option>
+              </select>
+            </div>
           </div>
           <div class="mb-3">
             <label for="quantity" class="form-label">Quantity</label>
@@ -91,10 +100,13 @@
                 <input
                   type="checkbox"
                   class="form-check-input"
-                  id="beforemeal"
+                  id="isPrintableOnPrescriptionCheckChecked"
+                  checked
                 />
-                <label class="form-check-label" for="beforemeal"
-                  >Before Meal</label
+                <label
+                  class="form-check-label"
+                  for="isPrintableOnPrescriptionCheckChecked"
+                  >Is Printable On Prescription</label
                 >
               </div>
             </div>
@@ -155,6 +167,16 @@
         saveMedicine();
       }
     });
+    $("#divinjType").hide();
+
+    // Show/hide based on medicine type selection
+    $("#medicineType").change(function () {
+      if ($(this).val() === "Inj") {
+        $("#divinjType").show();
+      } else {
+        $("#divinjType").hide();
+      }
+    });
 
     async function saveMedicine() {
       var id = $("#hdnId").html();
@@ -162,10 +184,18 @@
       var morning = $("#morning").prop("checked") ? 1 : 0;
       var afternoon = $("#afternoon").prop("checked") ? 1 : 0;
       var night = $("#night").prop("checked") ? 1 : 0;
-      var beforemeal = $("#beforemeal").prop("checked") ? 1 : 0;
+      var isPrintableOnPrescription = $(
+        "#isPrintableOnPrescriptionCheckChecked"
+      ).prop("checked")
+        ? 1
+        : 0;
       var durationnumber = Number($("#durationnumber").val().trim());
       var duration = $("#slctDuration").val().trim();
       var medicineType = $("#medicineType").val().trim();
+      var injType =
+        $("#medicineType").val().trim() == "INJ"
+          ? $("#injType").val().trim()
+          : "";
       var quantity = $("#quantity").val().trim();
       var moreDetails = $("#moreDetails").val().trim();
 
@@ -175,10 +205,11 @@
         morning,
         afternoon,
         night,
-        beforemeal,
+        isPrintableOnPrescription,
         durationnumber,
         duration,
         medicineType,
+        injType,
         quantity,
         moreDetails,
       };
@@ -257,10 +288,14 @@
           $("#morning").prop("checked", result[0].morning === 1);
           $("#afternoon").prop("checked", result[0].afternoon === 1);
           $("#night").prop("checked", result[0].night === 1);
-          $("#beforemeal").prop("checked", result[0].beforemeal === 1);
+          $("#isPrintableOnPrescriptionCheckChecked").prop(
+            "checked",
+            result[0].isPrintableOnPrescription === 1
+          );
           $("#durationnumber").val(result[0].durationnumber);
           $("#duration").val(result[0].duration);
           $("#medicineType").val(result[0].medicinetype);
+          $("#injType").val(result[0].injType);
           $("#quantity").val(result[0].quantity);
           $("#moreDetails").val(result[0].moredetail);
         })

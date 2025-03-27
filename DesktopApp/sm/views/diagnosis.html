@@ -20,9 +20,9 @@
             <thead>
               <tr>
                 <th width="10%">ID</th>
-                <th width="25%">Name</th>
-                <th width="25%">Alter Name</th>
-                <th width="40%">Actions</th>
+                <th width="30%">Name</th>
+                <th width="30%">Alter Name</th>
+                <th width="30%">Actions</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -53,12 +53,15 @@
                     '<button class="btn btn-danger btn-sm ms-1" onclick="deleteDiagnosis(' +
                     diagnosis.id +
                     ',event)">Delete</button>' +
-                    '<button class="btn btn-info btn-sm ms-1" onclick="attachMedicine(' +
+                    '<button class="btn btn-info btn-sm ms-1 hidden" onclick="attachMedicine(' +
                     diagnosis.id +
                     ',event)">Attach Medicine</button>' +
-                    '<button class="btn btn-info btn-sm ms-1" onclick="attachPatientInstruction(' +
+                    '<button class="btn btn-info btn-sm ms-1 hidden" onclick="attachPatientInstruction(' +
                     diagnosis.id +
-                    ',event)">Attach Patient Instruction</button>',
+                    ',event)">Attach Patient Instruction</button>' +
+                    '<button class="btn btn-info btn-sm ms-1" onclick="createTemplate(' +
+                    diagnosis.id +
+                    ',event)">Create Template</button>',
                 ])
                 .draw();
             });
@@ -113,6 +116,16 @@
         event.preventDefault();
         $("#addEditModel").load(
           "views/popup/edit-attach-patient-instruction.html",
+          function () {
+            // After loading, pass the id dynamically
+            $("#addEditModel").data("id", id);
+          }
+        );
+      }
+      function createTemplate(id, event) {
+        event.preventDefault();
+        $("#addEditModel").load(
+          "views/popup/edit-create-template.html",
           function () {
             // After loading, pass the id dynamically
             $("#addEditModel").data("id", id);

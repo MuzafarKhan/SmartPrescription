@@ -106,145 +106,104 @@ ipcMain.handle("attach-medicine", async (event, id, medicines) => {
     throw new Error("Invalid data: Expected an array of medicines.");
   }
 
-  // Delete existing medicines for the diagnosis ID
-  const deleteMedicines = () => {
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run("BEGIN TRANSACTION");
+
+      // Delete existing medicines
       db.run(
         "DELETE FROM diagnosis_medicine WHERE diagnosisid = ?",
         [id],
         function (err) {
-          if (err) reject(err);
-          resolve(); // Resolve when deletion is successful
-        }
-      );
-    });
-  };
-
-  const insertIntoExistingMedicine = (medicine) => {
-    const {
-      medicinename,
-      morning,
-      afternoon,
-      night,
-      beforemeal,
-      durationnumber,
-      duration,
-      medicinetype,
-      quantity,
-      moredetail,
-    } = medicine;
-
-    console.log(medicinename + "________________________" + medicinename);
-
-    return new Promise((resolve, reject) => {
-      // First, check if the medicine already exists
-      db.get(
-        "SELECT * FROM medicine WHERE medicinename = ?",
-        [medicinename],
-        (err, row) => {
           if (err) {
-            reject(err); // Handle errors from SELECT
-            return;
+            db.run("ROLLBACK");
+            return reject(err);
           }
 
-          if (row) {
-            console.log(
-              `Medicine '${medicinename}' already exists. Skipping insertion.`
-            );
-            resolve({ message: `Medicine '${medicinename}' already exists.` });
-          } else {
-            // If it doesn't exist, insert it
-            db.run(
-              "INSERT INTO medicine (medicinename, morning, afternoon, night, beforemeal, durationnumber, duration, medicinetype, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          // Insert new medicines
+          const stmt = db.prepare(
+            "INSERT INTO diagnosis_medicine (diagnosisid, medicinename, morning, afternoon, night, isPrintableOnPrescription, durationnumber, duration, medicinetype, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+          );
+
+          let hasError = false;
+          medicines.forEach((medicine) => {
+            if (hasError) return;
+
+            stmt.run(
               [
-                medicinename,
-                morning,
-                afternoon,
-                night,
-                beforemeal,
-                durationnumber,
-                duration,
-                medicinetype,
-                quantity,
-                moredetail,
+                id,
+                medicine.medicinename,
+                medicine.morning,
+                medicine.afternoon,
+                medicine.night,
+                medicine.isPrintableOnPrescription,
+                medicine.durationnumber,
+                medicine.duration,
+                medicine.medicinetype,
+                medicine.quantity,
+                medicine.moredetail,
               ],
               function (err) {
                 if (err) {
-                  reject(err); // Handle errors from INSERT
-                } else {
-                  resolve({
-                    id: this.lastID,
-                    message: `Medicine '${medicinename}' inserted.`,
-                  });
+                  hasError = true;
+                  db.run("ROLLBACK");
+                  return reject(err);
                 }
               }
             );
+          });
+
+          stmt.finalize();
+
+          if (!hasError) {
+            // Check/insert into medicine table
+            const checkStmt = db.prepare(
+              "INSERT OR IGNORE INTO medicine (medicinename, morning, afternoon, night, isPrintableOnPrescription, durationnumber, duration, medicinetype, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            );
+
+            medicines.forEach((medicine) => {
+              if (hasError) return;
+
+              checkStmt.run(
+                [
+                  medicine.medicinename,
+                  medicine.morning,
+                  medicine.afternoon,
+                  medicine.night,
+                  medicine.isPrintableOnPrescription,
+                  medicine.durationnumber,
+                  medicine.duration,
+                  medicine.medicinetype,
+                  medicine.quantity,
+                  medicine.moredetail,
+                ],
+                function (err) {
+                  if (err) {
+                    hasError = true;
+                    db.run("ROLLBACK");
+                    return reject(err);
+                  }
+                }
+              );
+            });
+
+            checkStmt.finalize();
+          }
+
+          if (!hasError) {
+            db.run("COMMIT", (err) => {
+              if (err) {
+                db.run("ROLLBACK");
+                reject(err);
+              } else {
+                resolve({ success: true, count: medicines.length });
+              }
+            });
           }
         }
       );
     });
-  };
-
-  const insertMedicine = (medicine) => {
-    const {
-      medicinename,
-      morning,
-      afternoon,
-      night,
-      beforemeal,
-      durationnumber,
-      duration,
-      medicinetype,
-      quantity,
-      moredetail,
-    } = medicine;
-    console.log(medicinename + "________________________" + medicinename);
-
-    return new Promise((resolve, reject) => {
-      db.run(
-        "INSERT INTO diagnosis_medicine (diagnosisid, medicinename, morning, afternoon, night, beforemeal, durationnumber, duration, medicinetype, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          id,
-          medicinename,
-          morning,
-          afternoon,
-          night,
-          beforemeal,
-          durationnumber,
-          duration,
-          medicinetype,
-          quantity,
-          moredetail,
-        ],
-        function (err) {
-          if (err) reject(err);
-          resolve({ id: this.lastID });
-        }
-      );
-    });
-  };
-
-  try {
-    // Step 1: Delete existing medicines
-    await deleteMedicines();
-
-    // Step 2: Insert new medicines
-    const results = [];
-    for (const medicine of medicines) {
-      const result = await insertMedicine(medicine);
-      results.push(result);
-    }
-
-    // Step 2: Insert new medicines
-    for (const medicine of medicines) {
-      const result = await insertIntoExistingMedicine(medicine);
-    }
-
-    return results; // Return an array of results with IDs for all inserted medicines
-  } catch (error) {
-    console.error("Error attaching medicines:", error);
-    throw error;
-  }
+  });
 });
 
 ipcMain.handle(

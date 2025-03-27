@@ -437,7 +437,6 @@
       changeMonth: true,
       changeYear: true,
     });
-    debugger;
     if (defaultdate) {
       $("#txtDate").datepicker("setDate", defaultdate);
     } else if (defaultday) {
@@ -552,9 +551,27 @@
     });
     const prescriptionForm = document.getElementById("prescriptionForm");
 
-    prescriptionForm.addEventListener("click", (event) => {
-      var dataState = getPrescriptionData();
-      localStorage.setItem("getPrescriptionData", JSON.stringify(dataState));
+    prescriptionForm.addEventListener("change", (event) => {
+      if (event.target.id !== "txtName") {
+        const currentPatient = getPrescriptionData();
+        const patientName =
+          currentPatient.patientInformation.patientname?.trim();
+
+        // Skip if no patient name or name is too short (less than 3 characters)
+        if (!patientName || patientName.length < 3) return;
+
+        // Get existing patients or initialize empty object
+        const allPatients =
+          JSON.parse(localStorage.getItem("allPatients")) || {};
+        debugger;
+        // Add/update current patient data
+        allPatients[patientName] = currentPatient;
+
+        // Save back to localStorage
+        localStorage.setItem("allPatients", JSON.stringify(allPatients));
+
+        console.log(`Saved data for patient: ${patientName}`);
+      }
     });
 
     async function openPrintData(prescriptionData) {
@@ -765,14 +782,15 @@
         const medicine = {
           medicinename: medicineRow.find(".medicine-input").val(),
           medicinetype: medicineRow.find("[id^='medicineType']").val(),
+          injType: medicineRow.find("[id^='injType']").val(),
           quantity: medicineRow.find("[id^='quantity']").val(),
           morning: medicineRow.find("[id^='inlineMorning']").is(":checked"),
           afternoon: medicineRow.find("[id^='inlineAfternoon']").is(":checked"),
           night: medicineRow.find("[id^='inlineNight']").is(":checked"),
           duration: medicineRow.find("[id^='slctDuration']").val(),
           durationnumber: medicineRow.find("[id^='durationnumber']").val(),
-          beforemeal: medicineRow
-            .find("[id^='beforeMealCheckChecked']")
+          isPrintableOnPrescription: medicineRow
+            .find("[id^='isPrintableOnPrescriptionCheckChecked']")
             .is(":checked"),
           moredetail: medicineRow.find("[id^='moredetail']").val(),
         };

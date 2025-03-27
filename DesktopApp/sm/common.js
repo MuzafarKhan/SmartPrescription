@@ -83,6 +83,10 @@ const common = {
               <option value="OINT">OINT</option>
               <option value="LOTION">LOTION</option>
             </select>
+             <select id="injType" class="form-select hidden" name="injType" required>
+                <option value="IV">IV</option>
+                <option value="IM">IM</option>
+              </select>
           </td>
           <td>
             <input
@@ -116,7 +120,7 @@ const common = {
             <input
               class="form-check-input"
               type="checkbox"
-              id="beforeMealCheckChecked"
+              id="isPrintableOnPrescriptionCheckChecked"
             />
           </td>
           <td>
