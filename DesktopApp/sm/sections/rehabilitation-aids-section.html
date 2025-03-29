@@ -76,51 +76,17 @@
       }
     }
 
-    // Add new rehabilitationaids row
-    function addRehabilitationAidsRow() {
-      const newRow = $(
-        "#rehabilitationAidsContainer .rehabilitation-aids-row:first"
-      ).clone();
-      const rowIndex = $(
-        "#rehabilitationAidsContainer .rehabilitation-aids-row"
-      ).length;
-      newRow.find("input").val(""); // Clear input values
-
-      // Update dynamic IDs for the new row
-      newRow
-        .find(".rehabilitation-aids-input")
-        .attr("id", `rehabilitation-aids-input-${rowIndex}`);
-      newRow.find(".moredetail-input").attr("id", `moredetail-${rowIndex}`);
-
-      // Append the new row
-      $("#rehabilitationAidsContainer tbody").append(newRow);
-    }
-
-    // Remove rehabilitationaids row
-    $(document)
-      .off("click", ".remove-rehabilitation-aids")
-      .on("click", ".remove-rehabilitation-aids", function () {
-        if (
-          $("#rehabilitationAidsContainer .rehabilitation-aids-row").length > 1
-        ) {
-          $(this).closest("tr").remove();
-        } else {
-          const selectedRehabilitationAids = $(this).val();
-          const rehabilitationRow = $(this).closest("tr");
-
-          rehabilitationRow
-            .find("[id^='moredetail']") // Find elements whose ID starts with "moredetail"
-            .val(""); // Set more details
-          rehabilitationRow
-            .find("[id^='rehabilitation-aids-input']") // Find elements whose ID starts with "moredetail"
-            .val(""); // Set more details
-        }
-      });
+    $(document).on("click", ".remove-rehabilitation-aids", function () {
+      event.preventDefault();
+      $(this).closest("tr").remove();
+    });
 
     // Add new row button
     $("#addRehabilitationAidsBtn").on("click", function (event) {
+      init();
       event.preventDefault();
-      addRehabilitationAidsRow();
+      newRowHtml = common.getRehabilitationAidRow();
+      $("#rehabilitationAidsContainer tbody").append(newRowHtml);
     });
 
     $(document).on("input", ".rehabilitation-aids-input", function () {

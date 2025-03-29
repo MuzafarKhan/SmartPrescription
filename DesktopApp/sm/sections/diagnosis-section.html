@@ -204,6 +204,7 @@
         $("#investigationList").magicSuggest({
           data: investigationListData,
           placeholder: "Type or select Investigation",
+          maxSelection: 5,
         });
       } catch (error) {
         console.error("Error fetching investigation", error);
@@ -216,7 +217,7 @@
         $("#planList").magicSuggest({
           data: planListData,
           placeholder: "Type or select Plan",
-          maxSelection: 1,
+          maxSelection: 3,
         });
       } catch (error) {
         console.error("Error fetching plan:", error);

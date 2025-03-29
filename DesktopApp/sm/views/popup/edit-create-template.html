@@ -102,9 +102,8 @@
   $(document).ready(function () {
     $("#addCreateTemplate").modal("show");
     $(".modal-dialog").addClass("width-100");
-    $("#createTemplate").on("click", function () {
-      debugger;
-      const templateData = gettemplateData();
+    $("#createTemplate").on("click", async function () {
+      const templateData = await gettemplateData();
       if (createTemplateValidated(templateData)) {
         createTemplateT(templateData);
       }
@@ -202,9 +201,7 @@
     }
 
     async function init(id) {
-      debugger;
       $("#hdnId").html(id);
-
       try {
         // Fetch the medicines associated with the diagnosis ID
         const result = await window.electronAPI.getCreateTemplateByDiagnosisIds(
@@ -219,10 +216,12 @@
           debugger;
           populateAllComplaints(templateData.complaintData);
           populateInvestigation(templateData.selectedInvestigation);
-          // populatePlan();
+          populatePlan(templateData.selectedPlan);
           populateAllMedicines(templateData.selectedMedicines);
-          // populateRehabilitationAids();
-          // populateAllPatientInstructions();
+          populateRehabilitationAids(templateData.selectedRehabilitationAids);
+          populateAllPatientInstructions(
+            templateData.selectedPatientInstructions
+          );
         }
       } catch (error) {
         $.toast({
@@ -342,8 +341,99 @@
         console.error("Error loading investigations:", error);
       }
     }
+    async function populatePlan(plans) {
+      try {
+        const planListData = await window.electronAPI.getPlan();
 
-    function gettemplateData() {
+        // Initialize MagicSuggest and store the instance
+        const planSuggest = $("#planList").magicSuggest({
+          data: planListData,
+          placeholder: "Type or select Investigation",
+        });
+
+        if (plans.length > 0) {
+          // Find matching plans by ID
+          const planToSelect = planListData.filter((item) =>
+            plans.includes(item.name)
+          );
+
+          // Use the MagicSuggest instance to set selection
+          planSuggest.setSelection(planToSelect);
+        }
+      } catch (error) {
+        console.error("Error loading plans:", error);
+      }
+    }
+
+    function populateRehabilitationAids(rehabilitationAids) {
+      if (rehabilitationAids && rehabilitationAids.length > 0) {
+        // Clear existing rows before populating
+        $("#rehabilitationAidsContainer .rehabilitation-aids-row").remove();
+
+        rehabilitationAids.forEach((rehabilitationAid, index) => {
+          // For each medicine, either populate an existing row or add a new row
+          if (index === 0) {
+            populateRehabilitationAidRow(rehabilitationAid); // Populate the first row
+          } else {
+            const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+            $("#rehabilitationAidsContainer tbody").append(newRowHtml);
+            populateRehabilitationAidRow(
+              rehabilitationAid,
+              $("#rehabilitationAidsContainer .rehabilitation-aids-row").last()
+            ); // Populate the new row
+          }
+        });
+      }
+    }
+    function populateRehabilitationAidRow(rehabilitationAid, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+        $("#rehabilitationAidsContainer tbody").append(newRowHtml); // Append to the container
+        row = $("#rehabilitationAidsContainer .rehabilitation-aids-row").last(); // Select the newly added row
+      }
+      debugger;
+      // Populate the row with the medicine data
+      row.find(".rehabilitation-aids-input").val(rehabilitationAid.name);
+      row.find(".moredetail-input").val(rehabilitationAid.moreDetail);
+    }
+
+    function populateAllPatientInstructions(patientInstructions) {
+      if (patientInstructions && patientInstructions.length > 0) {
+        // Clear existing rows before populating
+        $("#patient-instructionContainer .patient-instruction-row").remove();
+
+        patientInstructions.forEach((patientInstruction, index) => {
+          // For each medicine, either populate an existing row or add a new row
+          if (index === 0) {
+            populateAllPatientInstructionsRow(patientInstruction); // Populate the first row
+          } else {
+            const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+            $("#patient-instructionContainer tbody").append(newRowHtml);
+            populateAllPatientInstructionsRow(
+              patientInstruction,
+              $("#patient-instructionContainer .patient-instruction-row").last()
+            ); // Populate the new row
+          }
+        });
+      }
+    }
+    function populateAllPatientInstructionsRow(patientInstruction, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+        $("#patient-instructionContainer tbody").append(newRowHtml); // Append to the container
+        row = $(
+          "#patient-instructionContainer .patient-instruction-row"
+        ).last(); // Select the newly added row
+      }
+      debugger;
+      // Populate the row with the medicine data
+      row.find(".patient-instruction-input").val(patientInstruction.title);
+      row.find("#textPInstDetail").val(patientInstruction.detail);
+    }
+
+    async function gettemplateData() {
       var templateData = {
         patientInformation: {
           patientname: $("#txtName").val() ? $("#txtName").val() : "",
@@ -373,11 +463,11 @@
 
           complaintData: getAllComplaints(),
           selectedDiagnosis: getSelectedDiagnosis(),
-          selectedInvestigation: getSelectedInvestigation(),
+          selectedInvestigation: await getSelectedInvestigation(),
           investigationMoreDetail: $("#txtinvestigationMoreDetail").val()
             ? $("#txtinvestigationMoreDetail").val()
             : "",
-          selectedPlan: getSelectedPlan(),
+          selectedPlan: await getSelectedPlan(),
           gcs: $("#gcsTxtBox").val() ? $("#gcsTxtBox").val() : "",
           bp: $("#bpTxtbox").val() ? $("#bpTxtbox").val() : "",
 
@@ -443,34 +533,33 @@
       return selectedValues;
     }
     async function getSelectedInvestigation() {
-      debugger;
       const investigationSuggest = $("#investigationList").magicSuggest();
       let selectedInvestigations = investigationSuggest.getSelection();
-
-      // Iterate over selected investigations and check if id is a string
       for (let i = 0; i < selectedInvestigations.length; i++) {
         if (isNaN(selectedInvestigations[i].id)) {
-          // If ID is a string (not an integer), call API to add investigation
           const result = await window.electronAPI.addInvestigation(
             selectedInvestigations[i].name
           );
-
-          // Update the investigation ID with the newly created one
-          selectedInvestigations[i].id = result.id;
         }
       }
 
-      // Return array of selected investigations with updated IDs
-      return selectedInvestigations.map((investigation) => ({
-        id: investigation.id,
-        name: investigation.name,
-      }));
-    }
-    function getSelectedPlan() {
-      const planSuggest = $("#planList").magicSuggest();
-      const selectedPlans = planSuggest.getSelection();
+      const selectedValues = selectedInvestigations.map(
+        (investigation) => investigation.name
+      );
 
-      // Map the selected plans to an array of values
+      return selectedValues;
+    }
+    async function getSelectedPlan() {
+      const planSuggest = $("#planList").magicSuggest();
+      let selectedPlans = planSuggest.getSelection();
+      for (let i = 0; i < selectedPlans.length; i++) {
+        if (isNaN(selectedPlans[i].id)) {
+          const result = await window.electronAPI.addPlan(
+            selectedPlans[i].name
+          );
+        }
+      }
+
       const selectedValues = selectedPlans.map((plan) => plan.name);
 
       return selectedValues;

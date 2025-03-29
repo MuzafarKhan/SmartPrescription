@@ -212,6 +212,45 @@ const common = {
     return newRowHtml;
   },
 
+  getRehabilitationAidRow() {
+    const newRowHtml = `
+                   <tr class="rehabilitation-aids-row">
+        <!-- Complaint Input -->
+        <td>
+          <input
+            type="text"
+            class="form-control rehabilitation-aids-input"
+            id="rehabilitation-aids-input"
+            placeholder="Enter Complaint"
+            list="rehabilitation-aidsSuggestions"
+          />
+          <!-- Suggestions -->
+          <datalist id="rehabilitation-aidsSuggestions"></datalist>
+        </td>
+
+        <td>
+          <input
+            type="text"
+            class="form-control moredetail-input"
+            id="moredetail"
+            placeholder="Enter More Detail"
+          />
+        </td>
+
+        <!-- Remove Button -->
+        <td>
+          <button
+            type="button"
+            class="btn btn-danger remove-rehabilitation-aids"
+          >
+            Remove
+          </button>
+        </td>
+      </tr>
+      `;
+    return newRowHtml;
+  },
+
   getPatientInstructionRow() {
     const newRowHtml = `
            <tr class="patient-instruction-row">
@@ -219,7 +258,7 @@ const common = {
             <input
               type="text"
               class="form-control patient-instruction-input"
-              placeholder="Enter Medicine"
+              placeholder="Enter Title"
               list="patient-instructionSuggestions"
               required
             />
