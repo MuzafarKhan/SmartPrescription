@@ -563,7 +563,6 @@
         // Get existing patients or initialize empty object
         const allPatients =
           JSON.parse(localStorage.getItem("allPatients")) || {};
-        debugger;
         // Add/update current patient data
         allPatients[patientName] = currentPatient;
 
@@ -824,7 +823,6 @@
 
       return aidsData;
     }
-
     function getAllPatientInstructions() {
       const patientinstructions = [];
 
@@ -847,7 +845,6 @@
 
       return patientinstructions;
     }
-
     function validatePrescriptionData(prescriptionData) {
       var patientInformation = prescriptionData.patientInformation;
       let isValid = true;

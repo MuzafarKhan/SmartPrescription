@@ -43,11 +43,11 @@
             </select>
             <select
               id="injType"
-              class="form-select hidden"
+              class="form-select hidden mt-1"
               name="injType"
               required
             >
-              <option value="IV">IV</option>
+              <option selected value="IV">IV</option>
               <option value="IM">IM</option>
             </select>
           </td>
@@ -137,6 +137,18 @@
 <script>
   $(document).ready(function () {
     // Store the medicines in an object for easy lookup
+
+    $(document).on("change", "select[name='medicineType']", function () {
+      let medicineRow = $(this).closest("tr"); // Find the closest row
+      let injType = medicineRow.find("#injType"); // Find the corresponding injType in the same row
+
+      if ($(this).val() === "Inj") {
+        injType.show();
+      } else {
+        injType.hide();
+      }
+    });
+
     let medicinesData = {};
 
     async function init() {
@@ -174,14 +186,13 @@
     $(document).on("input", ".medicine-input", function () {
       const selectedMedicine = $(this).val();
       const medicineRow = $(this).closest("tr");
-
       if (medicinesData[selectedMedicine]) {
         const medicineDetails = medicinesData[selectedMedicine];
-
         // Populate the current row with the medicine details
         medicineRow
           .find("select[name='medicineType']")
-          .val(medicineDetails.medicinetype);
+          .val(medicineDetails.medicinetype)
+          .change();
         medicineRow.find("select[name='injType']").val(medicineDetails.injType);
         medicineRow
           .find("input[placeholder='1 Tab - 1 Spoon']")

@@ -300,7 +300,7 @@
           settings.defaultcomplaintduration
         );
         await savetranslations(translations);
-
+        await common.refreshSettings();
         // Show success message after both are completed
         common.showUpdatedSuccessfullyMessage();
         await init(); // Reinitialize to refresh data

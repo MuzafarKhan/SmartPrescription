@@ -83,8 +83,8 @@ const common = {
               <option value="OINT">OINT</option>
               <option value="LOTION">LOTION</option>
             </select>
-             <select id="injType" class="form-select hidden" name="injType" required>
-                <option value="IV">IV</option>
+             <select id="injType" class="form-select hidden mt-1" name="injType" required>
+                <option selected value="IV">IV</option>
                 <option value="IM">IM</option>
               </select>
           </td>
@@ -164,6 +164,54 @@ const common = {
       `;
     return newRowHtml;
   },
+
+  getChiefComplaintRow() {
+    const newRowHtml = `
+              <tr class="complaint-row">
+        <!-- Complaint Input -->
+        <td>
+          <input
+            type="text"
+            class="form-control complaint-input"
+            placeholder="Enter Complaint"
+            list="complaintSuggestions"
+          />
+          <!-- Suggestions -->
+          <datalist id="complaintSuggestions"></datalist>
+        </td>
+
+        <!-- Duration Dropdown -->
+        <td>
+          <input
+            type="number"
+            class="form-control duration-select"
+            placeholder="Enter Complaint"
+            value="1"
+          />
+        </td>
+
+        <!-- Unit Dropdown -->
+        <td>
+          <select class="form-select unit-select">
+            <option value="" selected>Select Unit</option>
+            <option value="day">day</option>
+            <option value="week">week</option>
+            <option value="month">month</option>
+            <option value="year">year</option>
+          </select>
+        </td>
+
+        <!-- Remove Button -->
+        <td>
+          <button type="button" class="btn btn-danger remove-complaint">
+            Remove
+          </button>
+        </td>
+      </tr>
+      `;
+    return newRowHtml;
+  },
+
   getPatientInstructionRow() {
     const newRowHtml = `
            <tr class="patient-instruction-row">

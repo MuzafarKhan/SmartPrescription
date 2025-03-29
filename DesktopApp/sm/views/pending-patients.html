@@ -63,7 +63,6 @@
 
       $("#btnClearPendingPatientsModal").click(function () {
         localStorage.removeItem("allPatients");
-        debugger;
         common.refreshTablePaging();
         common.showDeletedSuccessfullyMessage();
 
@@ -90,7 +89,6 @@
 
       function openEditPendingPatient(patientName, event) {
         event.preventDefault();
-        debugger;
         const allPatients =
           JSON.parse(localStorage.getItem("allPatients")) || {};
 

@@ -1,15 +1,15 @@
 <div
   class="modal fade"
-  id="addAttachMedicine"
+  id="addCreateTemplate"
   tabindex="-1"
-  aria-labelledby="addAttachMedicineLabel"
+  aria-labelledby="addCreateTemplateLabel"
   aria-hidden="true"
 >
   <div class="modal-dialog">
     <label id="hdnId" class="d-none"></label>
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addAttachMedicineLabel">Create Template</h5>
+        <h5 class="modal-title" id="addCreateTemplateLabel">Create Template</h5>
         <button
           type="button"
           class="btn-close"
@@ -90,7 +90,7 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           Cancel
         </button>
-        <button type="button" class="btn btn-primary" id="attachMedicine">
+        <button type="button" class="btn btn-primary" id="createTemplate">
           Save
         </button>
       </div>
@@ -100,98 +100,381 @@
 
 <script>
   $(document).ready(function () {
-    $("#addAttachMedicine").modal("show");
-    $("#divDiagnosisSection").hide();
+    $("#addCreateTemplate").modal("show");
     $(".modal-dialog").addClass("width-100");
-    $("#attachMedicine").on("click", function () {
-      const medicinesArray = getAllMedicines();
-      if (attachMedicineValidated(medicinesArray)) {
-        attachMedicineC(medicinesArray);
+    $("#createTemplate").on("click", function () {
+      debugger;
+      const templateData = gettemplateData();
+      if (createTemplateValidated(templateData)) {
+        createTemplateT(templateData);
       }
     });
 
-    async function attachMedicineC(medicinesArray) {
+    async function createTemplateT(templateData) {
       var id = $("#hdnId").html();
-      attachMedicine(id, medicinesArray);
-      $("#addAttachMedicine").modal("hide");
+      createTemplate(id, templateData);
+      $("#addCreateTemplate").modal("hide");
       loadPageContent(
         "diagnosis",
         "diagnosisTable",
         $("#diagnosisTable").DataTable().page()
       );
     }
-    async function attachMedicine(id, medicinesArray) {
-      const results = await window.electronAPI.attachMedicine(
+    async function createTemplate(id, templateData) {
+      const results = await window.electronAPI.createTemplate(
         id,
-        medicinesArray
+        JSON.stringify(templateData)
       );
       common.showSavedSuccessfullyMessage();
     }
 
-    function attachMedicineValidated(medicinesArray) {
+    function createTemplateValidated(templateData) {
+      if (!medicineValidated(templateData)) {
+        return false;
+      }
+      return true;
+    }
+
+    function medicineValidated(templateData) {
       let isValid = true;
-      medicinesArray.forEach((medicine, index) => {
-        if (isValid) {
-          const error = {};
+      templateData.patientInformation.selectedMedicines.forEach(
+        (medicine, index) => {
+          if (isValid) {
+            const error = {};
 
-          // Check if medicine name is empty
-          if (!medicine.medicinename.trim()) {
-            $.toast({
-              heading: "Error",
-              text: `Medicine name is required in ( ROW ${index + 1} )`,
-              showHideTransition: "fade",
-              icon: "error",
-              position: "top-right",
-            });
-            isValid = false;
-          }
+            // Check if medicine name is empty
+            if (!medicine.medicinename.trim()) {
+              $.toast({
+                heading: "Error",
+                text: `Medicine name is required in ( ROW ${index + 1} )`,
+                showHideTransition: "fade",
+                icon: "error",
+                position: "top-right",
+              });
+              isValid = false;
+            }
 
-          // Check if medicine type is selected
-          if (!medicine.medicinetype.trim()) {
-            error.medicinetype = `Medicine type is required in ( ROW ${
-              index + 1
-            } )`;
-            $.toast({
-              heading: "Error",
-              text: `Medicine name is required in ROW ${index + 1}`,
-              showHideTransition: "fade",
-              icon: "error",
-              position: "top-right",
-            });
-            isValid = false;
-          }
-
-          // Check if quantity is empty
-          if (!medicine.quantity.trim()) {
-            $.toast({
-              heading: "Error",
-              text: `Quantity is required in ( ROW ${index + 1} )`,
-              showHideTransition: "fade",
-              icon: "error",
-              position: "top-right",
-            });
-            isValid = false;
-          }
-
-          // Check if at least one checkbox (morning, afternoon, night) is selected
-          if (!medicine.morning && !medicine.afternoon && !medicine.night) {
-            $.toast({
-              heading: "Error",
-              text: `At least one timing (morning, afternoon, night) must be selected in (ROW ${
+            // Check if medicine type is selected
+            if (!medicine.medicinetype.trim()) {
+              error.medicinetype = `Medicine type is required in ( ROW ${
                 index + 1
-              } )`,
-              showHideTransition: "fade",
-              icon: "error",
-              position: "top-right",
-            });
-            isValid = false;
+              } )`;
+              $.toast({
+                heading: "Error",
+                text: `Medicine name is required in ROW ${index + 1}`,
+                showHideTransition: "fade",
+                icon: "error",
+                position: "top-right",
+              });
+              isValid = false;
+            }
+
+            // Check if quantity is empty
+            if (!medicine.quantity.trim()) {
+              $.toast({
+                heading: "Error",
+                text: `Quantity is required in ( ROW ${index + 1} )`,
+                showHideTransition: "fade",
+                icon: "error",
+                position: "top-right",
+              });
+              isValid = false;
+            }
+
+            // Check if at least one checkbox (morning, afternoon, night) is selected
+            if (!medicine.morning && !medicine.afternoon && !medicine.night) {
+              $.toast({
+                heading: "Error",
+                text: `At least one timing (morning, afternoon, night) must be selected in (ROW ${
+                  index + 1
+                } )`,
+                showHideTransition: "fade",
+                icon: "error",
+                position: "top-right",
+              });
+              isValid = false;
+            }
           }
         }
-      });
+      );
 
       return isValid;
     }
 
+    async function init(id) {
+      debugger;
+      $("#hdnId").html(id);
+
+      try {
+        // Fetch the medicines associated with the diagnosis ID
+        const result = await window.electronAPI.getCreateTemplateByDiagnosisIds(
+          id.toString()
+        );
+        $("#divDiagnosisSection").hide();
+
+        if (result && result.length > 0) {
+          var templateData = JSON.parse(
+            result[0].templateData
+          ).patientInformation;
+          debugger;
+          populateAllComplaints(templateData.complaintData);
+          populateInvestigation(templateData.selectedInvestigation);
+          // populatePlan();
+          populateAllMedicines(templateData.selectedMedicines);
+          // populateRehabilitationAids();
+          // populateAllPatientInstructions();
+        }
+      } catch (error) {
+        $.toast({
+          heading: "Error",
+          text: error,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+      }
+    }
+    function populateAllComplaints(complaints) {
+      if (complaints && complaints.length > 0) {
+        // Clear existing rows before populating
+        $("#chiefComplaintsContainer .complaint-row").remove();
+
+        complaints.forEach((complaints, index) => {
+          // For each medicine, either populate an existing row or add a new row
+          if (index === 0) {
+            populateChiefComplaintRow(complaints); // Populate the first row
+          } else {
+            const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+            $("#chiefComplaintsContainer tbody").append(newRowHtml);
+            populateChiefComplaintRow(
+              complaints,
+              $("#chiefComplaintsContainer .complaint-row").last()
+            ); // Populate the new row
+          }
+        });
+      }
+    }
+    function populateChiefComplaintRow(complaints, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+        $("#chiefComplaintsContainer tbody").append(newRowHtml); // Append to the container
+        row = $("#chiefComplaintsContainer .complaint-row").last(); // Select the newly added row
+      }
+
+      // Populate the row with the medicine data
+      row.find(".complaint-input").val(complaints.complaint);
+      row.find(".unit-select").val(complaints.unit);
+      row.find(".duration-select").val(complaints.duration);
+    }
+
+    function populateAllMedicines(medicines) {
+      if (medicines && medicines.length > 0) {
+        // Clear existing rows before populating
+        $("#medicineContainer .medicine-row").remove();
+
+        medicines.forEach((medicine, index) => {
+          // For each medicine, either populate an existing row or add a new row
+          if (index === 0) {
+            populateMedicineRow(medicine); // Populate the first row
+          } else {
+            const newRowHtml = common.getMedicineRow(); // Create a new row
+            $("#medicineContainer tbody").append(newRowHtml);
+            populateMedicineRow(
+              medicine,
+              $("#medicineContainer .medicine-row").last()
+            ); // Populate the new row
+          }
+        });
+      }
+    }
+    function populateMedicineRow(medicine, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getMedicineRow(); // Create a new row
+        $("#medicineContainer tbody").append(newRowHtml); // Append to the container
+        row = $("#medicineContainer .medicine-row").last(); // Select the newly added row
+      }
+
+      // Populate the row with the medicine data
+      row.find(".medicine-input").val(medicine.medicinename);
+      row.find("[id^='medicineType']").val(medicine.medicinetype);
+      row
+        .find("[id^='medicineType']")
+        .val(medicine.medicinetype)
+        .trigger("change");
+      row.find("[id^='quantity']").val(medicine.quantity);
+      row.find("[id^='inlineMorning']").prop("checked", medicine.morning);
+      row.find("[id^='inlineAfternoon']").prop("checked", medicine.afternoon);
+      row.find("[id^='inlineNight']").prop("checked", medicine.night);
+      row
+        .find("[id^='isPrintableOnPrescriptionCheckChecked']")
+        .prop("checked", medicine.isPrintableOnPrescription);
+      row.find("[id^='durationnumber']").val(medicine.durationnumber);
+      row.find("[id^='slctDuration']").val(medicine.duration);
+      row
+        .find("[id^='isPrintableOnPrescriptionCheckChecked']")
+        .prop("checked", medicine.isPrintableOnPrescription);
+      row.find("[id^='moredetail']").val(medicine.moredetail);
+    }
+
+    async function populateInvestigation(investigations) {
+      try {
+        const investigationListData =
+          await window.electronAPI.getInvestigation();
+
+        // Initialize MagicSuggest and store the instance
+        const investigationSuggest = $("#investigationList").magicSuggest({
+          data: investigationListData,
+          placeholder: "Type or select Investigation",
+        });
+
+        if (investigations.length > 0) {
+          // Find matching investigations by ID
+          const investigationsToSelect = investigationListData.filter((item) =>
+            investigations.includes(item.name)
+          );
+
+          // Use the MagicSuggest instance to set selection
+          investigationSuggest.setSelection(investigationsToSelect);
+        }
+      } catch (error) {
+        console.error("Error loading investigations:", error);
+      }
+    }
+
+    function gettemplateData() {
+      var templateData = {
+        patientInformation: {
+          patientname: $("#txtName").val() ? $("#txtName").val() : "",
+          patientage: $("#txtAge").val() ? $("#txtAge").val() : "",
+          checkupDate: $("#txtDate").val() ? $("#txtDate").val() : "",
+          dm: $("#DM").hasClass("btn-success"),
+          htn: $("#HTN").hasClass("btn-success"),
+          cva: $("#CVA").hasClass("btn-success"),
+          cad: $("#CAD").hasClass("btn-success"),
+          hepatitis: $("#HEPATITIS").hasClass("btn-success"),
+          trauma: $("#TRAUMA").hasClass("btn-success"),
+          laminectomy: $("#laminectomyCheckChecked").prop("checked"),
+          tpf: $("#tPFCheckChecked").prop("checked"),
+          craniotomy: $("#craniotomyCheckChecked").prop("checked"),
+          vpshunt: $("#vPshuntCheckChecked").prop("checked"),
+          mmc: $("#mMCCheckChecked").prop("checked"),
+          unitsyrgery: $(".unit-syrgery-select").val()
+            ? $(".unit-syrgery-select").val()
+            : "",
+
+          durationsyrgery: $(".duration-syrgery-select").val()
+            ? $(".duration-syrgery-select").val()
+            : "",
+          patientSyrgeryFurtherDetail: $("#txtSyrgeryFurtherdetails").val()
+            ? $("#txtSyrgeryFurtherdetails").val()
+            : "",
+
+          complaintData: getAllComplaints(),
+          selectedDiagnosis: getSelectedDiagnosis(),
+          selectedInvestigation: getSelectedInvestigation(),
+          investigationMoreDetail: $("#txtinvestigationMoreDetail").val()
+            ? $("#txtinvestigationMoreDetail").val()
+            : "",
+          selectedPlan: getSelectedPlan(),
+          gcs: $("#gcsTxtBox").val() ? $("#gcsTxtBox").val() : "",
+          bp: $("#bpTxtbox").val() ? $("#bpTxtbox").val() : "",
+
+          powerUL1: $("#powerUL1TxtBox").val()
+            ? $("#powerUL1TxtBox").val()
+            : "",
+          powerUL2: $("#powerUL2TxtBox").val()
+            ? $("#powerUL2TxtBox").val()
+            : "",
+          powerLL1: $("#powerLL1TxtBox").val()
+            ? $("#powerLL1TxtBox").val()
+            : "",
+          powerLL2: $("#powerLL2TxtBox").val()
+            ? $("#powerLL2TxtBox").val()
+            : "",
+          sensations: $("#select-sensations").val()
+            ? $("#select-sensations").val()
+            : "",
+          slr: $("#select-slr").val() ? $("#select-slr").val() : "",
+          PHALLENSIGN: $("#PHALLENSIGNCheckChecked").prop("checked"),
+          TINNELSIGN: $("#TINNELSIGNCheckChecked").prop("checked"),
+          SPERLINGSIGN: $("#SPERLINGSIGNCheckChecked").prop("checked"),
+          HOFFSIGN: $("#HOFFSIGNCheckChecked").prop("checked"),
+
+          selectedMedicines: getAllMedicines(),
+          selectedRehabilitationAids: getRehabilitationAids(),
+          selectedPatientInstructions: getAllPatientInstructions(),
+          nextFollowUpDate: $("#txtboxNextFollowUpDate").val(),
+        },
+      };
+      return templateData;
+    }
+    function getAllComplaints() {
+      const complaints = [];
+
+      // Loop through each row in the table body
+      document
+        .querySelectorAll("#chiefComplaintsContainer .complaint-row")
+        .forEach((row) => {
+          const complaintInput = row.querySelector(".complaint-input").value;
+          const durationSelect = row.querySelector(".duration-select").value;
+          const unitSelect = row.querySelector(".unit-select").value;
+
+          // Push the data as an object into the complaints array
+          complaints.push({
+            complaint: complaintInput || null,
+            duration: durationSelect || null,
+            unit: unitSelect || null,
+          });
+        });
+
+      return complaints;
+    }
+    function getSelectedDiagnosis() {
+      const diagnosisSuggest = $("#diagnosisList").magicSuggest();
+      const selectedDiagnoses = diagnosisSuggest.getSelection();
+
+      // Map the selected diagnoses to an array of values
+      const selectedValues = selectedDiagnoses.map(
+        (diagnosis) => diagnosis.name
+      );
+
+      return selectedValues;
+    }
+    async function getSelectedInvestigation() {
+      debugger;
+      const investigationSuggest = $("#investigationList").magicSuggest();
+      let selectedInvestigations = investigationSuggest.getSelection();
+
+      // Iterate over selected investigations and check if id is a string
+      for (let i = 0; i < selectedInvestigations.length; i++) {
+        if (isNaN(selectedInvestigations[i].id)) {
+          // If ID is a string (not an integer), call API to add investigation
+          const result = await window.electronAPI.addInvestigation(
+            selectedInvestigations[i].name
+          );
+
+          // Update the investigation ID with the newly created one
+          selectedInvestigations[i].id = result.id;
+        }
+      }
+
+      // Return array of selected investigations with updated IDs
+      return selectedInvestigations.map((investigation) => ({
+        id: investigation.id,
+        name: investigation.name,
+      }));
+    }
+    function getSelectedPlan() {
+      const planSuggest = $("#planList").magicSuggest();
+      const selectedPlans = planSuggest.getSelection();
+
+      // Map the selected plans to an array of values
+      const selectedValues = selectedPlans.map((plan) => plan.name);
+
+      return selectedValues;
+    }
     function getAllMedicines() {
       const medicines = [];
 
@@ -221,70 +504,105 @@
 
       return medicines;
     }
+    function getRehabilitationAids() {
+      const aidsData = [];
 
-    async function init(id) {
-      $("#hdnId").html(id);
-      try {
-        // Fetch the medicines associated with the diagnosis ID
-        const result = await window.electronAPI.getAttachMedicineByDiagnosisIds(
-          id.toString()
-        );
+      // Loop through each rehabilitation-aids row
+      $("#rehabilitationAidsContainer .rehabilitation-aids-row").each(
+        function () {
+          const rehabilitationAid = $(this)
+            .find(".rehabilitation-aids-input")
+            .val();
+          const moreDetail = $(this).find(".moredetail-input").val();
 
-        if (result && result.length > 0) {
-          // Clear existing rows before populating
-          $("#medicineContainer .medicine-row").remove();
-
-          result.forEach((medicine, index) => {
-            // For each medicine, either populate an existing row or add a new row
-            if (index === 0) {
-              populateMedicineRow(medicine); // Populate the first row
-            } else {
-              const newRowHtml = common.getMedicineRow(); // Create a new row
-              $("#medicineContainer tbody").append(newRowHtml);
-              populateMedicineRow(
-                medicine,
-                $("#medicineContainer .medicine-row").last()
-              ); // Populate the new row
-            }
-          });
+          // Push the data to the aidsData array
+          if (rehabilitationAid || moreDetail) {
+            aidsData.push({
+              name: rehabilitationAid,
+              moreDetail: moreDetail,
+            });
+          }
         }
-      } catch (error) {
+      );
+
+      return aidsData;
+    }
+    function getAllPatientInstructions() {
+      const patientinstructions = [];
+
+      $("#patient-instructionContainer .patient-instruction-row").each(
+        function () {
+          const patientinstructionRow = $(this);
+
+          // Create an object for each patient-instruction row
+          const patientinstruction = {
+            title: patientinstructionRow
+              .find(".patient-instruction-input")
+              .val(),
+            detail: patientinstructionRow.find("[id^='textPInstDetail']").val(),
+          };
+
+          // Add the object to the patient-instructions array
+          patientinstructions.push(patientinstruction);
+        }
+      );
+
+      return patientinstructions;
+    }
+    function validatetemplateData(templateData) {
+      var patientInformation = templateData.patientInformation;
+      let isValid = true;
+      if (!patientInformation.patientname) {
         $.toast({
           heading: "Error",
-          text: error,
+          text: `Patient Name is required`,
           showHideTransition: "fade",
           icon: "error",
           position: "top-right",
         });
+        isValid = false;
+      } else if (!patientInformation.patientage) {
+        $.toast({
+          heading: "Error",
+          text: `Patient Age is required`,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        isValid = false;
+      } else if (!patientInformation.checkupDate) {
+        $.toast({
+          heading: "Error",
+          text: `Patient Checkup Date is required`,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        isValid = false;
+      } else if (patientInformation.selectedDiagnosis.length <= 0) {
+        $.toast({
+          heading: "Error",
+          text: `Atlease One Diagnosis is required`,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        isValid = false;
+      } else if (patientInformation.selectedDiagnosis.length <= 0) {
+        $.toast({
+          heading: "Error",
+          text: `Atlease One Diagnosis is required`,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        isValid = false;
+      } else if (
+        !attachMedicineValidated(patientInformation.selectedMedicines)
+      ) {
+        isValid = false;
       }
-    }
-
-    // Function to populate a medicine row with data
-    function populateMedicineRow(medicine, row) {
-      // If no row is passed, add a new one
-      if (!row) {
-        const newRowHtml = common.getMedicineRow(); // Create a new row
-        $("#medicineContainer tbody").append(newRowHtml); // Append to the container
-        row = $("#medicineContainer .medicine-row").last(); // Select the newly added row
-      }
-
-      // Populate the row with the medicine data
-      row.find(".medicine-input").val(medicine.medicinename);
-      row.find("[id^='medicineType']").val(medicine.medicinetype);
-      row.find("[id^='injType']").val(medicine.injType);
-      row.find("[id^='quantity']").val(medicine.quantity);
-      row.find("[id^='inlineMorning']").prop("checked", medicine.morning);
-      row.find("[id^='inlineAfternoon']").prop("checked", medicine.afternoon);
-      row.find("[id^='inlineNight']").prop("checked", medicine.night);
-      row
-        .find("[id^='isPrintableOnPrescriptionCheckChecked']")
-        .prop("checked", medicine.isPrintableOnPrescription);
-      row.find("[id^='durationnumber']").val(medicine.durationnumber);
-      row.find("[id^='slctDuration']").val(medicine.duration);
-      row
-        .find("[id^='isPrintableOnPrescriptionCheckChecked']")
-        .prop("checked", medicine.isPrintableOnPrescription);
-      row.find("[id^='moredetail']").val(medicine.moredetail);
+      return isValid;
     }
 
     // Trigger initialization with the ID from the modal

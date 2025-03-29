@@ -86,33 +86,6 @@
       }
     }
 
-    // Add new complaint row
-    function addComplaintRow() {
-      const rowCount = $("#chiefComplaintsContainer .complaint-row").length;
-      const newRow = $(
-        "#chiefComplaintsContainer .complaint-row:first"
-      ).clone();
-
-      // Set unique IDs for input, select, and remove button
-      newRow.find("input").attr("id", `complaint-input-${rowCount}`);
-      newRow
-        .find("iput.duration-select")
-        .attr("id", `duration-select-${rowCount}`);
-      newRow.find("select.unit-select").attr("id", `unit-select-${rowCount}`);
-      newRow
-        .find("button.remove-complaint")
-        .attr("id", `remove-complaint-${rowCount}`);
-
-      // Clear the values of the new row
-      newRow
-        .find("input.duration-select")
-        .val(common.getSettings()[0].defaultcomplaintduration);
-      newRow.find("select").val(common.getSettings()[0].defaultcomplaintunit);
-
-      // Append the new row to the table body
-      $("#chiefComplaintsContainer tbody").append(newRow);
-    }
-
     // Remove complaint row
     $(document)
       .off("click", ".remove-complaint")
@@ -132,8 +105,21 @@
 
     // Add new row button
     $("#addComplaintBtn").on("click", function (event) {
+      init();
       event.preventDefault();
-      addComplaintRow();
+      newRowHtml = common.getChiefComplaintRow();
+      newRowHtml = $(newRowHtml); // Convert to jQuery object for easy manipulation
+
+      // Modify values before appending
+      newRowHtml.find(".complaint-input").val("");
+      newRowHtml
+        .find(".duration-select")
+        .val(common.getSettings()[0].defaultcomplaintduration); // Set duration to 5
+      newRowHtml
+        .find(".unit-select")
+        .val(common.getSettings()[0].defaultcomplaintunit); // Set unit to week
+
+      $("#chiefComplaintsContainer tbody").append(newRowHtml);
     });
 
     // Add new row button

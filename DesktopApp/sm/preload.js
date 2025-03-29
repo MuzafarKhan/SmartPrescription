@@ -62,10 +62,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
   updateDiagnosis: (id, name, nameAlter) =>
     ipcRenderer.invoke("update-diagnosis", id, name, nameAlter),
   deleteDiagnosisById: (id) => ipcRenderer.invoke("delete-diagnosis-by-id", id),
-  getAttachMedicineByDiagnosisIds: (diagnosisIds) =>
-    ipcRenderer.invoke("get-attach-medicine-by-diagnosisIds", diagnosisIds),
+
+  getCreateTemplateByDiagnosisIds: (diagnosisIds) =>
+    ipcRenderer.invoke("get-create-medicine-by-diagnosisIds", diagnosisIds),
+
   attachMedicine: (id, medicines) =>
     ipcRenderer.invoke("attach-medicine", id, medicines),
+  createTemplate: (id, templateData) =>
+    ipcRenderer.invoke("create-Template", id, templateData),
   getAttachPatientInstructionByDiagnosisIds: (diagnosisIds) =>
     ipcRenderer.invoke(
       "get-attach-patient-instruction-by-diagnosisIds",

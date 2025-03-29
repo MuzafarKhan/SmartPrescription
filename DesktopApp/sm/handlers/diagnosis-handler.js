@@ -76,7 +76,7 @@ ipcMain.handle("delete-diagnosis-by-id", async (event, id) => {
 });
 
 ipcMain.handle(
-  "get-attach-medicine-by-diagnosisIds",
+  "get-create-medicine-by-diagnosisIds",
   async (event, diagnosisIds) => {
     console.log("Query received:", diagnosisIds); // Log the comma-separated IDs
     return new Promise((resolve, reject) => {
@@ -87,7 +87,7 @@ ipcMain.handle(
         .join(",");
 
       // Prepare the query with IN operator
-      const query = `SELECT * from diagnosis_medicine WHERE diagnosisid IN (${placeholders})`;
+      const query = `SELECT * from diagnosis_template WHERE diagnosisid IN (${placeholders})`;
 
       db.all(query, diagnosisIds.split(","), (err, rows) => {
         if (err) {
@@ -200,6 +200,50 @@ ipcMain.handle("attach-medicine", async (event, id, medicines) => {
               }
             });
           }
+        }
+      );
+    });
+  });
+});
+
+ipcMain.handle("create-Template", async (event, id, templateData) => {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run("BEGIN TRANSACTION");
+
+      // First delete any existing template with this ID
+      db.run(
+        "DELETE FROM diagnosis_template WHERE diagnosisid = ?",
+        [id],
+        function (err) {
+          if (err) {
+            db.run("ROLLBACK");
+            return reject(err);
+          }
+
+          // Then insert the new template
+          db.run(
+            "INSERT INTO diagnosis_template (diagnosisid, templateData) VALUES (?, ?)",
+            [id, templateData],
+            function (err) {
+              if (err) {
+                db.run("ROLLBACK");
+                return reject(err);
+              }
+
+              // If everything succeeded, commit the transaction
+              db.run("COMMIT", (err) => {
+                if (err) {
+                  db.run("ROLLBACK");
+                  return reject(err);
+                }
+                resolve({
+                  success: true,
+                  lastInsertRowid: this.lastID,
+                });
+              });
+            }
+          );
         }
       );
     });

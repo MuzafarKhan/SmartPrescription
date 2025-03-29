@@ -59,6 +59,7 @@ ipcMain.handle("add-medicine", async (event, medicine) => {
     durationnumber,
     duration,
     medicineType,
+    injType,
     quantity,
     moreDetails,
   } = medicine;
