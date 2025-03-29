@@ -278,3 +278,7 @@ body {
 .hidden {
   display: none;
 }
+
+.ml-1 {
+  margin-left: 1%;
+}

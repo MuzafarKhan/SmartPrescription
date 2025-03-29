@@ -237,38 +237,38 @@
   }
 
   function setOtherDetailPrintData(prescriptionDataInUrdu) {
-    var syrgerytext = "";
+    var surgerytext = "";
 
     if (prescriptionDataInUrdu.patientInformation.laminectomy) {
-      syrgerytext += "Post Op laminectomy ";
+      surgerytext += "Post Op laminectomy ";
     }
     if (prescriptionDataInUrdu.patientInformation.tpf) {
-      syrgerytext += "Post Op tpf ";
+      surgerytext += "Post Op tpf ";
     }
     if (prescriptionDataInUrdu.patientInformation.craniotomy) {
-      syrgerytext += "Post Op craniotomy ";
+      surgerytext += "Post Op craniotomy ";
     }
     if (prescriptionDataInUrdu.patientInformation.vpshunt) {
-      syrgerytext += "Post Op vpshunt ";
+      surgerytext += "Post Op vpshunt ";
     }
     if (prescriptionDataInUrdu.patientInformation.mmc) {
-      syrgerytext += "Post Op mmc ";
+      surgerytext += "Post Op mmc ";
     }
 
     if (
-      prescriptionDataInUrdu.patientInformation.durationsyrgery &&
-      prescriptionDataInUrdu.patientInformation.unitsyrgery
+      prescriptionDataInUrdu.patientInformation.durationsurgery &&
+      prescriptionDataInUrdu.patientInformation.unitsurgery
     ) {
-      syrgerytext +=
-        prescriptionDataInUrdu.patientInformation.durationsyrgery +
+      surgerytext +=
+        prescriptionDataInUrdu.patientInformation.durationsurgery +
         " " +
-        prescriptionDataInUrdu.patientInformation.unitsyrgery +
+        prescriptionDataInUrdu.patientInformation.unitsurgery +
         " ";
     }
-    syrgerytext +=
-      prescriptionDataInUrdu.patientInformation.patientSyrgeryFurtherDetail;
+    surgerytext +=
+      prescriptionDataInUrdu.patientInformation.patientSurgeryFurtherDetail;
 
-    $("#divExtraDetailLikeSurgery").html(syrgerytext.toUpperCase());
+    $("#divExtraDetailLikeSurgery").html(surgerytext.toUpperCase());
 
     var COMORBIDSText = "";
     COMORBIDSText += `DM${

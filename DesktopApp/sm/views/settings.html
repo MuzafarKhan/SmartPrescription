@@ -22,7 +22,7 @@
                   </select>
                 </div>
               </div>
-              <div class="col-2">
+              <div class="col-2 ml-1">
                 <div class="row">
                   <label for="txtDefaultDate"
                     >Default Date (Patient Detail)</label
@@ -50,7 +50,7 @@
                   />
                 </div>
               </div>
-              <div class="col-2">
+              <div class="col-2 ml-1">
                 <div class="row">
                   <label>Default Complaint Unit</label>
                   <select class="form-select default-complaint-unit">
@@ -60,6 +60,32 @@
                     <option value="month">month</option>
                     <option value="year">year</option>
                   </select>
+                </div>
+              </div>
+            </div>
+            <br />
+
+            <div class="row">
+              <div class="col-4">
+                <div class="row">
+                  <label>Surgery Detail Values</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="value1,value2"
+                    id="txtboxSurgeryDetailValues"
+                  />
+                </div>
+              </div>
+              <div class="col-4 ml-1">
+                <div class="row">
+                  <label>Investigation Detail Values</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="value1,value2"
+                    id="txtboxInvestigationDetailValues"
+                  />
                 </div>
               </div>
             </div>
@@ -210,6 +236,10 @@
         $("#txtDefaultComplaintDurationSetting").val(
           setting[0].defaultcomplaintduration
         );
+        $("#txtboxInvestigationDetailValues").val(
+          setting[0].investigationDetailValues
+        );
+        $("#txtboxSurgeryDetailValues").val(setting[0].surgeryDetailValues);
 
         if (setting[0].defaultdate)
           toggleInputs("txtDefaultDate", "selectDefaultDay");
@@ -273,6 +303,8 @@
         defaultcomplaintduration: $(
           "#txtDefaultComplaintDurationSetting"
         ).val(),
+        investigationDetailValues: $("#txtboxInvestigationDetailValues").val(),
+        surgeryDetailValues: $("#txtboxSurgeryDetailValues").val(),
       };
 
       // Array to store translations data
@@ -297,7 +329,9 @@
           settings.defaultDate,
           settings.defaultDay,
           settings.defaultcomplaintunit,
-          settings.defaultcomplaintduration
+          settings.defaultcomplaintduration,
+          settings.investigationDetailValues,
+          settings.surgeryDetailValues
         );
         await savetranslations(translations);
         await common.refreshSettings();
@@ -314,13 +348,17 @@
     defaultdate,
     defaultday,
     defaultcomplaintunit,
-    defaultcomplaintduration
+    defaultcomplaintduration,
+    investigationDetailValues,
+    surgeryDetailValues
   ) {
     const results = await window.electronAPI.updateSettings(
       defaultdate,
       defaultday,
       defaultcomplaintunit,
-      defaultcomplaintduration
+      defaultcomplaintduration,
+      investigationDetailValues,
+      surgeryDetailValues
     );
   }
 

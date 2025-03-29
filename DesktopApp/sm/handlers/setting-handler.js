@@ -39,11 +39,13 @@ ipcMain.handle(
     defaultdate,
     defaultday,
     defaultcomplaintunit,
-    defaultcomplaintduration
+    defaultcomplaintduration,
+    investigationDetailValues,
+    surgeryDetailValues
   ) => {
     return new Promise((resolve, reject) => {
       const stmt = db.prepare(
-        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?"
+        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?, investigationDetailValues = ?, surgeryDetailValues = ?"
       );
       stmt.run(
         [
@@ -51,6 +53,8 @@ ipcMain.handle(
           defaultday,
           defaultcomplaintunit,
           defaultcomplaintduration,
+          investigationDetailValues,
+          surgeryDetailValues,
         ],
         function (err) {
           stmt.finalize(); // Clean up the statement

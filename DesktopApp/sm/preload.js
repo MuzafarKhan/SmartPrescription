@@ -96,14 +96,18 @@ contextBridge.exposeInMainWorld("electronAPI", {
     defaultdate,
     defaultday,
     defaultcomplaintunit,
-    defaultcomplaintduration
+    defaultcomplaintduration,
+    investigationDetailValues,
+    surgeryDetailValues
   ) =>
     ipcRenderer.invoke(
       "update-settings",
       defaultdate,
       defaultday,
       defaultcomplaintunit,
-      defaultcomplaintduration
+      defaultcomplaintduration,
+      investigationDetailValues,
+      surgeryDetailValues
     ),
   savetranslations: (translations) =>
     ipcRenderer.invoke("save-translations", translations),

@@ -89,7 +89,7 @@
                   <input
                     class="form-check-input syrgry-input"
                     type="checkbox"
-                    name="syrgery"
+                    name="surgery"
                     role="switch"
                     id="laminectomyCheckChecked"
                   />
@@ -101,7 +101,7 @@
                   <input
                     class="form-check-input syrgry-input"
                     type="checkbox"
-                    name="syrgery"
+                    name="surgery"
                     role="switch"
                     id="tPFCheckChecked"
                   />
@@ -113,7 +113,7 @@
                   <input
                     class="form-check-input syrgry-input"
                     type="checkbox"
-                    name="syrgery"
+                    name="surgery"
                     role="switch"
                     id="craniotomyCheckChecked"
                   />
@@ -125,7 +125,7 @@
                   <input
                     class="form-check-input syrgry-input"
                     type="checkbox"
-                    name="syrgery"
+                    name="surgery"
                     role="switch"
                     id="vPshuntCheckChecked"
                   />
@@ -137,7 +137,7 @@
                   <input
                     class="form-check-input syrgry-input"
                     type="checkbox"
-                    name="syrgery"
+                    name="surgery"
                     role="switch"
                     id="mMCCheckChecked"
                   />
@@ -149,14 +149,14 @@
               <div class="col-1">
                 <input
                   type="number"
-                  class="form-control duration-syrgery-select"
+                  class="form-control duration-surgery-select"
                   placeholder="Enter Complaint"
                   value="0"
                 />
               </div>
               <div class="col-2">
                 <!-- Unit Dropdown -->
-                <select class="form-select unit-syrgery-select">
+                <select class="form-select unit-surgery-select">
                   <option value="" selected>Select Unit</option>
                   <option value="day">day</option>
                   <option value="week">week</option>
@@ -165,12 +165,9 @@
                 </select>
               </div>
               <div class="col-3">
-                <input
-                  type="input"
-                  class="form-control"
-                  placeholder="Type Further details"
-                  id="txtSyrgeryFurtherdetails"
-                />
+                <select class="form-select surgery-detail-select">
+                  <option value="" selected>Select Further Detail</option>
+                </select>
               </div>
             </div>
           </div>
@@ -432,6 +429,16 @@
     const defaultcomplaintduration =
       common.getSettings()[0].defaultcomplaintduration;
 
+    const surgeryDetailValues = common.getSettings()[0].surgeryDetailValues;
+
+    var select = document.querySelector(".surgery-detail-select");
+    surgeryDetailValues.split(",").forEach(function (value) {
+      var option = document.createElement("option");
+      option.value = value;
+      option.textContent = value;
+      select.appendChild(option);
+    });
+
     $("#txtDate").datepicker({
       dateFormat: "dd/mm/yy", //check change
       changeMonth: true,
@@ -489,22 +496,22 @@
           }
           if (
             value &&
-            value.syrgeryDataState &&
-            value.syrgeryDataState.unitsyrgery &&
-            value.syrgeryDataState.durationsyrgery &&
-            value.syrgeryDataState.patientSyrgeryFurtherDetail
+            value.surgeryDataState &&
+            value.surgeryDataState.unitsurgery &&
+            value.surgeryDataState.durationsurgery &&
+            value.surgeryDataState.patientSurgeryFurtherDetail
           ) {
-            document.querySelector(".unit-syrgery-select").value =
-              value.syrgeryDataState.unitsyrgery;
-            document.querySelector(".duration-syrgery-select").value =
-              value.syrgeryDataState.durationsyrgery;
-            document.querySelector("#txtSyrgeryFurtherdetails").value =
-              value.syrgeryDataState.patientSyrgeryFurtherDetail;
+            document.querySelector(".unit-surgery-select").value =
+              value.surgeryDataState.unitsurgery;
+            document.querySelector(".duration-surgery-select").value =
+              value.surgeryDataState.durationsurgery;
+            document.querySelector("#txtSurgeryFurtherdetails").value =
+              value.surgeryDataState.patientSurgeryFurtherDetail;
           }
         } else {
-          document.querySelector(".unit-syrgery-select").value = "";
-          document.querySelector(".duration-syrgery-select").value = 1;
-          document.querySelector("#txtSyrgeryFurtherdetails").value = "";
+          document.querySelector(".unit-surgery-select").value = "";
+          document.querySelector(".duration-surgery-select").value = 0;
+          document.querySelector("#txtSurgeryFurtherdetails").value = "";
         }
       });
     });
@@ -580,66 +587,66 @@
           "prescriptionData",
           JSON.stringify(prescriptionData)
         );
-        savesyrgerytolocalstorage();
+        savesurgerytolocalstorage();
       });
     }
 
-    function savesyrgerytolocalstorage() {
+    function savesurgerytolocalstorage() {
       var dataState = getPrescriptionData();
       localStorage.setItem("getPrescriptionData", JSON.stringify(dataState));
 
-      var syrgeryDataState = {
-        syrgeryDataState: {
-          unitsyrgery: $(".unit-syrgery-select").val()
-            ? $(".unit-syrgery-select").val()
+      var surgeryDataState = {
+        surgeryDataState: {
+          unitsurgery: $(".unit-surgery-select").val()
+            ? $(".unit-surgery-select").val()
             : "",
 
-          durationsyrgery: $(".duration-syrgery-select").val()
-            ? $(".duration-syrgery-select").val()
+          durationsurgery: $(".duration-surgery-select").val()
+            ? $(".duration-surgery-select").val()
             : "",
-          patientSyrgeryFurtherDetail: $("#txtSyrgeryFurtherdetails").val()
-            ? $("#txtSyrgeryFurtherdetails").val()
+          patientSurgeryFurtherDetail: $("#txtSurgeryFurtherdetails").val()
+            ? $("#txtSurgeryFurtherdetails").val()
             : "",
         },
       };
 
       if (
-        syrgeryDataState &&
-        syrgeryDataState.syrgeryDataState &&
-        syrgeryDataState.syrgeryDataState.unitsyrgery &&
-        syrgeryDataState.syrgeryDataState.durationsyrgery &&
-        syrgeryDataState.syrgeryDataState.patientSyrgeryFurtherDetail
+        surgeryDataState &&
+        surgeryDataState.surgeryDataState &&
+        surgeryDataState.surgeryDataState.unitsurgery &&
+        surgeryDataState.surgeryDataState.durationsurgery &&
+        surgeryDataState.surgeryDataState.patientSurgeryFurtherDetail
       ) {
         if (
           dataState &&
           dataState.patientInformation &&
           dataState.patientInformation.laminectomy
         )
-          localStorage.setItem("laminectomy", JSON.stringify(syrgeryDataState));
+          localStorage.setItem("laminectomy", JSON.stringify(surgeryDataState));
         if (
           dataState &&
           dataState.patientInformation &&
           dataState.patientInformation.tpf
         )
-          localStorage.setItem("tpf", JSON.stringify(syrgeryDataState));
+          localStorage.setItem("tpf", JSON.stringify(surgeryDataState));
         if (
           dataState &&
           dataState.patientInformation &&
           dataState.patientInformation.vpshunt
         )
-          localStorage.setItem("vpshunt", JSON.stringify(syrgeryDataState));
+          localStorage.setItem("vpshunt", JSON.stringify(surgeryDataState));
         if (
           dataState &&
           dataState.patientInformation &&
           dataState.patientInformation.craniotomy
         )
-          localStorage.setItem("craniotomy", JSON.stringify(syrgeryDataState));
+          localStorage.setItem("craniotomy", JSON.stringify(surgeryDataState));
         if (
           dataState &&
           dataState.patientInformation &&
           dataState.patientInformation.mmc
         )
-          localStorage.setItem("mmc", JSON.stringify(syrgeryDataState));
+          localStorage.setItem("mmc", JSON.stringify(surgeryDataState));
       }
     }
     $("#printAndGeneratePrescription").on("click", async function () {
@@ -669,22 +676,22 @@
           craniotomy: $("#craniotomyCheckChecked").prop("checked"),
           vpshunt: $("#vPshuntCheckChecked").prop("checked"),
           mmc: $("#mMCCheckChecked").prop("checked"),
-          unitsyrgery: $(".unit-syrgery-select").val()
-            ? $(".unit-syrgery-select").val()
+          unitsurgery: $(".unit-surgery-select").val()
+            ? $(".unit-surgery-select").val()
             : "",
 
-          durationsyrgery: $(".duration-syrgery-select").val()
-            ? $(".duration-syrgery-select").val()
+          durationsurgery: $(".duration-surgery-select").val()
+            ? $(".duration-surgery-select").val()
             : "",
-          patientSyrgeryFurtherDetail: $("#txtSyrgeryFurtherdetails").val()
-            ? $("#txtSyrgeryFurtherdetails").val()
+          patientSurgeryFurtherDetail: $("#txtSurgeryFurtherdetails").val()
+            ? $("#txtSurgeryFurtherdetails").val()
             : "",
 
           complaintData: getAllComplaints(),
           selectedDiagnosis: getSelectedDiagnosis(),
           selectedInvestigation: getSelectedInvestigation(),
-          investigationMoreDetail: $("#txtinvestigationMoreDetail").val()
-            ? $("#txtinvestigationMoreDetail").val()
+          investigationMoreDetail: $(".investigation-detail-select").val()
+            ? $(".investigation-detail-select").val()
             : "",
           selectedPlan: getSelectedPlan(),
           gcs: $("#gcsTxtBox").val() ? $("#gcsTxtBox").val() : "",

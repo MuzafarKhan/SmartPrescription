@@ -215,7 +215,10 @@
           ).patientInformation;
           debugger;
           populateAllComplaints(templateData.complaintData);
-          populateInvestigation(templateData.selectedInvestigation);
+          populateInvestigation(
+            templateData.selectedInvestigation,
+            templateData.investigationMoreDetail
+          );
           populatePlan(templateData.selectedPlan);
           populateAllMedicines(templateData.selectedMedicines);
           populateRehabilitationAids(templateData.selectedRehabilitationAids);
@@ -317,7 +320,11 @@
       row.find("[id^='moredetail']").val(medicine.moredetail);
     }
 
-    async function populateInvestigation(investigations) {
+    async function populateInvestigation(
+      investigations,
+      investigationMoreDetail
+    ) {
+      $(".investigation-detail-select").val(investigationMoreDetail);
       try {
         const investigationListData =
           await window.electronAPI.getInvestigation();
@@ -450,22 +457,22 @@
           craniotomy: $("#craniotomyCheckChecked").prop("checked"),
           vpshunt: $("#vPshuntCheckChecked").prop("checked"),
           mmc: $("#mMCCheckChecked").prop("checked"),
-          unitsyrgery: $(".unit-syrgery-select").val()
-            ? $(".unit-syrgery-select").val()
+          unitsurgery: $(".unit-surgery-select").val()
+            ? $(".unit-surgery-select").val()
             : "",
 
-          durationsyrgery: $(".duration-syrgery-select").val()
-            ? $(".duration-syrgery-select").val()
+          durationsurgery: $(".duration-surgery-select").val()
+            ? $(".duration-surgery-select").val()
             : "",
-          patientSyrgeryFurtherDetail: $("#txtSyrgeryFurtherdetails").val()
-            ? $("#txtSyrgeryFurtherdetails").val()
+          patientSurgeryFurtherDetail: $("#txtSurgeryFurtherdetails").val()
+            ? $("#txtSurgeryFurtherdetails").val()
             : "",
 
           complaintData: getAllComplaints(),
           selectedDiagnosis: getSelectedDiagnosis(),
           selectedInvestigation: await getSelectedInvestigation(),
-          investigationMoreDetail: $("#txtinvestigationMoreDetail").val()
-            ? $("#txtinvestigationMoreDetail").val()
+          investigationMoreDetail: $(".investigation-detail-select").val()
+            ? $(".investigation-detail-select").val()
             : "",
           selectedPlan: await getSelectedPlan(),
           gcs: $("#gcsTxtBox").val() ? $("#gcsTxtBox").val() : "",
