@@ -40,12 +40,14 @@ ipcMain.handle(
     defaultday,
     defaultcomplaintunit,
     defaultcomplaintduration,
+    defaultfollowupunit,
+    defaultfollowupduration,
     investigationDetailValues,
     surgeryDetailValues
   ) => {
     return new Promise((resolve, reject) => {
       const stmt = db.prepare(
-        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?, investigationDetailValues = ?, surgeryDetailValues = ?"
+        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?, defaultfollowupunit = ?, defaultfollowupduration = ?, investigationDetailValues = ?, surgeryDetailValues = ?"
       );
       stmt.run(
         [
@@ -53,6 +55,8 @@ ipcMain.handle(
           defaultday,
           defaultcomplaintunit,
           defaultcomplaintduration,
+          defaultfollowupunit,
+          defaultfollowupduration,
           investigationDetailValues,
           surgeryDetailValues,
         ],

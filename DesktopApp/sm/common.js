@@ -142,6 +142,7 @@ const common = {
                   <option value="week" selected>week</option>
                   <option value="month">month</option>
                   <option value="year">year</option>
+                  <option value="continue">continue</option>
                 </select>
               </div>
             </div>

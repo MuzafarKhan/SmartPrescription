@@ -165,7 +165,10 @@
                 </select>
               </div>
               <div class="col-3">
-                <select class="form-select surgery-detail-select">
+                <select
+                  class="form-select surgery-detail-select"
+                  id="txtSurgeryFurtherdetails"
+                >
                   <option value="" selected>Select Further Detail</option>
                 </select>
               </div>
@@ -211,7 +214,7 @@
                 <div>
                   <label>UL</label>
                   <input
-                    style="display: inline; width: 16%"
+                    style="display: inline; width: 20%"
                     type="text"
                     class="form-control"
                     id="powerUL1TxtBox"
@@ -220,7 +223,7 @@
                   <span>/5</span>
 
                   <input
-                    style="display: inline; width: 16%"
+                    style="display: inline; width: 20%"
                     type="text"
                     class="form-control"
                     id="powerUL2TxtBox"
@@ -231,7 +234,7 @@
                 <div class="ms-1">
                   <label>LL</label>
                   <input
-                    style="display: inline; width: 16%"
+                    style="display: inline; width: 20%"
                     type="text"
                     class="form-control"
                     id="powerLL1TxtBox"
@@ -240,7 +243,7 @@
                   <span>/5</span>
 
                   <input
-                    style="display: inline; width: 16%"
+                    style="display: inline; width: 20%"
                     type="text"
                     class="form-control"
                     id="powerLL2TxtBox"
@@ -259,6 +262,24 @@
                 </div>
               </div>
               <div class="col-12Per">
+                <label>FABER</label>
+                <div>
+                  <select id="select-feber" class="form-select">
+                    <option selected>Negative</option>
+                    <option>Positive</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-12Per">
+                <label>Sphincter </label>
+                <div>
+                  <select id="select-sphincter" class="form-select">
+                    <option selected>INTACT</option>
+                    <option>LOST</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-12Per">
                 <label>SLR</label>
                 <div>
                   <select id="select-slr" class="form-select">
@@ -267,7 +288,7 @@
                   </select>
                 </div>
               </div>
-              <div class="col-4 mt-4">
+              <div class="col-8 mt-4">
                 <div class="form-check form-switch form-check-inline">
                   <input
                     class="form-check-input"
@@ -384,13 +405,24 @@
         <div class="mt-4 text-end">
           <!-- Added 'text-end' class -->
           <input
-            type="date"
-            class="form-control"
-            style="display: inline; width: 16%"
-            placeholder="FollowUp Date"
-            id="txtboxNextFollowUpDate"
-            name="name"
+            type="number"
+            id="txtDefaultFollowUpDurationSettingInput"
+            class="form-control followupStyle"
+            style="width: 10%; display: inline"
+            value="2"
           />
+
+          <!-- Unit Dropdown -->
+          <select
+            class="form-select default-followup-unit-select followupStyle"
+            style="width: 10%; display: inline"
+          >
+            <option value="" selected>Select Unit</option>
+            <option value="day">day</option>
+            <option selected value="week">week</option>
+            <option value="month">month</option>
+            <option value="year">year</option>
+          </select>
           <button type="submit" class="btn btn-success" id="printPrescription">
             Print
           </button>
@@ -418,7 +450,7 @@
 </div>
 
 <script>
-  $(document).ready(function () {
+  $(document).ready(async function () {
     $("#bpTxtbox").mask("000/00");
     const settings = common.getSettings();
     const date = new Date();
@@ -428,6 +460,9 @@
     const defaultcomplaintunit = common.getSettings()[0].defaultcomplaintunit;
     const defaultcomplaintduration =
       common.getSettings()[0].defaultcomplaintduration;
+    const defaultfollowupunit = common.getSettings()[0].defaultfollowupunit;
+    const defaultfollowupduration =
+      common.getSettings()[0].defaultfollowupduration;
 
     const surgeryDetailValues = common.getSettings()[0].surgeryDetailValues;
 
@@ -459,6 +494,316 @@
 
       $(".duration-select").val(defaultcomplaintduration);
       $(".unit-select").val(defaultcomplaintunit);
+
+      $(".default-followup-unit-select").val(defaultfollowupunit);
+      $("#txtDefaultFollowUpDurationSettingInput").val(defaultfollowupduration);
+
+      //Load Full Patient Prescription_____________________________________________________
+      const patientName = $("#content").data("patientName");
+      $("#content").data("patientName", "");
+
+      if (patientName) {
+        const allPatients =
+          JSON.parse(localStorage.getItem("allPatients")) || {};
+        var patientData = allPatients[patientName];
+        await populateFullPatientPrescription(patientData.patientInformation);
+      }
+      async function populateFullPatientPrescription(patientData) {
+        populatePatientDetails(patientData);
+        await populateDiagnosis(patientData.selectedDiagnosis);
+        populateAllComplaints(patientData.complaintData);
+        await populateInvestigation(
+          patientData.selectedInvestigation,
+          patientData.investigationMoreDetail
+        );
+        populatePlan(patientData.selectedPlan);
+        populateAllMedicines(patientData.selectedMedicines);
+        populateRehabilitationAids(patientData.selectedRehabilitationAids);
+        populateAllPatientInstructions(patientData.selectedPatientInstructions);
+      }
+
+      function populatePatientDetails(patientData) {
+        debugger;
+        $("#txtName").val(patientData.patientname);
+        $("#txtAge").val(patientData.patientage);
+        $("#txtDate").val(patientData.checkupDate);
+        $(".comorbidity-tab").removeClass("btn-success");
+        $("#DM").addClass(patientData.dm ? "btn-success" : "btn-danger");
+        $("#HTN").addClass(patientData.htn ? "btn-success" : "btn-danger");
+        $("#CVA").addClass(patientData.cva ? "btn-success" : "btn-danger");
+        $("#CAD").addClass(patientData.cad ? "btn-success" : "btn-danger");
+        $("#HEPATITIS").addClass(
+          patientData.hepatitis ? "btn-success" : "btn-danger"
+        );
+        $("#TRAUMA").addClass(
+          patientData.trauma ? "btn-success" : "btn-danger"
+        );
+
+        $("#laminectomyCheckChecked").prop("checked", patientData.laminectomy);
+        $("#tPFCheckChecked").prop("checked", patientData.tpf);
+        $("#craniotomyCheckChecked").prop("checked", patientData.craniotomy);
+        $("#vPshuntCheckChecked").prop("checked", patientData.vpshunt);
+        $("#mMCCheckChecked").prop("checked", patientData.mmc);
+
+        $(".unit-surgery-select").val(patientData.unitsurgery);
+        $(".duration-surgery-select").val(patientData.durationsurgery);
+        $("#txtSurgeryFurtherdetails").val(
+          patientData.patientSurgeryFurtherDetail
+        );
+        $("#gcsTxtBox").val(patientData.gcs);
+        $("#bpTxtbox").val(patientData.bp);
+        $("#powerUL1TxtBox").val(patientData.powerUL1);
+        $("#powerUL2TxtBox").val(patientData.powerUL2);
+        $("#powerLL1TxtBox").val(patientData.powerLL1);
+        $("#powerLL2TxtBox").val(patientData.powerLL2);
+        $("#select-sensations").val(patientData.sensations);
+        $("#select-feber").val(patientData.feber);
+        $("#select-sphincter").val(patientData.sphincter);
+        $("#select-slr").val(patientData.slr);
+
+        $("#PHALLENSIGNCheckChecked").prop("checked", patientData.PHALLENSIGN);
+        $("#TINNELSIGNCheckChecked").prop("checked", patientData.TINNELSIGN);
+        $("#SPERLINGSIGNCheckChecked").prop(
+          "checked",
+          patientData.SPERLINGSIGN
+        );
+        $("#HOFFSIGNCheckChecked").prop("checked", patientData.HOFFSIGN);
+
+        $("#txtboxNextFollowUpDate").val(patientData.nextFollowUpDate);
+      }
+      async function populateDiagnosis(diagnosis) {
+        try {
+          const diagnosisListData = await window.electronAPI.getDiagnosis();
+
+          // Initialize MagicSuggest and store the instance
+          const diagnosisSuggest = $("#diagnosisList").magicSuggest({
+            data: diagnosisListData,
+            placeholder: "Type or select Investigation",
+          });
+
+          if (diagnosis.length > 0) {
+            // Find matching diagnosis by ID
+            const diagnosisToSelect = diagnosisListData.filter((item) =>
+              diagnosis.includes(item.name)
+            );
+
+            // Use the MagicSuggest instance to set selection
+            diagnosisSuggest.setSelection(diagnosisToSelect);
+          }
+        } catch (error) {
+          console.error("Error loading diagnosis:", error);
+        }
+      }
+
+      function populateAllComplaints(complaints) {
+        if (complaints && complaints.length > 0) {
+          // Clear existing rows before populating
+          $("#chiefComplaintsContainer .complaint-row").remove();
+
+          complaints.forEach((complaints, index) => {
+            // For each medicine, either populate an existing row or add a new row
+            if (index === 0) {
+              populateChiefComplaintRow(complaints); // Populate the first row
+            } else {
+              const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+              $("#chiefComplaintsContainer tbody").append(newRowHtml);
+              populateChiefComplaintRow(
+                complaints,
+                $("#chiefComplaintsContainer .complaint-row").last()
+              ); // Populate the new row
+            }
+          });
+        }
+      }
+      function populateChiefComplaintRow(complaints, row) {
+        // If no row is passed, add a new one
+        if (!row) {
+          const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+          $("#chiefComplaintsContainer tbody").append(newRowHtml); // Append to the container
+          row = $("#chiefComplaintsContainer .complaint-row").last(); // Select the newly added row
+        }
+
+        // Populate the row with the medicine data
+        row.find(".complaint-input").val(complaints.complaint);
+        row.find(".unit-select").val(complaints.unit);
+        row.find(".duration-select").val(complaints.duration);
+      }
+
+      function populateAllMedicines(medicines) {
+        if (medicines && medicines.length > 0) {
+          // Clear existing rows before populating
+          $("#medicineContainer .medicine-row").remove();
+
+          medicines.forEach((medicine, index) => {
+            // For each medicine, either populate an existing row or add a new row
+            if (index === 0) {
+              populateMedicineRow(medicine); // Populate the first row
+            } else {
+              const newRowHtml = common.getMedicineRow(); // Create a new row
+              $("#medicineContainer tbody").append(newRowHtml);
+              populateMedicineRow(
+                medicine,
+                $("#medicineContainer .medicine-row").last()
+              ); // Populate the new row
+            }
+          });
+        }
+      }
+      function populateMedicineRow(medicine, row) {
+        // If no row is passed, add a new one
+        if (!row) {
+          const newRowHtml = common.getMedicineRow(); // Create a new row
+          $("#medicineContainer tbody").append(newRowHtml); // Append to the container
+          row = $("#medicineContainer .medicine-row").last(); // Select the newly added row
+        }
+
+        // Populate the row with the medicine data
+        row.find(".medicine-input").val(medicine.medicinename);
+        row.find("[id^='medicineType']").val(medicine.medicinetype);
+        row
+          .find("[id^='medicineType']")
+          .val(medicine.medicinetype)
+          .trigger("change");
+        row.find("[id^='quantity']").val(medicine.quantity);
+        row.find("[id^='inlineMorning']").prop("checked", medicine.morning);
+        row.find("[id^='inlineAfternoon']").prop("checked", medicine.afternoon);
+        row.find("[id^='inlineNight']").prop("checked", medicine.night);
+        row
+          .find("[id^='isPrintableOnPrescriptionCheckChecked']")
+          .prop("checked", medicine.isPrintableOnPrescription);
+        row.find("[id^='durationnumber']").val(medicine.durationnumber);
+        row.find("[id^='slctDuration']").val(medicine.duration);
+        row
+          .find("[id^='isPrintableOnPrescriptionCheckChecked']")
+          .prop("checked", medicine.isPrintableOnPrescription);
+        row.find("[id^='moredetail']").val(medicine.moredetail);
+      }
+
+      async function populateInvestigation(
+        investigations,
+        investigationMoreDetail
+      ) {
+        $(".investigation-detail-select").val(investigationMoreDetail);
+        try {
+          const investigationListData =
+            await window.electronAPI.getInvestigation();
+
+          // Initialize MagicSuggest and store the instance
+          const investigationSuggest = $("#investigationList").magicSuggest({
+            data: investigationListData,
+            placeholder: "Type or select Investigation",
+          });
+
+          if (investigations.length > 0) {
+            // Find matching investigations by ID
+            const investigationsToSelect = investigationListData.filter(
+              (item) => investigations.includes(item.name)
+            );
+
+            // Use the MagicSuggest instance to set selection
+            investigationSuggest.setSelection(investigationsToSelect);
+          }
+        } catch (error) {
+          console.error("Error loading investigations:", error);
+        }
+      }
+      async function populatePlan(plans) {
+        try {
+          const planListData = await window.electronAPI.getPlan();
+
+          // Initialize MagicSuggest and store the instance
+          const planSuggest = $("#planList").magicSuggest({
+            data: planListData,
+            placeholder: "Type or select Investigation",
+          });
+
+          if (plans.length > 0) {
+            // Find matching plans by ID
+            const planToSelect = planListData.filter((item) =>
+              plans.includes(item.name)
+            );
+
+            // Use the MagicSuggest instance to set selection
+            planSuggest.setSelection(planToSelect);
+          }
+        } catch (error) {
+          console.error("Error loading plans:", error);
+        }
+      }
+
+      function populateRehabilitationAids(rehabilitationAids) {
+        if (rehabilitationAids && rehabilitationAids.length > 0) {
+          // Clear existing rows before populating
+          $("#rehabilitationAidsContainer .rehabilitation-aids-row").remove();
+
+          rehabilitationAids.forEach((rehabilitationAid, index) => {
+            // For each medicine, either populate an existing row or add a new row
+            if (index === 0) {
+              populateRehabilitationAidRow(rehabilitationAid); // Populate the first row
+            } else {
+              const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+              $("#rehabilitationAidsContainer tbody").append(newRowHtml);
+              populateRehabilitationAidRow(
+                rehabilitationAid,
+                $(
+                  "#rehabilitationAidsContainer .rehabilitation-aids-row"
+                ).last()
+              ); // Populate the new row
+            }
+          });
+        }
+      }
+      function populateRehabilitationAidRow(rehabilitationAid, row) {
+        // If no row is passed, add a new one
+        if (!row) {
+          const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+          $("#rehabilitationAidsContainer tbody").append(newRowHtml); // Append to the container
+          row = $(
+            "#rehabilitationAidsContainer .rehabilitation-aids-row"
+          ).last(); // Select the newly added row
+        }
+        // Populate the row with the medicine data
+        row.find(".rehabilitation-aids-input").val(rehabilitationAid.name);
+        row.find(".moredetail-input").val(rehabilitationAid.moreDetail);
+      }
+
+      function populateAllPatientInstructions(patientInstructions) {
+        if (patientInstructions && patientInstructions.length > 0) {
+          // Clear existing rows before populating
+          $("#patient-instructionContainer .patient-instruction-row").remove();
+
+          patientInstructions.forEach((patientInstruction, index) => {
+            // For each medicine, either populate an existing row or add a new row
+            if (index === 0) {
+              populateAllPatientInstructionsRow(patientInstruction); // Populate the first row
+            } else {
+              const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+              $("#patient-instructionContainer tbody").append(newRowHtml);
+              populateAllPatientInstructionsRow(
+                patientInstruction,
+                $(
+                  "#patient-instructionContainer .patient-instruction-row"
+                ).last()
+              ); // Populate the new row
+            }
+          });
+        }
+      }
+      function populateAllPatientInstructionsRow(patientInstruction, row) {
+        // If no row is passed, add a new one
+        if (!row) {
+          const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+          $("#patient-instructionContainer tbody").append(newRowHtml); // Append to the container
+          row = $(
+            "#patient-instructionContainer .patient-instruction-row"
+          ).last(); // Select the newly added row
+        }
+        // Populate the row with the medicine data
+        row.find(".patient-instruction-input").val(patientInstruction.title);
+        row.find("#textPInstDetail").val(patientInstruction.detail);
+      }
+
+      //End Load Full Patient Prescription_____________________________________________________
     }
 
     // Select all checkboxes with class "syrgry-input"
@@ -522,6 +867,7 @@
         this.classList.toggle("btn-success");
         this.classList.toggle("btn-danger");
         prescriptionForm;
+        $("#prescriptionForm").trigger("change");
       });
     });
 
@@ -551,34 +897,44 @@
     });
 
     $("#printPrescription").on("click", async function () {
-      let prescriptionData = getPrescriptionData();
+      let prescriptionData = await getPrescriptionData();
       if (validatePrescriptionData(prescriptionData)) {
         openPrintData(prescriptionData);
       }
     });
+
     const prescriptionForm = document.getElementById("prescriptionForm");
 
-    prescriptionForm.addEventListener("change", (event) => {
-      if (event.target.id !== "txtName") {
-        const currentPatient = getPrescriptionData();
-        const patientName =
-          currentPatient.patientInformation.patientname?.trim();
+    $("#prescriptionForm,#diagnosisList,.comorbidity-tab").on(
+      "change",
+      async (event) => {
+        debugger;
+        if (event.target.id !== "txtName") {
+          try {
+            const currentPatient = await getPrescriptionData();
+            const patientName =
+              currentPatient.patientInformation.patientname?.trim();
 
-        // Skip if no patient name or name is too short (less than 3 characters)
-        if (!patientName || patientName.length < 3) return;
+            // Skip if no patient name or name is too short (less than 3 characters)
+            if (!patientName || patientName.length < 3) return;
 
-        // Get existing patients or initialize empty object
-        const allPatients =
-          JSON.parse(localStorage.getItem("allPatients")) || {};
-        // Add/update current patient data
-        allPatients[patientName] = currentPatient;
+            // Get existing patients or initialize empty object
+            const allPatients =
+              JSON.parse(localStorage.getItem("allPatients")) || {};
 
-        // Save back to localStorage
-        localStorage.setItem("allPatients", JSON.stringify(allPatients));
+            // Add/update current patient data
+            allPatients[patientName] = currentPatient;
 
-        console.log(`Saved data for patient: ${patientName}`);
+            // Save back to localStorage
+            localStorage.setItem("allPatients", JSON.stringify(allPatients));
+
+            console.log(`Saved data for patient: ${patientName}`);
+          } catch (error) {
+            console.error("Error saving patient data:", error);
+          }
+        }
       }
-    });
+    );
 
     async function openPrintData(prescriptionData) {
       $("#addEditModel").load("views/popup/print.html", function () {
@@ -659,7 +1015,7 @@
       return true;
     }
 
-    function getPrescriptionData() {
+    async function getPrescriptionData() {
       var prescriptionData = {
         patientInformation: {
           patientname: $("#txtName").val() ? $("#txtName").val() : "",
@@ -689,11 +1045,11 @@
 
           complaintData: getAllComplaints(),
           selectedDiagnosis: getSelectedDiagnosis(),
-          selectedInvestigation: getSelectedInvestigation(),
+          selectedInvestigation: await getSelectedInvestigation(),
           investigationMoreDetail: $(".investigation-detail-select").val()
             ? $(".investigation-detail-select").val()
             : "",
-          selectedPlan: getSelectedPlan(),
+          selectedPlan: await getSelectedPlan(),
           gcs: $("#gcsTxtBox").val() ? $("#gcsTxtBox").val() : "",
           bp: $("#bpTxtbox").val() ? $("#bpTxtbox").val() : "",
 
@@ -711,6 +1067,10 @@
             : "",
           sensations: $("#select-sensations").val()
             ? $("#select-sensations").val()
+            : "",
+          feber: $("#select-feber").val() ? $("#select-feber").val() : "",
+          sphincter: $("#select-sphincter").val()
+            ? $("#select-sphincter").val()
             : "",
           slr: $("#select-slr").val() ? $("#select-slr").val() : "",
           PHALLENSIGN: $("#PHALLENSIGNCheckChecked").prop("checked"),
@@ -758,22 +1118,34 @@
 
       return selectedValues;
     }
-    function getSelectedInvestigation() {
+    async function getSelectedInvestigation() {
       const investigationSuggest = $("#investigationList").magicSuggest();
-      const selectedInvestigations = investigationSuggest.getSelection();
+      let selectedInvestigations = investigationSuggest.getSelection();
+      for (let i = 0; i < selectedInvestigations.length; i++) {
+        if (isNaN(selectedInvestigations[i].id)) {
+          const result = await window.electronAPI.addInvestigation(
+            selectedInvestigations[i].name
+          );
+        }
+      }
 
-      // Map the selected investigations to an array of values
       const selectedValues = selectedInvestigations.map(
         (investigation) => investigation.name
       );
 
       return selectedValues;
     }
-    function getSelectedPlan() {
+    async function getSelectedPlan() {
       const planSuggest = $("#planList").magicSuggest();
-      const selectedPlans = planSuggest.getSelection();
+      let selectedPlans = planSuggest.getSelection();
+      for (let i = 0; i < selectedPlans.length; i++) {
+        if (isNaN(selectedPlans[i].id)) {
+          const result = await window.electronAPI.addPlan(
+            selectedPlans[i].name
+          );
+        }
+      }
 
-      // Map the selected plans to an array of values
       const selectedValues = selectedPlans.map((plan) => plan.name);
 
       return selectedValues;
@@ -852,6 +1224,7 @@
 
       return patientinstructions;
     }
+
     function validatePrescriptionData(prescriptionData) {
       var patientInformation = prescriptionData.patientInformation;
       let isValid = true;
@@ -934,7 +1307,7 @@
           } )`;
           $.toast({
             heading: "Error",
-            text: `Medicine name is required in ROW ${index + 1}`,
+            text: `Medicine type is required in ROW ${index + 1}`,
             showHideTransition: "fade",
             icon: "error",
             position: "top-right",
@@ -946,21 +1319,7 @@
         if (!medicine.quantity.trim()) {
           $.toast({
             heading: "Error",
-            text: `Quantity is required in ( ROW ${index + 1} )`,
-            showHideTransition: "fade",
-            icon: "error",
-            position: "top-right",
-          });
-          isValid = false;
-        }
-
-        // Check if at least one checkbox (morning, afternoon, night) is selected
-        if (!medicine.morning && !medicine.afternoon && !medicine.night) {
-          $.toast({
-            heading: "Error",
-            text: `At least one timing (morning, afternoon, night) must be selected in (ROW ${
-              index + 1
-            } )`,
+            text: `Medicine Quantity is required in ( ROW ${index + 1} )`,
             showHideTransition: "fade",
             icon: "error",
             position: "top-right",
@@ -972,6 +1331,7 @@
 
     return isValid;
   }
+
   function setDynamicDropdown(selectId, fetchFunction) {
     const multiSelect = new Choices(`#${selectId}`, {
       searchEnabled: true,

@@ -73,8 +73,17 @@
               .join(",");
             handleDiagnosisSelection(diagnosisIds);
           } else {
+            $("#chiefComplaintsContainer .complaint-row").remove();
             $("#medicineContainer .medicine-row").remove();
+            $("#rehabilitationAidsContainer .rehabilitation-aids-row").remove();
+            $(
+              "#patient-instructionContainer .patient-instruction-row"
+            ).remove();
+            $("#investigationList").magicSuggest().clear();
+            $("#planList").magicSuggest().clear();
+            $(".investigation-detail-select").val("");
           }
+          $("#prescriptionForm").trigger("change");
         });
       } catch (error) {
         console.error("Error fetching diagnosis:", error);
@@ -82,46 +91,138 @@
     }
 
     async function handleDiagnosisSelection(diagnosisIds) {
-      await getAttachMedicine(diagnosisIds);
-      await getAttachPatientInstruction(diagnosisIds);
-    }
+      try {
+        // Fetch the medicines associated with the diagnosis ID
+        const result = await window.electronAPI.getCreateTemplateByDiagnosisIds(
+          diagnosisIds.toString()
+        );
 
-    async function getAttachMedicine(diagnosisIds) {
-      if (diagnosisIds) {
-        try {
-          // Fetch the medicines associated with the selected diagnoses IDs
-          const result =
-            await window.electronAPI.getAttachMedicineByDiagnosisIds(
-              diagnosisIds
+        if (result && result.length > 0) {
+          let mergedTemplateData = {
+            complaintData: [],
+            selectedInvestigation: [],
+            investigationMoreDetail: [],
+            selectedPlan: [],
+            selectedMedicines: [],
+            selectedRehabilitationAids: [],
+            selectedPatientInstructions: [],
+          };
+
+          result.forEach((item) => {
+            var templateData = JSON.parse(item.templateData).patientInformation;
+
+            // Merge complaintData
+            mergedTemplateData.complaintData.push(
+              ...templateData.complaintData
             );
 
-          if (result && result.length > 0) {
-            // Clear existing rows before populating new data
-            $("#medicineContainer .medicine-row").remove();
+            // Merge selectedInvestigation
+            mergedTemplateData.selectedInvestigation.push(
+              ...templateData.selectedInvestigation
+            );
 
-            result.forEach((medicine, index) => {
-              // For each medicine, either populate an existing row or add a new row
-              if (index === 0) {
-                populateMedicineRow(medicine); // Populate the first row
-              } else {
-                const newRowHtml = common.getMedicineRow(); // Create a new row
-                $("#medicineContainer tbody").append(newRowHtml);
-                populateMedicineRow(
-                  medicine,
-                  $("#medicineContainer .medicine-row").last()
-                ); // Populate the new row
-              }
-            });
-          }
-        } catch (error) {
-          $.toast({
-            heading: "Error",
-            text: error,
-            showHideTransition: "fade",
-            icon: "error",
-            position: "top-right",
+            // Merge investigationMoreDetail
+            mergedTemplateData.investigationMoreDetail.push(
+              ...templateData.investigationMoreDetail
+            );
+
+            // Merge selectedPlan
+            mergedTemplateData.selectedPlan.push(...templateData.selectedPlan);
+
+            // Merge selectedMedicines
+            mergedTemplateData.selectedMedicines.push(
+              ...templateData.selectedMedicines
+            );
+
+            // Merge selectedRehabilitationAids
+            mergedTemplateData.selectedRehabilitationAids.push(
+              ...templateData.selectedRehabilitationAids
+            );
+
+            // Merge selectedPatientInstructions
+            mergedTemplateData.selectedPatientInstructions.push(
+              ...templateData.selectedPatientInstructions
+            );
           });
+
+          // Populate the merged data
+          populateAllComplaints(mergedTemplateData.complaintData);
+          populateInvestigation(
+            mergedTemplateData.selectedInvestigation,
+            mergedTemplateData.investigationMoreDetail
+          );
+          populatePlan(mergedTemplateData.selectedPlan);
+          populateAllMedicines(mergedTemplateData.selectedMedicines);
+          populateRehabilitationAids(
+            mergedTemplateData.selectedRehabilitationAids
+          );
+          populateAllPatientInstructions(
+            mergedTemplateData.selectedPatientInstructions
+          );
         }
+      } catch (error) {
+        $.toast({
+          heading: "Error",
+          text: error,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+      }
+    }
+
+    function populateAllComplaints(complaints) {
+      if (complaints && complaints.length > 0) {
+        // Clear existing rows before populating
+        $("#chiefComplaintsContainer .complaint-row").remove();
+
+        complaints.forEach((complaints, index) => {
+          // For each medicine, either populate an existing row or add a new row
+          if (index === 0) {
+            populateChiefComplaintRow(complaints); // Populate the first row
+          } else {
+            const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+            $("#chiefComplaintsContainer tbody").append(newRowHtml);
+            populateChiefComplaintRow(
+              complaints,
+              $("#chiefComplaintsContainer .complaint-row").last()
+            ); // Populate the new row
+          }
+        });
+      }
+    }
+    function populateChiefComplaintRow(complaints, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+        $("#chiefComplaintsContainer tbody").append(newRowHtml); // Append to the container
+        row = $("#chiefComplaintsContainer .complaint-row").last(); // Select the newly added row
+      }
+
+      // Populate the row with the medicine data
+      row.find(".complaint-input").val(complaints.complaint);
+      row.find(".unit-select").val(complaints.unit);
+      row.find(".duration-select").val(complaints.duration);
+    }
+
+    function populateAllMedicines(medicines) {
+      if (medicines && medicines.length > 0) {
+        // Clear existing rows before populating
+        $("#medicineContainer .medicine-row").remove();
+
+        medicines.forEach((medicine, index) => {
+          // For each medicine, either populate an existing row or add a new row
+          if (index === 0) {
+            populateMedicineRow(medicine); // Populate the first row
+          } else {
+            const newRowHtml = common.getMedicineRow(); // Create a new row
+            $("#medicineContainer tbody").append(newRowHtml);
+            populateMedicineRow(
+              medicine,
+              $("#medicineContainer .medicine-row").last()
+            ); // Populate the new row
+          }
+        });
       }
     }
     function populateMedicineRow(medicine, row) {
@@ -135,11 +236,17 @@
       // Populate the row with the medicine data
       row.find(".medicine-input").val(medicine.medicinename);
       row.find("[id^='medicineType']").val(medicine.medicinetype);
-      row.find("[id^='injType']").val(medicine.injType);
+      row
+        .find("[id^='medicineType']")
+        .val(medicine.medicinetype)
+        .trigger("change");
       row.find("[id^='quantity']").val(medicine.quantity);
       row.find("[id^='inlineMorning']").prop("checked", medicine.morning);
       row.find("[id^='inlineAfternoon']").prop("checked", medicine.afternoon);
       row.find("[id^='inlineNight']").prop("checked", medicine.night);
+      row
+        .find("[id^='isPrintableOnPrescriptionCheckChecked']")
+        .prop("checked", medicine.isPrintableOnPrescription);
       row.find("[id^='durationnumber']").val(medicine.durationnumber);
       row.find("[id^='slctDuration']").val(medicine.duration);
       row
@@ -148,50 +255,111 @@
       row.find("[id^='moredetail']").val(medicine.moredetail);
     }
 
-    async function getAttachPatientInstruction(diagnosisIds) {
-      if (diagnosisIds) {
-        try {
-          // Fetch the medicines associated with the selected diagnoses IDs
-          const result =
-            await window.electronAPI.getAttachPatientInstructionByDiagnosisIds(
-              diagnosisIds
-            );
+    async function populateInvestigation(
+      investigations,
+      investigationMoreDetail
+    ) {
+      $(".investigation-detail-select").val(investigationMoreDetail);
+      try {
+        const investigationListData =
+          await window.electronAPI.getInvestigation();
 
-          if (result && result.length > 0) {
-            // Clear existing rows before populating new data
-            $(
-              "#patient-instructionContainer .patient-instruction-row"
-            ).remove();
+        // Initialize MagicSuggest and store the instance
+        const investigationSuggest = $("#investigationList").magicSuggest({
+          data: investigationListData,
+          placeholder: "Type or select Investigation",
+        });
 
-            result.forEach((medicine, index) => {
-              // For each medicine, either populate an existing row or add a new row
-              if (index === 0) {
-                populatePatientInstructionRow(medicine); // Populate the first row
-              } else {
-                const newRowHtml = common.getPatientInstructionRow(); // Create a new row
-                $("#patient-instructionContainer tbody").append(newRowHtml);
-                populatePatientInstructionRow(
-                  medicine,
-                  $(
-                    "#patient-instructionContainer .patient-instruction-row"
-                  ).last()
-                ); // Populate the new row
-              }
-            });
-          }
-        } catch (error) {
-          $.toast({
-            heading: "Error",
-            text: error,
-            showHideTransition: "fade",
-            icon: "error",
-            position: "top-right",
-          });
+        if (investigations.length > 0) {
+          // Find matching investigations by ID
+          const investigationsToSelect = investigationListData.filter((item) =>
+            investigations.includes(item.name)
+          );
+
+          // Use the MagicSuggest instance to set selection
+          investigationSuggest.setSelection(investigationsToSelect);
         }
+      } catch (error) {
+        console.error("Error loading investigations:", error);
       }
     }
-    // Function to populate a medicine row with data
-    function populatePatientInstructionRow(patientinstruction, row) {
+    async function populatePlan(plans) {
+      try {
+        const planListData = await window.electronAPI.getPlan();
+
+        // Initialize MagicSuggest and store the instance
+        const planSuggest = $("#planList").magicSuggest({
+          data: planListData,
+          placeholder: "Type or select Investigation",
+        });
+
+        if (plans.length > 0) {
+          // Find matching plans by ID
+          const planToSelect = planListData.filter((item) =>
+            plans.includes(item.name)
+          );
+
+          // Use the MagicSuggest instance to set selection
+          planSuggest.setSelection(planToSelect);
+        }
+      } catch (error) {
+        console.error("Error loading plans:", error);
+      }
+    }
+
+    function populateRehabilitationAids(rehabilitationAids) {
+      if (rehabilitationAids && rehabilitationAids.length > 0) {
+        // Clear existing rows before populating
+        $("#rehabilitationAidsContainer .rehabilitation-aids-row").remove();
+
+        rehabilitationAids.forEach((rehabilitationAid, index) => {
+          // For each medicine, either populate an existing row or add a new row
+          if (index === 0) {
+            populateRehabilitationAidRow(rehabilitationAid); // Populate the first row
+          } else {
+            const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+            $("#rehabilitationAidsContainer tbody").append(newRowHtml);
+            populateRehabilitationAidRow(
+              rehabilitationAid,
+              $("#rehabilitationAidsContainer .rehabilitation-aids-row").last()
+            ); // Populate the new row
+          }
+        });
+      }
+    }
+    function populateRehabilitationAidRow(rehabilitationAid, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+        $("#rehabilitationAidsContainer tbody").append(newRowHtml); // Append to the container
+        row = $("#rehabilitationAidsContainer .rehabilitation-aids-row").last(); // Select the newly added row
+      }
+      // Populate the row with the medicine data
+      row.find(".rehabilitation-aids-input").val(rehabilitationAid.name);
+      row.find(".moredetail-input").val(rehabilitationAid.moreDetail);
+    }
+
+    function populateAllPatientInstructions(patientInstructions) {
+      if (patientInstructions && patientInstructions.length > 0) {
+        // Clear existing rows before populating
+        $("#patient-instructionContainer .patient-instruction-row").remove();
+
+        patientInstructions.forEach((patientInstruction, index) => {
+          // For each medicine, either populate an existing row or add a new row
+          if (index === 0) {
+            populateAllPatientInstructionsRow(patientInstruction); // Populate the first row
+          } else {
+            const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+            $("#patient-instructionContainer tbody").append(newRowHtml);
+            populateAllPatientInstructionsRow(
+              patientInstruction,
+              $("#patient-instructionContainer .patient-instruction-row").last()
+            ); // Populate the new row
+          }
+        });
+      }
+    }
+    function populateAllPatientInstructionsRow(patientInstruction, row) {
       // If no row is passed, add a new one
       if (!row) {
         const newRowHtml = common.getPatientInstructionRow(); // Create a new row
@@ -200,10 +368,9 @@
           "#patient-instructionContainer .patient-instruction-row"
         ).last(); // Select the newly added row
       }
-
-      // Populate the row with the patient-instruction data
-      row.find(".patient-instruction-input").val(patientinstruction.title);
-      row.find("[id^='textPInstDetail']").val(patientinstruction.detail);
+      // Populate the row with the medicine data
+      row.find(".patient-instruction-input").val(patientInstruction.title);
+      row.find("#textPInstDetail").val(patientInstruction.detail);
     }
 
     async function loadInvestigation() {

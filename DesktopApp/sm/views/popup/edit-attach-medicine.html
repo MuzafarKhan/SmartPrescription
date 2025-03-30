@@ -97,7 +97,7 @@
             } )`;
             $.toast({
               heading: "Error",
-              text: `Medicine name is required in ROW ${index + 1}`,
+              text: `Medicine type is required in ROW ${index + 1}`,
               showHideTransition: "fade",
               icon: "error",
               position: "top-right",
@@ -109,21 +109,7 @@
           if (!medicine.quantity.trim()) {
             $.toast({
               heading: "Error",
-              text: `Quantity is required in ( ROW ${index + 1} )`,
-              showHideTransition: "fade",
-              icon: "error",
-              position: "top-right",
-            });
-            isValid = false;
-          }
-
-          // Check if at least one checkbox (morning, afternoon, night) is selected
-          if (!medicine.morning && !medicine.afternoon && !medicine.night) {
-            $.toast({
-              heading: "Error",
-              text: `At least one timing (morning, afternoon, night) must be selected in (ROW ${
-                index + 1
-              } )`,
+              text: `Medicine Quantity is required in ( ROW ${index + 1} )`,
               showHideTransition: "fade",
               icon: "error",
               position: "top-right",

@@ -160,7 +160,7 @@
               } )`;
               $.toast({
                 heading: "Error",
-                text: `Medicine name is required in ROW ${index + 1}`,
+                text: `Medicine type is required in ROW ${index + 1}`,
                 showHideTransition: "fade",
                 icon: "error",
                 position: "top-right",
@@ -172,21 +172,7 @@
             if (!medicine.quantity.trim()) {
               $.toast({
                 heading: "Error",
-                text: `Quantity is required in ( ROW ${index + 1} )`,
-                showHideTransition: "fade",
-                icon: "error",
-                position: "top-right",
-              });
-              isValid = false;
-            }
-
-            // Check if at least one checkbox (morning, afternoon, night) is selected
-            if (!medicine.morning && !medicine.afternoon && !medicine.night) {
-              $.toast({
-                heading: "Error",
-                text: `At least one timing (morning, afternoon, night) must be selected in (ROW ${
-                  index + 1
-                } )`,
+                text: `Medicine Quantity is required in ( ROW ${index + 1} )`,
                 showHideTransition: "fade",
                 icon: "error",
                 position: "top-right",
@@ -213,7 +199,6 @@
           var templateData = JSON.parse(
             result[0].templateData
           ).patientInformation;
-          debugger;
           populateAllComplaints(templateData.complaintData);
           populateInvestigation(
             templateData.selectedInvestigation,
@@ -399,7 +384,6 @@
         $("#rehabilitationAidsContainer tbody").append(newRowHtml); // Append to the container
         row = $("#rehabilitationAidsContainer .rehabilitation-aids-row").last(); // Select the newly added row
       }
-      debugger;
       // Populate the row with the medicine data
       row.find(".rehabilitation-aids-input").val(rehabilitationAid.name);
       row.find(".moredetail-input").val(rehabilitationAid.moreDetail);
@@ -434,7 +418,6 @@
           "#patient-instructionContainer .patient-instruction-row"
         ).last(); // Select the newly added row
       }
-      debugger;
       // Populate the row with the medicine data
       row.find(".patient-instruction-input").val(patientInstruction.title);
       row.find("#textPInstDetail").val(patientInstruction.detail);
@@ -645,62 +628,6 @@
 
       return patientinstructions;
     }
-    function validatetemplateData(templateData) {
-      var patientInformation = templateData.patientInformation;
-      let isValid = true;
-      if (!patientInformation.patientname) {
-        $.toast({
-          heading: "Error",
-          text: `Patient Name is required`,
-          showHideTransition: "fade",
-          icon: "error",
-          position: "top-right",
-        });
-        isValid = false;
-      } else if (!patientInformation.patientage) {
-        $.toast({
-          heading: "Error",
-          text: `Patient Age is required`,
-          showHideTransition: "fade",
-          icon: "error",
-          position: "top-right",
-        });
-        isValid = false;
-      } else if (!patientInformation.checkupDate) {
-        $.toast({
-          heading: "Error",
-          text: `Patient Checkup Date is required`,
-          showHideTransition: "fade",
-          icon: "error",
-          position: "top-right",
-        });
-        isValid = false;
-      } else if (patientInformation.selectedDiagnosis.length <= 0) {
-        $.toast({
-          heading: "Error",
-          text: `Atlease One Diagnosis is required`,
-          showHideTransition: "fade",
-          icon: "error",
-          position: "top-right",
-        });
-        isValid = false;
-      } else if (patientInformation.selectedDiagnosis.length <= 0) {
-        $.toast({
-          heading: "Error",
-          text: `Atlease One Diagnosis is required`,
-          showHideTransition: "fade",
-          icon: "error",
-          position: "top-right",
-        });
-        isValid = false;
-      } else if (
-        !attachMedicineValidated(patientInformation.selectedMedicines)
-      ) {
-        isValid = false;
-      }
-      return isValid;
-    }
-
     // Trigger initialization with the ID from the modal
     const id = $("#addEditModel").data("id");
     if (id) {

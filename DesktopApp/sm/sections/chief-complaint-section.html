@@ -11,47 +11,6 @@
     </thead>
     <tbody>
       <!-- Complaint Row Template -->
-      <tr class="complaint-row">
-        <!-- Complaint Input -->
-        <td>
-          <input
-            type="text"
-            class="form-control complaint-input"
-            placeholder="Enter Complaint"
-            list="complaintSuggestions"
-          />
-          <!-- Suggestions -->
-          <datalist id="complaintSuggestions"></datalist>
-        </td>
-
-        <!-- Duration Dropdown -->
-        <td>
-          <input
-            type="number"
-            class="form-control duration-select"
-            placeholder="Enter Complaint"
-            value="1"
-          />
-        </td>
-
-        <!-- Unit Dropdown -->
-        <td>
-          <select class="form-select unit-select">
-            <option value="" selected>Select Unit</option>
-            <option value="day">day</option>
-            <option value="week">week</option>
-            <option value="month">month</option>
-            <option value="year">year</option>
-          </select>
-        </td>
-
-        <!-- Remove Button -->
-        <td>
-          <button type="button" class="btn btn-danger remove-complaint">
-            Remove
-          </button>
-        </td>
-      </tr>
     </tbody>
   </table>
 
@@ -87,21 +46,10 @@
     }
 
     // Remove complaint row
-    $(document)
-      .off("click", ".remove-complaint")
-      .on("click", ".remove-complaint", function () {
-        if ($("#chiefComplaintsContainer .complaint-row").length > 1) {
-          $(this).closest("tr").remove();
-        } else {
-          $.toast({
-            heading: "Error",
-            text: "At least one complaint must be present!",
-            showHideTransition: "fade",
-            icon: "error",
-            position: "top-right",
-          });
-        }
-      });
+    $(document).on("click", ".remove-complaint", function () {
+      event.preventDefault();
+      $(this).closest("tr").remove();
+    });
 
     // Add new row button
     $("#addComplaintBtn").on("click", function (event) {

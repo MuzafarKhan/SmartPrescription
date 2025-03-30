@@ -218,11 +218,11 @@ body {
   padding: 5px;
 }
 
-#divNextFollowUpDate {
+.followupStyle {
   align-self: flex-end;
   margin-top: auto; /* Ensures it stays at the bottom */
   padding-top: 10px; /* Adjust as needed */
-  font-size: x-small;
+  font-size: small;
 }
 
 .right-section {

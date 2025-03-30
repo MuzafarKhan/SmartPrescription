@@ -97,6 +97,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     defaultday,
     defaultcomplaintunit,
     defaultcomplaintduration,
+    defaultfollowupunit,
+    defaultfollowupduration,
     investigationDetailValues,
     surgeryDetailValues
   ) =>
@@ -106,6 +108,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
       defaultday,
       defaultcomplaintunit,
       defaultcomplaintduration,
+      defaultfollowupunit,
+      defaultfollowupduration,
       investigationDetailValues,
       surgeryDetailValues
     ),

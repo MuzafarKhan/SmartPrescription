@@ -133,6 +133,7 @@
                 <option value="week" selected>week</option>
                 <option value="month">month</option>
                 <option value="year">year</option>
+                <option value="continue">continue</option>
               </select>
             </div>
           </div>
@@ -255,16 +256,7 @@
         });
         return false;
       }
-      if (!$("#durationnumber").val().trim()) {
-        $.toast({
-          heading: "Error",
-          text: "Duration Number is required",
-          showHideTransition: "fade",
-          icon: "error",
-          position: "top-right",
-        });
-        return false;
-      }
+
       if (!$("#slctDuration").val().trim()) {
         $.toast({
           heading: "Error",
@@ -293,7 +285,7 @@
             result[0].isPrintableOnPrescription === 1
           );
           $("#durationnumber").val(result[0].durationnumber);
-          $("#duration").val(result[0].duration);
+          $("#slctDuration").val(result[0].duration);
           $("#medicineType").val(result[0].medicinetype);
           if (result[0].medicinetype == "Inj") {
             $("#divinjType").show();
