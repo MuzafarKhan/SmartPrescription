@@ -21,7 +21,7 @@ ipcMain.handle("get-investigation-by-name", async (event, name) => {
   console.log("Query received:", name);
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT id as Id, name FROM investigation WHERE name LIKE ?",
+      "SELECT id as Id, name, isPrintableOnPrescription FROM investigation WHERE name LIKE ?",
       [`%${name}%`],
       (err, rows) => {
         if (err) {
@@ -39,7 +39,7 @@ ipcMain.handle("get-investigation-by-id", async (event, id) => {
   console.log("Query received:", id);
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT id as Id, name from investigation WHERE Id = ?",
+      "SELECT id as Id, name, isPrintableOnPrescription from investigation WHERE Id = ?",
       [`${id}`],
       (err, rows) => {
         if (err) {
@@ -53,17 +53,27 @@ ipcMain.handle("get-investigation-by-id", async (event, id) => {
   });
 });
 
-ipcMain.handle("add-investigation", async (event, name) => {
-  const stmt = db.prepare("INSERT INTO investigation (name) VALUES (?)");
-  const result = stmt.run(name);
-  return result.lastInsertRowid;
-});
+ipcMain.handle(
+  "add-investigation",
+  async (event, name, isPrintableOnPrescription) => {
+    const stmt = db.prepare(
+      "INSERT INTO investigation (name, isPrintableOnPrescription) VALUES (?, ?)"
+    );
+    const result = stmt.run(name, isPrintableOnPrescription);
+    return result.lastInsertRowid;
+  }
+);
 
-ipcMain.handle("update-investigation", async (event, id, name) => {
-  const stmt = db.prepare("UPDATE investigation SET name = ? WHERE id = ?");
-  const result = stmt.run(name, id);
-  return result.changes;
-});
+ipcMain.handle(
+  "update-investigation",
+  async (event, id, name, isPrintableOnPrescription) => {
+    const stmt = db.prepare(
+      "UPDATE investigation SET name = ? , isPrintableOnPrescription = ? WHERE id = ?"
+    );
+    const result = stmt.run(name, isPrintableOnPrescription, id);
+    return result.changes;
+  }
+);
 
 ipcMain.handle("delete-investigation-by-id", async (event, id) => {
   const stmt = db.prepare("DELETE FROM investigation WHERE id = ?");

@@ -102,6 +102,32 @@
   $(document).ready(function () {
     $("#addCreateTemplate").modal("show");
     $(".modal-dialog").addClass("width-100");
+
+    debugger;
+    var complaintRow = common.getChiefComplaintRow();
+    complaintRow = $(complaintRow);
+    complaintRow.find(".complaint-input").val("");
+    complaintRow
+      .find(".duration-select")
+      .val(common.getSettings()[0].defaultcomplaintduration); // Set duration to 5
+    complaintRow
+      .find(".unit-select")
+      .val(common.getSettings()[0].defaultcomplaintunit);
+    complaintRow = $(complaintRow);
+    $("#chiefComplaintsContainer tbody").append(complaintRow);
+
+    var rehabilitationAidRow = common.getRehabilitationAidRow();
+    rehabilitationAidRow = $(rehabilitationAidRow);
+    $("#rehabilitationAidsContainer tbody").append(rehabilitationAidRow);
+
+    var patientInstructionRow = common.getPatientInstructionRow();
+    patientInstructionRow = $(patientInstructionRow);
+    $("#patient-instructionContainer tbody").append(patientInstructionRow);
+
+    var medicineRow = common.getMedicineRow();
+    medicineRow = $(medicineRow);
+    $("#medicineContainer tbody").append(medicineRow);
+
     $("#createTemplate").on("click", async function () {
       const templateData = await gettemplateData();
       if (createTemplateValidated(templateData)) {
@@ -146,33 +172,6 @@
               $.toast({
                 heading: "Error",
                 text: `Medicine name is required in ( ROW ${index + 1} )`,
-                showHideTransition: "fade",
-                icon: "error",
-                position: "top-right",
-              });
-              isValid = false;
-            }
-
-            // Check if medicine type is selected
-            if (!medicine.medicinetype.trim()) {
-              error.medicinetype = `Medicine type is required in ( ROW ${
-                index + 1
-              } )`;
-              $.toast({
-                heading: "Error",
-                text: `Medicine type is required in ROW ${index + 1}`,
-                showHideTransition: "fade",
-                icon: "error",
-                position: "top-right",
-              });
-              isValid = false;
-            }
-
-            // Check if quantity is empty
-            if (!medicine.quantity.trim()) {
-              $.toast({
-                heading: "Error",
-                text: `Medicine Quantity is required in ( ROW ${index + 1} )`,
                 showHideTransition: "fade",
                 icon: "error",
                 position: "top-right",

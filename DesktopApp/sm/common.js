@@ -43,12 +43,8 @@ const common = {
   getdbFilePath() {
     const path = require("path");
 
-    const dbPath = process.env.IaminDevMode
-      ? path.resolve(__dirname, "preData.db")
-      : path.join(process.resourcesPath, "preData.db");
-    if (dbPath)
-      return path.join(__dirname, "preData.db"); // Use for development
-    else return path.join(process.resourcesPath, "preData.db"); // Use for development
+    return path.join(__dirname, "preData.db"); // Use for development
+    //return path.join(process.resourcesPath, "preData.db"); // Use for development
   },
   getMedicineRow() {
     const newRowHtml = `

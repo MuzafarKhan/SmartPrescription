@@ -21,7 +21,6 @@
               <tr>
                 <th width="10%">ID</th>
                 <th width="30%">Name</th>
-                <th width="30%">Alter Name</th>
                 <th width="30%">Actions</th>
               </tr>
             </thead>
@@ -46,7 +45,6 @@
                 .add([
                   diagnosis.id,
                   diagnosis.name,
-                  diagnosis.nameAlter,
                   '<button class="btn btn-warning btn-sm" onclick="openEditDiagnosis(' +
                     diagnosis.id +
                     ',event)">Update</button>' +

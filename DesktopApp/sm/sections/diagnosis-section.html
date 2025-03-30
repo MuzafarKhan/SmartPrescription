@@ -10,9 +10,14 @@
         <div id="investigationList" class="form-control"></div>
       </div>
       <div class="col-6">
-        <select class="form-select investigation-detail-select">
-          <option value="" selected>Select More Detail</option>
-        </select>
+        <input
+          type="text"
+          class="form-control investigation-detail-select"
+          placeholder="Enter Detail"
+          list="investigationdetailSuggestions"
+        />
+        <!-- Suggestions -->
+        <datalist id="investigationdetailSuggestions"></datalist>
       </div>
     </div>
   </div>
@@ -41,7 +46,7 @@
     const investigationDetailValues =
       common.getSettings()[0].investigationDetailValues;
 
-    var select = document.querySelector(".investigation-detail-select");
+    var select = document.querySelector("#investigationdetailSuggestions");
     investigationDetailValues.split(",").forEach(function (value) {
       var option = document.createElement("option");
       option.value = value;
@@ -96,7 +101,7 @@
         const result = await window.electronAPI.getCreateTemplateByDiagnosisIds(
           diagnosisIds.toString()
         );
-
+        debugger;
         if (result && result.length > 0) {
           let mergedTemplateData = {
             complaintData: [],
@@ -123,7 +128,7 @@
 
             // Merge investigationMoreDetail
             mergedTemplateData.investigationMoreDetail.push(
-              ...templateData.investigationMoreDetail
+              templateData.investigationMoreDetail
             );
 
             // Merge selectedPlan

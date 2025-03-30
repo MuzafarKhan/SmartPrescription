@@ -6,7 +6,9 @@ const db = new sqlite3.Database(common.getdbFilePath());
 
 ipcMain.handle("get-diagnosis", async () => {
   return new Promise((resolve, reject) => {
-    const stmt = db.prepare("SELECT * FROM diagnosis");
+    const stmt = db.prepare(
+      "SELECT id, CASE WHEN nameAlter IS NOT NULL AND nameAlter != '' THEN name || '(' || nameAlter || ')' ELSE name END AS name FROM diagnosis;"
+    );
     stmt.all((err, rows) => {
       if (err) {
         reject(err);
@@ -21,7 +23,7 @@ ipcMain.handle("get-diagnosis-by-name", async (event, name) => {
   console.log("Query received:", name);
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT id as Id, name, nameAlter FROM diagnosis WHERE name LIKE ?",
+      "SELECT id,  CASE WHEN nameAlter IS NOT NULL AND nameAlter != '' THEN name || '(' || nameAlter || ')' ELSE name END AS name  FROM diagnosis WHERE name LIKE ?",
       [`%${name}%`],
       (err, rows) => {
         if (err) {

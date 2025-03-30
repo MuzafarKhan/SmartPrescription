@@ -83,9 +83,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("get-investigation-by-name", name),
   getInvestigationById: (id) =>
     ipcRenderer.invoke("get-investigation-by-id", id),
-  addInvestigation: (name) => ipcRenderer.invoke("add-investigation", name),
-  updateInvestigation: (id, name) =>
-    ipcRenderer.invoke("update-investigation", id, name),
+  addInvestigation: (name, isPrintableOnPrescription) =>
+    ipcRenderer.invoke("add-investigation", name, isPrintableOnPrescription),
+  updateInvestigation: (id, name, isPrintableOnPrescription) =>
+    ipcRenderer.invoke(
+      "update-investigation",
+      id,
+      name,
+      isPrintableOnPrescription
+    ),
   deleteInvestigationById: (id) =>
     ipcRenderer.invoke("delete-investigation-by-id", id),
 

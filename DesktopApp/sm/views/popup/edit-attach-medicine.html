@@ -89,33 +89,6 @@
             });
             isValid = false;
           }
-
-          // Check if medicine type is selected
-          if (!medicine.medicinetype.trim()) {
-            error.medicinetype = `Medicine type is required in ( ROW ${
-              index + 1
-            } )`;
-            $.toast({
-              heading: "Error",
-              text: `Medicine type is required in ROW ${index + 1}`,
-              showHideTransition: "fade",
-              icon: "error",
-              position: "top-right",
-            });
-            isValid = false;
-          }
-
-          // Check if quantity is empty
-          if (!medicine.quantity.trim()) {
-            $.toast({
-              heading: "Error",
-              text: `Medicine Quantity is required in ( ROW ${index + 1} )`,
-              showHideTransition: "fade",
-              icon: "error",
-              position: "top-right",
-            });
-            isValid = false;
-          }
         }
       });
 

@@ -33,6 +33,19 @@
               required
             />
           </div>
+          <div class="mb-3">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="isPrintableOnPrescriptionCheckChecked"
+              checked
+            />
+            <label
+              class="form-check-label"
+              for="isPrintableOnPrescriptionCheckChecked"
+              >Is Printable On Prescription</label
+            >
+          </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -59,11 +72,16 @@
     async function saveInvestigation() {
       var id = $("#hdnId").html();
       var investigationText = $("#investigationText").val().trim();
+      var isPrintableOnPrescription = $(
+        "#isPrintableOnPrescriptionCheckChecked"
+      ).prop("checked")
+        ? 1
+        : 0;
 
       if (id) {
-        updateInvestigation(id, investigationText);
+        updateInvestigation(id, investigationText, isPrintableOnPrescription);
       } else {
-        addInvestigation(investigationText);
+        addInvestigation(investigationText, isPrintableOnPrescription);
       }
       $("#addInvestigationModal").modal("hide");
       loadPageContent(
@@ -72,13 +90,20 @@
         $("#investigationTable").DataTable().page()
       );
     }
-    async function updateInvestigation(id, name) {
-      const results = await window.electronAPI.updateInvestigation(id, name);
+    async function updateInvestigation(id, name, isPrintableOnPrescription) {
+      const results = await window.electronAPI.updateInvestigation(
+        id,
+        name,
+        isPrintableOnPrescription
+      );
       common.showUpdatedSuccessfullyMessage();
     }
 
-    async function addInvestigation(name) {
-      const results = await window.electronAPI.addInvestigation(name);
+    async function addInvestigation(name, isPrintableOnPrescription) {
+      const results = await window.electronAPI.addInvestigation(
+        name,
+        isPrintableOnPrescription
+      );
       common.showSavedSuccessfullyMessage();
     }
 
@@ -103,6 +128,10 @@
         .getInvestigationById(id)
         .then((result) => {
           $("#investigationText").val(result[0].name);
+          $("#isPrintableOnPrescriptionCheckChecked").prop(
+            "checked",
+            result[0].isPrintableOnPrescription === 1
+          );
         })
         .catch((error) => {
           $.toast({
