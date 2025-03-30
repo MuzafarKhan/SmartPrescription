@@ -79,6 +79,7 @@
             handleDiagnosisSelection(diagnosisIds);
           } else {
             $("#chiefComplaintsContainer .complaint-row").remove();
+            debugger;
             $("#medicineContainer .medicine-row").remove();
             $("#rehabilitationAidsContainer .rehabilitation-aids-row").remove();
             $(
@@ -180,6 +181,7 @@
       if (complaints && complaints.length > 0) {
         // Clear existing rows before populating
         $("#chiefComplaintsContainer .complaint-row").remove();
+        debugger;
 
         complaints.forEach((complaints, index) => {
           // For each medicine, either populate an existing row or add a new row
@@ -188,6 +190,7 @@
           } else {
             const newRowHtml = common.getChiefComplaintRow(); // Create a new row
             $("#chiefComplaintsContainer tbody").append(newRowHtml);
+            debugger;
             populateChiefComplaintRow(
               complaints,
               $("#chiefComplaintsContainer .complaint-row").last()
@@ -201,6 +204,7 @@
       if (!row) {
         const newRowHtml = common.getChiefComplaintRow(); // Create a new row
         $("#chiefComplaintsContainer tbody").append(newRowHtml); // Append to the container
+        debugger;
         row = $("#chiefComplaintsContainer .complaint-row").last(); // Select the newly added row
       }
 

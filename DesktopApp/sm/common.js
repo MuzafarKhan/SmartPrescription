@@ -82,6 +82,7 @@ const common = {
              <select id="injType" class="form-select hidden mt-1" name="injType" required>
                 <option selected value="IV">IV</option>
                 <option value="IM">IM</option>
+                <option value="PO">PO</option>
               </select>
           </td>
           <td>

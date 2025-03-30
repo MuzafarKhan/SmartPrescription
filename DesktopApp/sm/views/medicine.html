@@ -68,7 +68,9 @@
                   medicine.medicinename,
                   getTimingInEnglish(medicine),
                   medicine.quantity,
-                  medicine.durationnumber + " " + medicine.duration,
+                  (medicine.durationnumber ? medicine.durationnumber : "") +
+                    " " +
+                    medicine.duration,
                   '<button class="btn btn-warning btn-sm" onclick="openEditMedicine(' +
                     medicine.id +
                     ',event)">Update</button>' +
@@ -111,7 +113,7 @@
         if (medicine.night === 1) {
           // Append comma if timing is not empty
           if (timing) timing += " , ";
-          timing += "<span>Afternoon</span>";
+          timing += "<span>Night</span>";
         }
 
         return timing;

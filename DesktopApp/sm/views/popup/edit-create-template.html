@@ -103,32 +103,8 @@
     $("#addCreateTemplate").modal("show");
     $(".modal-dialog").addClass("width-100");
 
-    debugger;
-    var complaintRow = common.getChiefComplaintRow();
-    complaintRow = $(complaintRow);
-    complaintRow.find(".complaint-input").val("");
-    complaintRow
-      .find(".duration-select")
-      .val(common.getSettings()[0].defaultcomplaintduration); // Set duration to 5
-    complaintRow
-      .find(".unit-select")
-      .val(common.getSettings()[0].defaultcomplaintunit);
-    complaintRow = $(complaintRow);
-    $("#chiefComplaintsContainer tbody").append(complaintRow);
-
-    var rehabilitationAidRow = common.getRehabilitationAidRow();
-    rehabilitationAidRow = $(rehabilitationAidRow);
-    $("#rehabilitationAidsContainer tbody").append(rehabilitationAidRow);
-
-    var patientInstructionRow = common.getPatientInstructionRow();
-    patientInstructionRow = $(patientInstructionRow);
-    $("#patient-instructionContainer tbody").append(patientInstructionRow);
-
-    var medicineRow = common.getMedicineRow();
-    medicineRow = $(medicineRow);
-    $("#medicineContainer tbody").append(medicineRow);
-
     $("#createTemplate").on("click", async function () {
+      debugger;
       const templateData = await gettemplateData();
       if (createTemplateValidated(templateData)) {
         createTemplateT(templateData);
@@ -186,6 +162,7 @@
     }
 
     async function init(id) {
+      debugger;
       $("#hdnId").html(id);
       try {
         // Fetch the medicines associated with the diagnosis ID
@@ -198,17 +175,68 @@
           var templateData = JSON.parse(
             result[0].templateData
           ).patientInformation;
-          populateAllComplaints(templateData.complaintData);
-          populateInvestigation(
-            templateData.selectedInvestigation,
-            templateData.investigationMoreDetail
-          );
-          populatePlan(templateData.selectedPlan);
-          populateAllMedicines(templateData.selectedMedicines);
-          populateRehabilitationAids(templateData.selectedRehabilitationAids);
-          populateAllPatientInstructions(
-            templateData.selectedPatientInstructions
-          );
+
+          // For each section, populate if data exists, otherwise add empty row
+          if (
+            templateData.complaintData &&
+            templateData.complaintData.length > 0
+          ) {
+            populateAllComplaints(templateData.complaintData);
+          } else {
+            addNewComplaintRow();
+          }
+
+          if (
+            templateData.selectedInvestigation &&
+            templateData.selectedInvestigation.length > 0
+          ) {
+            populateInvestigation(
+              templateData.selectedInvestigation,
+              templateData.investigationMoreDetail
+            );
+          }
+
+          if (
+            templateData.selectedPlan &&
+            templateData.selectedPlan.length > 0
+          ) {
+            populatePlan(templateData.selectedPlan);
+          }
+
+          if (
+            templateData.selectedMedicines &&
+            templateData.selectedMedicines.length > 0
+          ) {
+            populateAllMedicines(templateData.selectedMedicines);
+          } else {
+            addNewMedicineRow();
+          }
+
+          if (
+            templateData.selectedRehabilitationAids &&
+            templateData.selectedRehabilitationAids.length > 0
+          ) {
+            populateRehabilitationAids(templateData.selectedRehabilitationAids);
+          } else {
+            addNewRehabilitationAidRow();
+          }
+
+          if (
+            templateData.selectedPatientInstructions &&
+            templateData.selectedPatientInstructions.length > 0
+          ) {
+            populateAllPatientInstructions(
+              templateData.selectedPatientInstructions
+            );
+          } else {
+            addNewPatientInstructionRow();
+          }
+        } else {
+          // If no template data exists at all, add empty rows for all sections
+          addNewComplaintRow();
+          addNewMedicineRow();
+          addNewRehabilitationAidRow();
+          addNewPatientInstructionRow();
         }
       } catch (error) {
         $.toast({
@@ -220,10 +248,44 @@
         });
       }
     }
+
+    // Helper functions for adding new rows
+    function addNewComplaintRow() {
+      var complaintRow = common.getChiefComplaintRow();
+      complaintRow = $(complaintRow);
+      complaintRow.find(".complaint-input").val("");
+      complaintRow
+        .find(".duration-select")
+        .val(common.getSettings()[0].defaultcomplaintduration);
+      complaintRow
+        .find(".unit-select")
+        .val(common.getSettings()[0].defaultcomplaintunit);
+      $("#chiefComplaintsContainer tbody").append(complaintRow);
+    }
+
+    function addNewMedicineRow() {
+      var medicineRow = common.getMedicineRow();
+      medicineRow = $(medicineRow);
+      $("#medicineContainer tbody").append(medicineRow);
+    }
+
+    function addNewRehabilitationAidRow() {
+      var rehabilitationAidRow = common.getRehabilitationAidRow();
+      rehabilitationAidRow = $(rehabilitationAidRow);
+      $("#rehabilitationAidsContainer tbody").append(rehabilitationAidRow);
+    }
+
+    function addNewPatientInstructionRow() {
+      var patientInstructionRow = common.getPatientInstructionRow();
+      patientInstructionRow = $(patientInstructionRow);
+      $("#patient-instructionContainer tbody").append(patientInstructionRow);
+    }
+
     function populateAllComplaints(complaints) {
       if (complaints && complaints.length > 0) {
         // Clear existing rows before populating
         $("#chiefComplaintsContainer .complaint-row").remove();
+        debugger;
 
         complaints.forEach((complaints, index) => {
           // For each medicine, either populate an existing row or add a new row
@@ -231,6 +293,7 @@
             populateChiefComplaintRow(complaints); // Populate the first row
           } else {
             const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+            debugger;
             $("#chiefComplaintsContainer tbody").append(newRowHtml);
             populateChiefComplaintRow(
               complaints,
@@ -244,6 +307,7 @@
       // If no row is passed, add a new one
       if (!row) {
         const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+        debugger;
         $("#chiefComplaintsContainer tbody").append(newRowHtml); // Append to the container
         row = $("#chiefComplaintsContainer .complaint-row").last(); // Select the newly added row
       }
@@ -491,6 +555,7 @@
     }
     function getAllComplaints() {
       const complaints = [];
+      debugger;
 
       // Loop through each row in the table body
       document
