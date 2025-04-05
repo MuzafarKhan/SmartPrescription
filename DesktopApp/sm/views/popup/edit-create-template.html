@@ -104,7 +104,6 @@
     $(".modal-dialog").addClass("width-100");
 
     $("#createTemplate").on("click", async function () {
-      debugger;
       const templateData = await gettemplateData();
       if (createTemplateValidated(templateData)) {
         createTemplateT(templateData);
@@ -162,7 +161,6 @@
     }
 
     async function init(id) {
-      debugger;
       $("#hdnId").html(id);
       try {
         // Fetch the medicines associated with the diagnosis ID
@@ -285,15 +283,12 @@
       if (complaints && complaints.length > 0) {
         // Clear existing rows before populating
         $("#chiefComplaintsContainer .complaint-row").remove();
-        debugger;
-
         complaints.forEach((complaints, index) => {
           // For each medicine, either populate an existing row or add a new row
           if (index === 0) {
             populateChiefComplaintRow(complaints); // Populate the first row
           } else {
             const newRowHtml = common.getChiefComplaintRow(); // Create a new row
-            debugger;
             $("#chiefComplaintsContainer tbody").append(newRowHtml);
             populateChiefComplaintRow(
               complaints,
@@ -307,7 +302,6 @@
       // If no row is passed, add a new one
       if (!row) {
         const newRowHtml = common.getChiefComplaintRow(); // Create a new row
-        debugger;
         $("#chiefComplaintsContainer tbody").append(newRowHtml); // Append to the container
         row = $("#chiefComplaintsContainer .complaint-row").last(); // Select the newly added row
       }
@@ -555,7 +549,6 @@
     }
     function getAllComplaints() {
       const complaints = [];
-      debugger;
 
       // Loop through each row in the table body
       document

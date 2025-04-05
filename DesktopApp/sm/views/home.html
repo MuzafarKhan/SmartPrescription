@@ -279,11 +279,11 @@
                 </div>
               </div>
               <div class="col-12Per">
-                <label>Sensations</label>
+                <label>Reflexes</label>
                 <div>
-                  <select id="select-sensations" class="form-select">
-                    <option select>INTACT</option>
-                    <option>LOST</option>
+                  <select id="select-reflexes" class="form-select">
+                    <option select>NORMAL</option>
+                    <option>RESTRICTED</option>
                   </select>
                 </div>
               </div>
@@ -297,10 +297,10 @@
                 </div>
               </div>
               <div class="col-12Per">
-                <label>Sphincter </label>
+                <label>Sensations</label>
                 <div>
-                  <select id="select-sphincter" class="form-select">
-                    <option selected>INTACT</option>
+                  <select id="select-sensations" class="form-select">
+                    <option select>INTACT</option>
                     <option>LOST</option>
                   </select>
                 </div>
@@ -314,29 +314,17 @@
                   </select>
                 </div>
               </div>
+              <div class="col-12Per">
+                <label>Sphincter </label>
+                <div>
+                  <select id="select-sphincter" class="form-select">
+                    <option selected>INTACT</option>
+                    <option>LOST</option>
+                  </select>
+                </div>
+              </div>
+
               <div class="col-8 mt-4">
-                <div class="form-check form-switch form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="PHALLENSIGNCheckChecked"
-                  />
-                  <label class="form-check-label" for="PHALLENSIGNCheckChecked"
-                    >PHALLEN SIGN</label
-                  >
-                </div>
-                <div class="form-check form-switch form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="TINNELSIGNCheckChecked"
-                  />
-                  <label class="form-check-label" for="TINNELSIGNCheckChecked"
-                    >TINNEL SIGN</label
-                  >
-                </div>
                 <div class="form-check form-switch form-check-inline">
                   <input
                     class="form-check-input"
@@ -357,6 +345,28 @@
                   />
                   <label class="form-check-label" for="HOFFSIGNCheckChecked"
                     >HOFF MAN SIGN</label
+                  >
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="PHALLENSIGNCheckChecked"
+                  />
+                  <label class="form-check-label" for="PHALLENSIGNCheckChecked"
+                    >PHALLEN SIGN</label
+                  >
+                </div>
+                <div class="form-check form-switch form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="TINNELSIGNCheckChecked"
+                  />
+                  <label class="form-check-label" for="TINNELSIGNCheckChecked"
+                    >TINNEL SIGN</label
                   >
                 </div>
               </div>
@@ -832,6 +842,9 @@
           ? $("#select-sensations").val()
           : "",
         feber: $("#select-feber").val() ? $("#select-feber").val() : "",
+        reflexes: $("#select-reflexes").val()
+          ? $("#select-reflexes").val()
+          : "",
         sphincter: $("#select-sphincter").val()
           ? $("#select-sphincter").val()
           : "",
@@ -851,7 +864,6 @@
   }
   function getAllComplaints() {
     const complaints = [];
-    debugger;
 
     // Loop through each row in the table body
     document
@@ -1116,6 +1128,7 @@
     $("#powerLL2TxtBox").val(patientData.powerLL2);
     $("#select-sensations").val(patientData.sensations);
     $("#select-feber").val(patientData.feber);
+    $("#select-reflexes").val(patientData.reflexes);
     $("#select-sphincter").val(patientData.sphincter);
     $("#select-slr").val(patientData.slr);
 
@@ -1154,7 +1167,6 @@
     if (complaints && complaints.length > 0) {
       // Clear existing rows before populating
       $("#chiefComplaintsContainer .complaint-row").remove();
-      debugger;
 
       complaints.forEach((complaints, index) => {
         // For each medicine, either populate an existing row or add a new row
@@ -1163,7 +1175,6 @@
         } else {
           const newRowHtml = common.getChiefComplaintRow(); // Create a new row
           $("#chiefComplaintsContainer tbody").append(newRowHtml);
-          debugger;
           populateChiefComplaintRow(
             complaints,
             $("#chiefComplaintsContainer .complaint-row").last()
@@ -1176,7 +1187,6 @@
     // If no row is passed, add a new one
     if (!row) {
       const newRowHtml = common.getChiefComplaintRow(); // Create a new row
-      debugger;
       $("#chiefComplaintsContainer tbody").append(newRowHtml); // Append to the container
       row = $("#chiefComplaintsContainer .complaint-row").last(); // Select the newly added row
     }

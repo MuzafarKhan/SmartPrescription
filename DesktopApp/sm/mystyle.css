@@ -163,12 +163,50 @@ body {
     height: 227mm; /* A4 height */
   }
 
+  .patient-information {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: #aeaaa9 !important;
+  }
+
   #printableafterGap {
     margin-top: 50mm;
     width: 210mm; /* Slightly smaller than A4 width to avoid browser margins */
     height: 220; /* Adjust height automatically to fit content */
     font-family: Arial, sans-serif;
     box-sizing: border-box; /* Include padding in the width/height calculation */
+  }
+  #medicineDivList table tr:nth-child(odd) td {
+    background-color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #medicineDivList table tr:nth-child(even) td {
+    background-color: #f9f9f9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Rehabilitation Aids - Force alternating row colors */
+  #rehabilitationaidsDivList div[style*="table-row"]:nth-child(4n + 1) div {
+    background-color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #rehabilitationaidsDivList div[style*="table-row"]:nth-child(4n + 3) div {
+    background-color: #f9f9f9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #patientinstructionDivList,
+  #patientinstructionDivList .nastaleeq,
+  #patientinstructionDivList div[style*="table-row"] div {
+    color: #999999 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* Hide all elements that should not appear in print */
@@ -184,6 +222,11 @@ body {
     margin: 0 !important;
     padding: 0 !important;
   }
+
+  .medicine-table {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 
 .middle-section {
@@ -194,13 +237,13 @@ body {
 }
 
 .patient-information {
-  height: 10mm; /* Adjust height as needed */
-  border: 1px solid black;
+  border: 2px solid #aeaaa9;
+  height: 10mm;
   display: flex;
   padding: 10px;
-  align-items: center; /* Vertically align content */
-  justify-content: space-between; /* Space out content evenly */
-  box-sizing: border-box; /* Include padding in width */
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
 }
 
 .left-right-container {

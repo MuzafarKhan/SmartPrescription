@@ -25,15 +25,22 @@
             <div class="page width-for-print">
               <div class="middle-section">
                 <!-- Patient Information Row -->
-                <div class="patient-information">
-                  <span
-                    >Name: <span id="spanpatientname">Muzafar Khan</span></span
-                  >
-                  <span>Age: <span id="spanpatientage">64</span></span>
-                  <span
-                    >Date:
-                    <span id="spanpatientcheckupdate">01-01-2025</span></span
-                  >
+                <div
+                  class="patient-information"
+                  style="background-color: #aeaaa9"
+                >
+                  <div style="display: flex; align-items: center; gap: 5px">
+                    <span style="font-weight: bold">Name:</span>
+                    <span id="spanpatientname">Muzafar Khan</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 5px">
+                    <span style="font-weight: bold">Age:</span>
+                    <span id="spanpatientage">64</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 5px">
+                    <span style="font-weight: bold">Date:</span>
+                    <span id="spanpatientcheckupdate">01-01-2025</span>
+                  </div>
                 </div>
 
                 <!-- Left and Right Sections -->
@@ -41,10 +48,14 @@
                   <div class="left-section">
                     <div
                       id="divExtraDetailLikeSurgery"
+                      style="font-size: x-small; font-weight: bold"
+                    ></div>
+                    <div
+                      id="divCOMORBIDSList"
+                      class="mt-2"
                       style="font-size: x-small"
                     ></div>
-                    <div id="divCOMORBIDSList" style="font-size: x-small"></div>
-
+                    <br />
                     <div id="divCHIEFCOMPLAINTS">
                       <div class="title">CHIEF COMPLAINTS</div>
                       <div>
@@ -53,70 +64,223 @@
                     </div>
 
                     <div>
-                      <div class="title">EXAM FINDINGS</div>
+                      <div class="title mt-4">EXAM FINDINGS</div>
                       <div>
                         <ul class="list-container">
-                          <li class="list-item">
-                            <span class="label">BP:</span>
-                            <span class="value" id="spanbp">120/80</span>
+                          <li
+                            class="list-item"
+                            style="
+                              display: flex;
+                              justify-content: space-between;
+                              margin-bottom: 8px;
+                              padding: 0;
+                              white-space: nowrap;
+                            "
+                          >
+                            <span style="margin: 0; padding: 0">
+                              <span>GCS:</span>
+                              <span id="spangcs" style="font-weight: bold"
+                                >15/15</span
+                              >
+                            </span>
+                            <span style="margin: 0; padding: 0">
+                              <span>BP:</span>
+                              <span id="spanbp" style="font-weight: bold"
+                                >120/80</span
+                              >
+                            </span>
                           </li>
-                          <li class="list-item">
-                            <span class="label">GCS:</span>
-                            <span class="value" id="spangcs">15/15</span>
+                          <li
+                            class="list-item"
+                            style="
+                              display: flex;
+                              justify-content: space-between;
+                              margin: 0;
+                              padding: 0;
+                              white-space: nowrap;
+                            "
+                          >
+                            <span style="margin: 0; padding: 0">
+                              <span>Power UL </span>
+                              <span
+                                id="powerUL-first"
+                                style="font-weight: normal"
+                                >-</span
+                              >/5 -
+                              <span
+                                id="powerUL-second"
+                                style="font-weight: normal"
+                                >-</span
+                              >/5
+                            </span>
+                            <span style="margin: 0; padding: 0">
+                              <span>Power LL </span>
+                              <span
+                                id="powerLL-first"
+                                style="font-weight: normal"
+                                >-</span
+                              >/5 -
+                              <span
+                                id="powerLL-second"
+                                style="font-weight: normal"
+                                >-</span
+                              >/5
+                            </span>
                           </li>
-                          <li class="list-item">
-                            <span class="label">Power UL:</span>
-                            <span class="value" id="powerUL">5/5</span>
+                          <li
+                            class="list-item"
+                            style="
+                              display: flex;
+                              justify-content: space-between;
+                              margin: 0;
+                              padding: 0;
+                              white-space: nowrap;
+                            "
+                          >
+                            <span style="margin: 0; padding: 0">
+                              <span>Reflexes:</span>
+                              <span
+                                id="reflexesValue"
+                                style="font-weight: normal"
+                                >NORMAL</span
+                              >
+                            </span>
+                            <span style="margin: 0; padding: 0">
+                              <span>FABER Test:</span>
+                              <span id="faberValue" style="font-weight: normal"
+                                >-VE</span
+                              >
+                            </span>
                           </li>
-                          <li class="list-item">
-                            <span class="label">Power LL:</span>
-                            <span class="value" id="powerLL">5/5</span>
+
+                          <li
+                            class="list-item"
+                            style="
+                              display: flex;
+                              justify-content: space-between;
+                              margin: 0;
+                              padding: 0;
+                              white-space: nowrap;
+                            "
+                          >
+                            <span style="margin: 0; padding: 0">
+                              <span>Sensations:</span>
+                              <span
+                                id="sensationsValue"
+                                style="font-weight: normal"
+                                >INTACT</span
+                              >
+                            </span>
+                            <span style="margin: 0; padding: 0">
+                              <span>SLR:</span>
+                              <span id="slrValue" style="font-weight: normal"
+                                >NORMAL</span
+                              >
+                            </span>
                           </li>
-                          <li class="list-item">
-                            <span class="label">Sensations:</span>
-                            <span class="value" id="sensations">INTACT</span>
+
+                          <li
+                            class="list-item"
+                            style="
+                              display: flex;
+                              justify-content: space-between;
+                              margin: 0;
+                              padding: 0;
+                              white-space: nowrap;
+                            "
+                          >
+                            <span style="margin: 0; padding: 0">
+                              <span>Sphincter:</span>
+                              <span
+                                id="sphincterValue"
+                                style="font-weight: normal"
+                                >INTACT</span
+                              >
+                            </span>
+                            <span style="margin: 0; padding: 0">
+                              <span>SPERLING SIGN:</span>
+                              <span
+                                id="sperlingValue"
+                                style="font-weight: normal"
+                                >-VE</span
+                              >
+                            </span>
                           </li>
-                          <li class="list-item">
-                            <span class="label">SLR:</span>
-                            <span class="value" id="slr">NORMAL</span>
+
+                          <li
+                            class="list-item"
+                            style="
+                              display: flex;
+                              justify-content: space-between;
+                              margin: 0;
+                              padding: 0;
+                              white-space: nowrap;
+                            "
+                          >
+                            <span style="margin: 0; padding: 0">
+                              <span>HOFF MAN SIGN:</span>
+                              <span id="hoffValue" style="font-weight: normal"
+                                >-VE</span
+                              >
+                            </span>
+                            <span style="margin: 0; padding: 0">
+                              <span>PHALLEN SIGN:</span>
+                              <span
+                                id="phallenValue"
+                                style="font-weight: normal"
+                                >-VE</span
+                              >
+                            </span>
                           </li>
-                          <li class="list-item">
-                            <span class="label">PHALLEN SIGN:</span>
-                            <span class="value" id="PHALLENSIGN">-ve</span>
-                          </li>
-                          <li class="list-item">
-                            <span class="label">TINNEL SIGN:</span>
-                            <span class="value" id="TINNELSIGN">-ve</span>
-                          </li>
-                          <li class="list-item">
-                            <span class="label">SPERLING SIGN:</span>
-                            <span class="value" id="SPERLINGSIGN">-ve</span>
-                          </li>
-                          <li class="list-item">
-                            <span class="label">HOFF MAN SIGN:</span>
-                            <span class="value" id="HOFFSIGN">-ve</span>
+
+                          <li
+                            class="list-item"
+                            style="
+                              display: flex;
+                              justify-content: space-between;
+                              margin: 0;
+                              padding: 0;
+                              white-space: nowrap;
+                            "
+                          >
+                            <span style="margin: 0; padding: 0">
+                              <span>TINNEL SIGN:</span>
+                              <span id="tinnelValue" style="font-weight: normal"
+                                >-VE</span
+                              >
+                            </span>
+                            <span style="margin: 0; padding: 0"></span>
                           </li>
                         </ul>
                       </div>
                     </div>
+                    <!-- In your HTML, modify the INVESTIGATIONS section to: -->
                     <div id="divINVESTIGATIONS">
-                      <div class="title">INVESTIGATIONS</div>
+                      <div class="title mt-4">INVESTIGATIONS</div>
                       <div>
-                        <ul
-                          class="list-container"
-                          id="ulinvestigationList"
-                        ></ul>
+                        <div
+                          id="investigationsInlineList"
+                          style="font-size: x-small"
+                        ></div>
+                        <div
+                          id="investigationsDetails"
+                          style="
+                            font-size: x-small;
+                            margin-top: 5px;
+                            font-style: italic;
+                          "
+                        ></div>
                       </div>
                     </div>
                     <div id="divDiagnosis">
-                      <div class="title">Diagnosis</div>
+                      <div class="title mt-4">Diagnosis</div>
                       <div
                         id="divDiagnosisList"
                         style="font-size: x-small"
                       ></div>
                     </div>
                     <div id="divPlan">
-                      <div class="title">Plan</div>
+                      <div class="title mt-4">Plan</div>
                       <div>
                         <ul class="list-container" id="ulplanList"></ul>
                       </div>
@@ -125,14 +289,18 @@
                   </div>
 
                   <div class="right-section">
-                    <div class="title">Rx:</div>
-                    <div class="content" id="medicineDivList"></div>
                     <div
                       class="content"
                       id="rehabilitationaidsDivList"
-                      style="margin-top: 25px"
+                      style="font-size: x-small; font-weight: bold"
                     ></div>
-                    <div class="content" id="patientinstructionDivList"></div>
+                    <div class="content mt-5" id="medicineDivList"></div>
+
+                    <div
+                      class="content"
+                      style="color: #999999"
+                      id="patientinstructionDivList"
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -213,6 +381,8 @@
         prescriptionData,
         translations
       );
+      setPowerValues(prescriptionDataInUrdu);
+      setExamFindings(prescriptionData);
       setComplaintPrintData(prescriptionDataInUrdu);
       setDiagnosisPrintData(prescriptionDataInUrdu);
       setMedicinePrintData(prescriptionDataInUrdu);
@@ -224,35 +394,50 @@
     }
   });
 
+  function cleanDiagnosisString(diagnosis) {
+    // Remove the last set of parentheses if they exist at the end
+    return diagnosis.replace(/(\([^)]+\))(?=[^()]*$)/, "");
+  }
+
   function setDiagnosisPrintData(prescriptionDataInUrdu) {
     if (
       prescriptionDataInUrdu &&
       prescriptionDataInUrdu.patientInformation &&
       prescriptionDataInUrdu.patientInformation.selectedDiagnosis.length > 0
     ) {
-      let diagnosis =
-        prescriptionDataInUrdu.patientInformation.selectedDiagnosis.join(", ");
-      $("#divDiagnosisList").html(diagnosis);
+      const cleanedDiagnoses =
+        prescriptionDataInUrdu.patientInformation.selectedDiagnosis
+          .map((diagnosis) => cleanDiagnosisString(diagnosis))
+          .join(", ");
+      $("#divDiagnosisList").html(cleanedDiagnoses);
     }
   }
 
   function setOtherDetailPrintData(prescriptionDataInUrdu) {
     var surgerytext = "";
 
+    // Helper function to format surgery text
+    function formatSurgeryText(condition, text) {
+      if (condition) {
+        return `<span style="font-size: 1.2em; font-weight: bold">${text};</span> `;
+      }
+      return "";
+    }
+
     if (prescriptionDataInUrdu.patientInformation.laminectomy) {
-      surgerytext += "Post Op laminectomy ";
+      surgerytext += "Post Op " + formatSurgeryText(true, "laminectomy");
     }
     if (prescriptionDataInUrdu.patientInformation.tpf) {
-      surgerytext += "Post Op tpf ";
+      surgerytext += "Post Op " + formatSurgeryText(true, "tpf");
     }
     if (prescriptionDataInUrdu.patientInformation.craniotomy) {
-      surgerytext += "Post Op craniotomy ";
+      surgerytext += "Post Op " + formatSurgeryText(true, "craniotomy");
     }
     if (prescriptionDataInUrdu.patientInformation.vpshunt) {
-      surgerytext += "Post Op vpshunt ";
+      surgerytext += "Post Op " + formatSurgeryText(true, "vpshunt");
     }
     if (prescriptionDataInUrdu.patientInformation.mmc) {
-      surgerytext += "Post Op mmc ";
+      surgerytext += "Post Op " + formatSurgeryText(true, "mmc");
     }
 
     if (
@@ -261,7 +446,7 @@
     ) {
       surgerytext +=
         prescriptionDataInUrdu.patientInformation.durationsurgery +
-        " " +
+        "." +
         prescriptionDataInUrdu.patientInformation.unitsurgery +
         " ";
     }
@@ -270,125 +455,174 @@
 
     $("#divExtraDetailLikeSurgery").html(surgerytext.toUpperCase());
 
-    var COMORBIDSText = "";
-    COMORBIDSText += `DM${
-      prescriptionDataInUrdu.patientInformation.dm ? "-ve" : "+ve"
-    }, HTN${
-      prescriptionDataInUrdu.patientInformation.htn ? "-ve" : "+ve"
-    }, CVA${
-      prescriptionDataInUrdu.patientInformation.cva ? "-ve" : "+ve"
-    }, CAD${
-      prescriptionDataInUrdu.patientInformation.cad ? "-ve" : "+ve"
-    }, HEPATITIS${
-      prescriptionDataInUrdu.patientInformation.hepatitis ? "-ve" : "+ve"
-    }, TRAUMA${prescriptionDataInUrdu.patientInformation.trauma ? "-ve" : "+ve"}
-                      `;
+    // Rest of your existing code for comorbidities and other fields...
+    const comorbidities = [
+      { name: "DM", value: prescriptionDataInUrdu.patientInformation.dm },
+      { name: "HTN", value: prescriptionDataInUrdu.patientInformation.htn },
+      { name: "CVA", value: prescriptionDataInUrdu.patientInformation.cva },
+      { name: "CAD", value: prescriptionDataInUrdu.patientInformation.cad },
+      {
+        name: "HEPATITIS",
+        value: prescriptionDataInUrdu.patientInformation.hepatitis,
+      },
+      {
+        name: "TRAUMA",
+        value: prescriptionDataInUrdu.patientInformation.trauma,
+      },
+    ];
 
-    $("#divCOMORBIDSList").html(COMORBIDSText.toUpperCase());
+    const formattedComorbidities = comorbidities.map((item) => {
+      const isPositive = !item.value;
+      const valueText = isPositive ? "<strong>+VE</strong>" : "-VE";
+      return `${item.name} ${valueText}`;
+    });
 
+    const comorbidsHtml = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>${formattedComorbidities[0]},</span>
+            <span>${formattedComorbidities[1]},</span>
+            <span>${formattedComorbidities[2]}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+            <span>${formattedComorbidities[3]},</span>
+            <span>${formattedComorbidities[4]},</span>
+            <span>${formattedComorbidities[5]}</span>
+        </div>
+    `;
+
+    $("#divCOMORBIDSList").html(comorbidsHtml);
+
+    $("#spangcs").html(
+      `<span style="font-weight: bold">${prescriptionDataInUrdu.patientInformation.gcs}/15</span>`
+    );
+    $("#spanbp").html(
+      `<span style="font-weight: bold">${prescriptionDataInUrdu.patientInformation.bp}</span>`
+    );
+
+    // Rest of your existing code...
     $("#spanpatientname").html(
       prescriptionDataInUrdu.patientInformation.patientname
     );
     $("#spanpatientage").html(
-      prescriptionDataInUrdu.patientInformation.patientage + " Year(s)"
+      prescriptionDataInUrdu.patientInformation.patientage
     );
     $("#spanpatientcheckupdate").html(
       prescriptionDataInUrdu.patientInformation.checkupDate
     );
-
-    if (prescriptionDataInUrdu.patientInformation.nextFollowUpDate)
-      $("#divNextFollowUpDate").html(
-        `براہ کرم ${prescriptionDataInUrdu.patientInformation.nextFollowUpDate} کو دوبارہ معائنہ کے لیے آئیں۔`
-      );
-
-    $("#HOFFSIGN").text(
-      prescriptionDataInUrdu.patientInformation.HOFFSIGN ? "-ve" : "+ve"
-    );
-    $("#SPERLINGSIGN").text(
-      prescriptionDataInUrdu.patientInformation.SPERLINGSIGN ? "-ve" : "+ve"
-    );
-    $("#TINNELSIGN").text(
-      prescriptionDataInUrdu.patientInformation.TINNELSIGN ? "-ve" : "+ve"
-    );
-    $("#PHALLENSIGN").text(
-      prescriptionDataInUrdu.patientInformation.PHALLENSIGN ? "-ve" : "+ve"
-    );
-    $("#slr").text(prescriptionDataInUrdu.patientInformation.slr);
-    $("#sensations").text(prescriptionDataInUrdu.patientInformation.sensations);
-    $("#powerLL").text(
-      prescriptionDataInUrdu.patientInformation.powerLL1 +
-        "/" +
-        prescriptionDataInUrdu.patientInformation.powerLL2
-    );
-    $("#powerUL").text(
-      prescriptionDataInUrdu.patientInformation.powerUL1 +
-        "/" +
-        prescriptionDataInUrdu.patientInformation.powerUL2
-    );
-    $("#spangcs").text(prescriptionDataInUrdu.patientInformation.gcs + "/15");
-    $("#spanbp").text(prescriptionDataInUrdu.patientInformation.bp);
+    // ... (keep all other existing code)
   }
+
+  function setPowerValues(prescriptionDataInUrdu) {
+    debugger;
+    const ulFirst = prescriptionDataInUrdu.patientInformation.powerUL1;
+    const ulSecond = prescriptionDataInUrdu.patientInformation.powerUL2;
+
+    $("#powerUL-first")
+      .text(ulFirst)
+      .toggleClass("bold-value", ulFirst !== "5");
+    $("#powerUL-second")
+      .text(ulSecond)
+      .toggleClass("bold-value", ulSecond !== "5");
+
+    // Set LL values
+    const llFirst = prescriptionDataInUrdu.patientInformation.powerLL1;
+    const llSecond = prescriptionDataInUrdu.patientInformation.powerLL2;
+
+    $("#powerLL-first")
+      .text(llFirst)
+      .toggleClass("bold-value", llFirst !== "5");
+    $("#powerLL-second")
+      .text(llSecond)
+      .toggleClass("bold-value", llSecond !== "5");
+  }
+
+  function setExamFindings(prescriptionData) {
+    const info = prescriptionData.patientInformation;
+
+    // Set values and bold if not default
+    $("#reflexesValue")
+      .text(info.reflexes || "NORMAL")
+      .toggleClass("bold-value", info.reflexes !== "NORMAL");
+
+    $("#faberValue")
+      .text(info.feber === "Positive" ? "+VE" : "-VE")
+      .toggleClass("bold-value", info.feber === "Positive");
+
+    $("#sensationsValue")
+      .text(info.sensations || "INTACT")
+      .toggleClass("bold-value", info.sensations === "LOST");
+
+    $("#slrValue")
+      .text(info.slr === "RESTRICTED" ? "RESTRICTED" : "NORMAL")
+      .toggleClass("bold-value", info.slr === "RESTRICTED");
+
+    $("#sphincterValue")
+      .text(info.sphincter || "INTACT")
+      .toggleClass("bold-value", info.sphincter === "LOST");
+
+    $("#sperlingValue")
+      .text(info.SPERLINGSIGN ? "+VE" : "-VE")
+      .toggleClass("bold-value", info.SPERLINGSIGN);
+
+    $("#hoffValue")
+      .text(info.HOFFSIGN ? "+VE" : "-VE")
+      .toggleClass("bold-value", info.HOFFSIGN);
+
+    $("#phallenValue")
+      .text(info.PHALLENSIGN ? "+VE" : "-VE")
+      .toggleClass("bold-value", info.PHALLENSIGN);
+
+    $("#tinnelValue")
+      .text(info.TINNELSIGN ? "+VE" : "-VE")
+      .toggleClass("bold-value", info.TINNELSIGN);
+  }
+
+  // Add CSS for bold values
+  $("<style>")
+    .prop("type", "text/css")
+    .html(".bold-value { font-weight: bold !important; }")
+    .appendTo("head");
 
   function setpatientinstructionPrintData(prescriptionDataInUrdu) {
     if (
-      prescriptionDataInUrdu &&
-      prescriptionDataInUrdu.patientInformation &&
-      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions &&
-      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions[0]
-        .title &&
-      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions[0]
-        .detail.length > 0
+      !prescriptionDataInUrdu?.patientInformation?.selectedPatientInstructions
+        ?.length
     ) {
-      // Group instructions by title
-      const groupedInstructions = {};
-      prescriptionDataInUrdu.patientInformation.selectedPatientInstructions.forEach(
-        (instruction) => {
-          if (!groupedInstructions[instruction.title]) {
-            groupedInstructions[instruction.title] = [];
-          }
-          groupedInstructions[instruction.title].push(instruction);
-        }
-      );
+      $("#patientinstructionDivList").html("");
+      return;
+    }
 
-      let patientinstructionListHtml = `
-        <div style="margin-bottom: 15px;">
-          <div style="display: flex; flex-direction: column; gap: 10px; text-align: center;">
-            <!-- Heading Section -->
-      `;
+    let patientinstructionListHtml = `
+        <div style="width: 100%;">
+            <div style="display: table; width: 100%;">
+    `;
 
-      // Iterate over grouped instructions
-      for (const [title, instructions] of Object.entries(groupedInstructions)) {
+    prescriptionDataInUrdu.patientInformation.selectedPatientInstructions.forEach(
+      (instruction, index) => {
         patientinstructionListHtml += `
-            <!-- Patient Instruction Title -->
-            <div style="text-align: right; margin-top: 10px;">
-              <span class="nastaleeq" style="font-size: large; font-weight: bold; text-align: right;">پرہیز - </span>
-              <span class="nastaleeq" style="text-align: right;"> (${title})</span>
+            <!-- Title Row -->
+            <div style="display: table-row; width: 100%;">
+                <div style="display: table-cell; padding: 8px; text-align: right; vertical-align: middle;">
+                    <span class="nastaleeq" style="font-weight: bold;font-size: small;">${instruction.title}</span>
+                </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; text-align: left;">
-        `;
-
-        instructions.forEach((instruction) => {
-          patientinstructionListHtml += `
-              <div style="text-align: right;">
-                <span class="nastaleeq">${instruction.detail}</span>
-              </div>
-          `;
-        });
-
-        patientinstructionListHtml += `
+            
+            <!-- Detail Row -->
+            <div style="display: table-row; width: 100%;">
+                <div style="display: table-cell; padding: 8px; text-align: right; vertical-align: middle;">
+                    <span class="nastaleeq">${instruction.detail}</span>
+                </div>
             </div>
         `;
       }
+    );
 
-      patientinstructionListHtml += `
-          </div>
+    patientinstructionListHtml += `
+            </div>
         </div>
-      `;
+    `;
 
-      $("#patientinstructionDivList").html(patientinstructionListHtml);
-    } else {
-      $("#patientinstructionDivList").html("");
-    }
+    $("#patientinstructionDivList").html(patientinstructionListHtml);
   }
 
   function setrehabilitationaidsPrintData(prescriptionDataInUrdu) {
@@ -398,22 +632,35 @@
       prescriptionDataInUrdu.patientInformation.selectedRehabilitationAids
         .length > 0
     ) {
-      let rehabilitationaidsListHtml = "";
+      let rehabilitationaidsListHtml = `
+            <div style="width: 100%;">
+                <div style="display: table; width: 100%;">
+        `;
+
       prescriptionDataInUrdu.patientInformation.selectedRehabilitationAids.forEach(
         (rehabilitationaids) => {
           rehabilitationaidsListHtml += `
-               <div style="margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
-                  <div style="display: grid; grid-template-columns: 2fr 2fr; gap: 10px; align-items: start;">
-                      <span class="nastaleeq" style="font-size: large; text-align: left;">
-                    ${rehabilitationaids.name}</span>
-                      <div>
-                          <span class="nastaleeq" style="display: block; text-align: right;"> ${rehabilitationaids.moreDetail}</span>
-                      </div>
-                  </div>
-              </div>
-                `;
+                <!-- Title Row (Name) - Simple White Background -->
+                <div style="display: table-row; width: 100%;">
+                    <div style="display: table-cell; padding: 8px; text-align: center; vertical-align: middle; background-color: white;font-style: italic;">
+                        <span class="nastaleeq">${rehabilitationaids.name}</span>
+                    </div>
+                </div>
+                
+                <!-- Detail Row (moreDetail) - Gray Background -->
+                <div style="display: table-row; width: 100%;">
+                    <div style="display: table-cell; padding: 8px; text-align: center; vertical-align: middle; background-color: #f9f9f9;">
+                        <span class="nastaleeq">${rehabilitationaids.moreDetail}</span>
+                    </div>
+                </div>
+            `;
         }
       );
+
+      rehabilitationaidsListHtml += `
+                </div>
+            </div>
+        `;
 
       $("#rehabilitationaidsDivList").html(rehabilitationaidsListHtml);
     } else {
@@ -438,7 +685,9 @@
           complaintListHtml += `
                       <li class="list-item">
                           <span class="label">${complaint.complaint} </span>
-                          <span class="value"> More than ${complaint.duration} ${complaint.unit}</span>
+                          <span class="value">${
+                            complaint.duration
+                          } ${complaint.unit.toUpperCase()}</span>
                       </li>
                 `;
         }
@@ -450,27 +699,27 @@
   }
 
   function setInvestigationPrintData(prescriptionDataInUrdu) {
-    if (
-      prescriptionDataInUrdu &&
-      prescriptionDataInUrdu.patientInformation &&
-      prescriptionDataInUrdu.patientInformation.selectedInvestigation.length >
-        0 &&
-      prescriptionDataInUrdu.patientInformation.selectedInvestigation[0]
-    ) {
-      var investigationListHtml = "";
+    const container = $("#investigationsInlineList");
+    const detailsContainer = $("#investigationDetails");
 
-      prescriptionDataInUrdu.patientInformation.selectedInvestigation.forEach(
-        (investigation) => {
-          investigationListHtml += `
-                      <li class="list-item">
-                          <span class="label">${investigation} </span>
-                      </li>
-                `;
-        }
+    // Clear previous content
+    container.empty();
+    detailsContainer.empty().hide();
+
+    if (
+      prescriptionDataInUrdu?.patientInformation?.selectedInvestigation
+        ?.length > 0
+    ) {
+      // Get all investigations and any details
+      const investigations =
+        prescriptionDataInUrdu.patientInformation.selectedInvestigation;
+
+      // Display inline list
+      container.text(investigations.map((inv) => inv.trim()).join("."));
+
+      $("#investigationsDetails").html(
+        prescriptionDataInUrdu.patientInformation.investigationMoreDetail
       );
-      $("#ulinvestigationList").html(investigationListHtml);
-    } else {
-      $("#divINVESTIGATIONS").html("");
     }
   }
 
@@ -483,14 +732,8 @@
     ) {
       var planListHtml = "";
 
-      prescriptionDataInUrdu.patientInformation.selectedPlan.forEach((plan) => {
-        planListHtml += `
-                      <li class="list-item">
-                          <span class="label">${plan} </span>
-                      </li>
-                `;
-      });
-      $("#ulplanList").html(planListHtml);
+      const plans = prescriptionDataInUrdu.patientInformation.selectedPlan;
+      $("#ulplanList").html(plans.map((inv) => inv.trim()).join(","));
     } else {
       $("#divPlan").html("");
     }
@@ -498,66 +741,66 @@
 
   function setMedicinePrintData(prescriptionDataInUrdu) {
     if (
-      prescriptionDataInUrdu &&
-      prescriptionDataInUrdu.patientInformation &&
-      prescriptionDataInUrdu.patientInformation.selectedMedicines.length > 0
+      !prescriptionDataInUrdu?.patientInformation?.selectedMedicines?.length
     ) {
-      var medicineListHtml = "";
-
-      prescriptionDataInUrdu.patientInformation.selectedMedicines.forEach(
-        (medicine, index) => {
-          const {
-            medicinename,
-            duration,
-            durationnumber,
-            morningInUrdu,
-            morning,
-            afternoon,
-            night,
-            isPrintableOnPrescription,
-            quantity,
-            medicinetype,
-          } = medicine;
-
-          const durationMapping = {
-            day: { singular: "دن", plural: "دنوں" },
-            week: { singular: "ہفتہ", plural: "ہفتوں" },
-            month: { singular: "مہینہ", plural: "مہینوں" },
-            year: { singular: "سال", plural: "سالوں" },
-          };
-          const timings = [];
-          if (morning) timings.push("صبح");
-          if (afternoon) timings.push("دوپہر");
-          if (night) timings.push("رات");
-
-          // Timings
-          let timingText = "";
-          if (isPrintableOnPrescription) {
-            timingText += "(کھانے سے پہلے)";
-          }
-          medicineListHtml += "" + "";
-          const durationText =
-            durationnumber === "1"
-              ? `ایک ${durationMapping[duration].singular} کے لئے استعمال کریں۔`
-              : `${durationnumber} ${durationMapping[duration].plural} کے لئے استعمال کریں۔`;
-
-          medicineListHtml += `
-               <div style="margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
-                  <div style="display: grid; grid-template-columns: 2fr 2fr; gap: 10px; align-items: start;">
-                      <span style="font-size: large; text-align: left;">${
-                        index + 1
-                      } - (${medicinetype}) ${medicinename}</span>
-                      <div>
-                          <span class="nastaleeq" style="display: block; text-align: right;"> ${quantity} - (${timings})</span>
-                          <div class="nastaleeq" style="text-align: right;">${durationText}</div>
-                      </div>
-                  </div>
-              </div>
-                `;
-        }
-      );
-      $("#medicineDivList").html(medicineListHtml);
+      $("#medicineDivList").html("");
+      return;
     }
+
+    let medicineListHtml = `
+    <table style="width: 100%; border-collapse: collapse; font-family: 'Nastaleeq', sans-serif;">
+        <colgroup>
+            <col style="width: 50%"> <!-- Medicine name -->
+            <col style="width: 10%"> <!-- Duration -->
+            <col style="width: 10%"> <!-- Duration number -->
+            <col style="width: 20%"> <!-- Timings -->
+            <col style="width: 10%"> <!-- Quantity -->
+        </colgroup>
+    `;
+
+    prescriptionDataInUrdu.patientInformation.selectedMedicines.forEach(
+      (medicine, index) => {
+        const bgColor = index % 2 === 0 ? "#ffffff" : "#f9f9f9";
+
+        // Prepare timings
+        const timings = [];
+        if (medicine.morning) timings.push("صبح");
+        if (medicine.afternoon) timings.push("دوپہر");
+        if (medicine.night) timings.push("رات");
+        const timingStr = timings.join("، ");
+
+        const durationMap = {
+          day: "دن",
+          week: "ہفتہ",
+          month: "مہینہ",
+          year: "سال",
+        };
+        const durationText =
+          durationMap[medicine.duration?.toLowerCase() || "day"];
+
+        medicineListHtml += `
+        <tr style="background-color: ${bgColor}">
+            <td style="padding: 5px 0px 5px 8px; font-style: italic; font-size:small; vertical-align: middle; font-weight: bold;">
+                ${medicine.medicinename}
+            </td>
+            <td style="padding: 5px 0px 5px 8px; text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                ${durationText}
+            </td>
+            <td style="padding: 5px 0px 5px 8px; text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                ${medicine.durationnumber}
+            </td>
+            <td style="padding: 5px 0px 5px 8px; text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                ${timingStr}
+            </td>
+            <td style="padding: 5px 0px 5px 8px; text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                ${medicine.quantity}
+            </td>
+        </tr>`;
+      }
+    );
+
+    medicineListHtml += `</table>`;
+    $("#medicineDivList").html(medicineListHtml);
   }
 
   function printPrescription() {
