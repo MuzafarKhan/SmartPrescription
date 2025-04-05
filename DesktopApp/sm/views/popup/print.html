@@ -273,14 +273,14 @@
                       </div>
                     </div>
                     <div id="divDiagnosis">
-                      <div class="title mt-4">Diagnosis</div>
+                      <div class="title mt-4">DIAGNOSIS</div>
                       <div
                         id="divDiagnosisList"
                         style="font-size: x-small"
                       ></div>
                     </div>
                     <div id="divPlan">
-                      <div class="title mt-4">Plan</div>
+                      <div class="title mt-4">PLAN</div>
                       <div>
                         <ul class="list-container" id="ulplanList"></ul>
                       </div>
@@ -627,45 +627,48 @@
 
   function setrehabilitationaidsPrintData(prescriptionDataInUrdu) {
     if (
-      prescriptionDataInUrdu &&
-      prescriptionDataInUrdu.patientInformation &&
-      prescriptionDataInUrdu.patientInformation.selectedRehabilitationAids
-        .length > 0
+      !prescriptionDataInUrdu?.patientInformation?.selectedRehabilitationAids
+        ?.length
     ) {
-      let rehabilitationaidsListHtml = `
-            <div style="width: 100%;">
-                <div style="display: table; width: 100%;">
-        `;
+      $("#rehabilitationaidsDivList").html("");
+      return;
+    }
 
-      prescriptionDataInUrdu.patientInformation.selectedRehabilitationAids.forEach(
-        (rehabilitationaids) => {
-          rehabilitationaidsListHtml += `
-                <!-- Title Row (Name) - Simple White Background -->
-                <div style="display: table-row; width: 100%;">
-                    <div style="display: table-cell; padding: 8px; text-align: center; vertical-align: middle; background-color: white;font-style: italic;">
-                        <span class="nastaleeq">${rehabilitationaids.name}</span>
-                    </div>
-                </div>
-                
-                <!-- Detail Row (moreDetail) - Gray Background -->
-                <div style="display: table-row; width: 100%;">
-                    <div style="display: table-cell; padding: 8px; text-align: center; vertical-align: middle; background-color: #f9f9f9;">
-                        <span class="nastaleeq">${rehabilitationaids.moreDetail}</span>
-                    </div>
-                </div>
-            `;
-        }
-      );
+    let rehabilitationaidsListHtml = `
+        <div style="width: 100%;">
+            <div style="display: table; width: 100%;" class="rehab-table">
+    `;
 
-      rehabilitationaidsListHtml += `
+    prescriptionDataInUrdu.patientInformation.selectedRehabilitationAids.forEach(
+      (rehabilitationaids, index) => {
+        // Name row - always odd
+        rehabilitationaidsListHtml += `
+            <div class="rehab-odd-row" style="display: table-row; width: 100%;">
+                <div style="display: table-cell; padding: 8px; text-align: center; vertical-align: middle; font-style: italic;">
+                    <span class="nastaleeq">${rehabilitationaids.name}</span>
                 </div>
             </div>
         `;
 
-      $("#rehabilitationaidsDivList").html(rehabilitationaidsListHtml);
-    } else {
-      $("#rehabilitationaidsDivList").html("");
-    }
+        // Detail row - always even
+        rehabilitationaidsListHtml += `
+            <div class="rehab-even-row" style="display: table-row; width: 100%;">
+                <div style="display: table-cell; padding: 8px; text-align: center; vertical-align: middle;">
+                    <span class="nastaleeq">${
+                      rehabilitationaids.moreDetail || ""
+                    }</span>
+                </div>
+            </div>
+        `;
+      }
+    );
+
+    rehabilitationaidsListHtml += `
+            </div>
+        </div>
+    `;
+
+    $("#rehabilitationaidsDivList").html(rehabilitationaidsListHtml);
   }
 
   function setComplaintPrintData(prescriptionDataInUrdu) {
@@ -748,7 +751,7 @@
     }
 
     let medicineListHtml = `
-    <table style="width: 100%; border-collapse: collapse; font-family: 'Nastaleeq', sans-serif;">
+    <table style="width: 100%; border-collapse: collapse;" class="medicine-table">
         <colgroup>
             <col style="width: 45%"> <!-- Medicine name -->
             <col style="width: 10%"> <!-- Duration -->
@@ -757,11 +760,18 @@
         </colgroup>
     `;
 
+    let currentMedicineName = null;
+    let bgColorClass = "odd-row"; // Start with odd row
+
     prescriptionDataInUrdu.patientInformation.selectedMedicines.forEach(
       (medicine, index) => {
-        const bgColor = index % 2 === 0 ? "#ffffff" : "#f9f9f9";
+        // Change color only when medicine name changes
+        if (currentMedicineName !== medicine.medicinename) {
+          bgColorClass = bgColorClass === "odd-row" ? "even-row" : "odd-row";
+        }
+        currentMedicineName = medicine.medicinename;
 
-        // Prepare timings - handle both timingType and checkbox timings
+        // Prepare timings
         let timingStr = "";
         if (medicine.timingType) {
           const timingTypeMap = {
@@ -781,7 +791,7 @@
           timingStr = timings.join("، ");
         }
 
-        // Handle duration - only show if both number and type exist AND number is not 0
+        // Handle duration
         const durationMap = {
           day: "دن",
           week: "ہفتہ",
@@ -792,10 +802,6 @@
         const durationText = medicine.duration
           ? durationMap[medicine.duration.toLowerCase()] || medicine.duration
           : "";
-
-        // Only show duration if:
-        // 1. durationnumber exists AND is not 0
-        // 2. durationText exists
         const showDuration =
           medicine.durationnumber &&
           medicine.durationnumber != 0 &&
@@ -804,30 +810,39 @@
           ? `${medicine.durationnumber} ${durationText}`
           : "";
 
+        // Only show medicine name if it's different from previous medicine
+        const showMedicineName =
+          index === 0 ||
+          medicine.medicinename !==
+            prescriptionDataInUrdu.patientInformation.selectedMedicines[
+              index - 1
+            ].medicinename;
+
         medicineListHtml += `
-    <tr style="background-color: ${bgColor}; height: 40px;">
-        <td style="font-style: italic; font-size:small; vertical-align: middle; font-weight: bold;">
-            ${medicine.medicinename}
-        </td>
-        <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
-            ${durationDisplay}
-        </td>
-        <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
-            ${timingStr}
-        </td>
-        <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
-            ${medicine.quantity || ""}
-        </td>
-    </tr>`;
+        <tr class="${bgColorClass}" style="height: 40px;">
+            <td style="font-style: italic; font-size: small; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px;">
+                ${showMedicineName ? medicine.medicinename : ""}
+            </td>
+            <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                ${durationDisplay}
+            </td>
+            <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                ${timingStr}
+            </td>
+            <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                ${medicine.quantity || ""}
+            </td>
+        </tr>`;
 
         // Add moreDetails row if it exists
         if (medicine.moredetail) {
           medicineListHtml += `
-    <tr style="background-color: ${bgColor};">
-        <td colspan="4" style="padding: 0px 8px 5px 0px; text-align: right; font-size:small; font-style: italic;" class="nastaleeq">
-            ${medicine.moredetail}
-        </td>
-    </tr>`;
+            <tr class="${bgColorClass}">
+                <td></td>
+                <td colspan="3" style="padding: 0px 60px 10px 0px; text-align: right; font-size:small; font-style: italic; direction: rtl;" class="nastaleeq">
+                    ${medicine.moredetail}
+                </td>
+            </tr>`;
         }
       }
     );

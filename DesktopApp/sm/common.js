@@ -303,7 +303,7 @@ const common = {
     localStorage.removeItem("settings");
     if (settings) localStorage.setItem("settings", JSON.stringify(settings));
   },
-  async getSettings() {
+  getSettings() {
     return JSON.parse(localStorage.getItem("settings"));
   },
   async refreshSettings() {
@@ -316,8 +316,10 @@ const common = {
     localStorage.removeItem("translation");
     if (translation)
       localStorage.setItem("translation", JSON.stringify(translation));
+    debugger;
   },
-  async getTranslations() {
+  getTranslations() {
+    debugger;
     return JSON.parse(localStorage.getItem("translation"));
   },
   async refreshTranslations() {

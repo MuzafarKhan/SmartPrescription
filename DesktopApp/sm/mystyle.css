@@ -159,74 +159,62 @@ body {
   body {
     margin: 0;
     padding: 0;
-    width: 210mm; /* A4 width */
-    height: 227mm; /* A4 height */
+    width: 210mm;
+    height: 227mm;
   }
 
-  .patient-information {
+  /* Medicine Table - Print Styles */
+  .medicine-table tr.odd-row,
+  .medicine-table tr.odd-row td {
+    background-color: #ffffff !important;
+  }
+
+  .medicine-table tr.even-row,
+  .medicine-table tr.even-row td {
+    background-color: #f9f9f9 !important;
+  }
+
+  /* Rehabilitation Aids - Print Styles */
+  #rehabilitationaidsDivList [style*="table-row"].rehab-odd-row {
+    background-color: #ffffff !important;
+  }
+
+  #rehabilitationaidsDivList [style*="table-row"].rehab-even-row {
+    background-color: #f9f9f9 !important;
+  }
+
+  /* Force background printing */
+  body * {
     -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* Patient Information */
+  .patient-information {
     background-color: #aeaaa9 !important;
   }
 
-  #printableafterGap {
-    margin-top: 50mm;
-    width: 210mm; /* Slightly smaller than A4 width to avoid browser margins */
-    height: 220; /* Adjust height automatically to fit content */
-    font-family: Arial, sans-serif;
-    box-sizing: border-box; /* Include padding in the width/height calculation */
-  }
-  #medicineDivList table tr:nth-child(odd) td {
-    background-color: #ffffff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  #medicineDivList table tr:nth-child(even) td {
-    background-color: #f9f9f9 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Rehabilitation Aids - Force alternating row colors */
-  #rehabilitationaidsDivList div[style*="table-row"]:nth-child(4n + 1) div {
-    background-color: white !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  #rehabilitationaidsDivList div[style*="table-row"]:nth-child(4n + 3) div {
-    background-color: #f9f9f9 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  #patientinstructionDivList,
-  #patientinstructionDivList .nastaleeq,
-  #patientinstructionDivList div[style*="table-row"] div {
-    color: #999999 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Hide all elements that should not appear in print */
-  .no-print,
-  .modal-footer,
-  .modal-header {
+  /* Hide non-printable elements */
+  .no-print {
     display: none !important;
   }
+}
 
-  /* Remove extra margin or padding */
-  html,
-  body {
-    margin: 0 !important;
-    padding: 0 !important;
-  }
+.medicine-table .odd-row {
+  background-color: #ffffff;
+}
 
-  .medicine-table {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+.medicine-table .even-row {
+  background-color: #f9f9f9;
+}
+
+.rehab-odd-row div {
+  background-color: white;
+}
+
+.rehab-even-row div {
+  background-color: #f9f9f9;
 }
 
 .middle-section {
@@ -256,9 +244,7 @@ body {
   flex-direction: column;
   height: 100%; /* Take full height of the container */
   width: 30%; /* 25% width of the parent container */
-  border-right: 1px solid black;
-  box-sizing: border-box; /* Include padding in width */
-  padding: 5px;
+  padding: 7.5px;
 }
 
 .followupStyle {
@@ -275,7 +261,7 @@ body {
   box-sizing: border-box; /* Include padding in width */
   display: flex;
   flex-direction: column;
-  padding: 5px;
+  padding: 7.5px;
 }
 
 #patientinstructionDivList {

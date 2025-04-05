@@ -227,7 +227,6 @@
     $("#settingForm").on("submit", async function (event) {
       event.preventDefault(); // Prevent the default form submission
       // Object to store settings
-      debugger;
       const settings = {
         defaultDay: $("#selectDefaultDay").val(),
         defaultDate: $("#txtDefaultDate").val(),
@@ -272,11 +271,8 @@
           settings.surgeryDetailValues
         );
         await savetranslations(translations);
-        await common.refreshSettings();
-        await common.refreshTranslations();
         // Show success message after both are completed
         common.showUpdatedSuccessfullyMessage();
-        await init(); // Reinitialize to refresh data
       } catch (error) {
         console.error("Error updating settings or translations:", error);
         // Handle errors, such as showing a message to the user
@@ -308,7 +304,7 @@
 
   async function getSettings() {
     await common.refreshSettings();
-    const setting = await common.getSettings();
+    const setting = common.getSettings();
     if (setting && setting.length > 0) {
       $("#txtDefaultDate").datepicker({
         dateFormat: "dd/mm/yy", //check change
@@ -341,7 +337,7 @@
 
   async function getTranslations() {
     await common.refreshTranslations();
-    const translations = await common.getTranslations();
+    const translations = common.getTranslations();
     // Clear the current rows in the table body
     $("#translationsContainer tbody").empty();
 
