@@ -57,17 +57,10 @@ const common = {
               list="medicineSuggestions"
               required
             />
-
-            <!-- Suggestions -->
             <datalist id="medicineSuggestions"> </datalist>
           </td>
           <td>
-            <select
-              id="medicineType"
-              class="form-select"
-              name="medicineType"
-              required
-            >
+            <select class="form-select medicine-type" name="medicineType" required>
               <option value="">Select Type</option>
               <option value="Tab">TAB</option>
               <option value="Cap">CAP</option>
@@ -79,45 +72,50 @@ const common = {
               <option value="OINT">OINT</option>
               <option value="LOTION">LOTION</option>
             </select>
-             <select id="injType" class="form-select hidden mt-1" name="injType" required>
-                <option selected value="IV">IV</option>
-                <option value="IM">IM</option>
-                <option value="PO">PO</option>
-              </select>
+            <select class="form-select inj-type hidden mt-1" name="injType" required>
+              <option selected value="IV">IV</option>
+              <option value="IM">IM</option>
+              <option value="PO">PO</option>
+            </select>
           </td>
           <td>
             <input
               type="text"
-              class="form-control"
-              id="quantity"
+              class="form-control quantity"
               placeholder="1 Tab - 1 Spoon"
               required
             />
           </td>
           <td>
-            <div style="text-align: center">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="inlineMorning"
-              />&nbsp;&nbsp;/&nbsp;&nbsp;
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="inlineAfternoon"
-              />&nbsp;&nbsp;/&nbsp;&nbsp;
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="inlineNight"
-              />
+            <select class="form-select timing-type">
+              <option value="">Select Timing</option>
+              <option value="STAT">STAT</option>
+              <option value="OD">OD</option>
+              <option value="OW">OW</option>
+              <option value="OM">OM</option>
+              <option value="3Monthly">3 Monthly</option>
+              <option value="OnceYearly">Once Yearly</option>
+            </select>
+          </td>
+          <td>
+            <div class="d-flex justify-content-center">
+              <div class="form-check me-2">
+                <input type="checkbox" class="form-check-input timing-checkbox morning" />
+                <label class="form-check-label">/</label>
+              </div>
+              <div class="form-check me-2">
+                <input type="checkbox" class="form-check-input timing-checkbox afternoon" />
+                <label class="form-check-label">/</label>
+              </div>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input timing-checkbox night" />
+              </div>
             </div>
           </td>
           <td>
             <input
-              class="form-check-input"
+              class="form-check-input printable"
               type="checkbox"
-              id="isPrintableOnPrescriptionCheckChecked"
             />
           </td>
           <td>
@@ -125,15 +123,14 @@ const common = {
               <div class="col-6">
                 <input
                   type="number"
-                  class="form-control"
-                  id="durationnumber"
+                  class="form-control duration-number"
                   placeholder="1"
                   value="1"
                   required
                 />
               </div>
               <div class="col-6">
-                <select id="slctDuration" class="form-select" required>
+                <select class="form-select duration" required>
                   <option value="">Select Duration</option>
                   <option value="day">day</option>
                   <option value="week" selected>week</option>
@@ -144,12 +141,10 @@ const common = {
               </div>
             </div>
           </td>
-
           <td>
             <input
               type="text"
-              class="form-control"
-              id="moredetail"
+              class="form-control more-detail"
               placeholder="-"
             />
           </td>
@@ -304,30 +299,30 @@ const common = {
   },
 
   /*settings*/
-  saveSettings(settings) {
+  async saveSettings(settings) {
     localStorage.removeItem("settings");
     if (settings) localStorage.setItem("settings", JSON.stringify(settings));
   },
-  getSettings() {
+  async getSettings() {
     return JSON.parse(localStorage.getItem("settings"));
   },
   async refreshSettings() {
     const settings = await window.electronAPI.getSettings();
-    this.saveSettings(settings);
+    await this.saveSettings(settings);
   },
 
   /*translation*/
-  saveTranslations(translation) {
+  async saveTranslations(translation) {
     localStorage.removeItem("translation");
     if (translation)
       localStorage.setItem("translation", JSON.stringify(translation));
   },
-  getTranslations() {
+  async getTranslations() {
     return JSON.parse(localStorage.getItem("translation"));
   },
   async refreshTranslations() {
     const translation = await window.electronAPI.getTranslations();
-    this.saveTranslations(translation);
+    await this.saveTranslations(translation);
   },
   applyBehaviours() {
     $(document).on(

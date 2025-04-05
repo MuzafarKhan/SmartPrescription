@@ -931,18 +931,19 @@
       // Create an object for each medicine row
       const medicine = {
         medicinename: medicineRow.find(".medicine-input").val(),
-        medicinetype: medicineRow.find("[id^='medicineType']").val(),
-        injType: medicineRow.find("[id^='injType']").val(),
-        quantity: medicineRow.find("[id^='quantity']").val(),
-        morning: medicineRow.find("[id^='inlineMorning']").is(":checked"),
-        afternoon: medicineRow.find("[id^='inlineAfternoon']").is(":checked"),
-        night: medicineRow.find("[id^='inlineNight']").is(":checked"),
-        duration: medicineRow.find("[id^='slctDuration']").val(),
-        durationnumber: medicineRow.find("[id^='durationnumber']").val(),
-        isPrintableOnPrescription: medicineRow
-          .find("[id^='isPrintableOnPrescriptionCheckChecked']")
-          .is(":checked"),
-        moredetail: medicineRow.find("[id^='moredetail']").val(),
+        medicinetype: medicineRow.find(".medicine-type").val(),
+        injType: medicineRow.find(".inj-type").val(),
+        quantity: medicineRow.find(".quantity").val(),
+        timingType: medicineRow.find(".timing-type").val(), // New field for timing type
+        morning: medicineRow.find(".morning").is(":checked") ? 1 : 0, // Updated selector
+        afternoon: medicineRow.find(".afternoon").is(":checked") ? 1 : 0, // Updated selector
+        night: medicineRow.find(".night").is(":checked") ? 1 : 0, // Updated selector
+        duration: medicineRow.find(".duration").val(), // Updated selector
+        durationnumber: medicineRow.find(".duration-number").val(), // Updated selector
+        isPrintableOnPrescription: medicineRow.find(".printable").is(":checked")
+          ? 1
+          : 0, // Updated selector
+        moredetail: medicineRow.find(".more-detail").val(), // Updated selector
       };
 
       // Add the object to the medicines array
@@ -1227,26 +1228,33 @@
 
     // Populate the row with the medicine data
     row.find(".medicine-input").val(medicine.medicinename);
-    row.find("[id^='medicineType']").val(medicine.medicinetype);
-    row
-      .find("[id^='medicineType']")
-      .val(medicine.medicinetype)
-      .trigger("change");
-    row.find("[id^='quantity']").val(medicine.quantity);
-    row.find("[id^='inlineMorning']").prop("checked", medicine.morning);
-    row.find("[id^='inlineAfternoon']").prop("checked", medicine.afternoon);
-    row.find("[id^='inlineNight']").prop("checked", medicine.night);
-    row
-      .find("[id^='isPrintableOnPrescriptionCheckChecked']")
-      .prop("checked", medicine.isPrintableOnPrescription);
-    row.find("[id^='durationnumber']").val(medicine.durationnumber);
-    row.find("[id^='slctDuration']").val(medicine.duration);
-    row
-      .find("[id^='isPrintableOnPrescriptionCheckChecked']")
-      .prop("checked", medicine.isPrintableOnPrescription);
-    row.find("[id^='moredetail']").val(medicine.moredetail);
-  }
+    row.find(".medicine-type").val(medicine.medicinetype).trigger("change");
 
+    // Handle injection type if medicine is injection
+    if (medicine.medicinetype === "Inj") {
+      row.find(".inj-type").val(medicine.injType).removeClass("hidden");
+    } else {
+      row.find(".inj-type").addClass("hidden");
+    }
+
+    row.find(".quantity").val(medicine.quantity);
+    debugger;
+    // Handle timing options (mutually exclusive)
+    if (medicine.timingType) {
+      row.find(".timing-type").val(medicine.timingType).trigger("change");
+      row.find(".timing-checkbox").prop("disabled", true);
+    } else {
+      row.find(".morning").prop("checked", medicine.morning);
+      row.find(".afternoon").prop("checked", medicine.afternoon);
+      row.find(".night").prop("checked", medicine.night);
+      row.find(".timing-type").prop("disabled", true);
+    }
+
+    row.find(".printable").prop("checked", medicine.isPrintableOnPrescription);
+    row.find(".duration-number").val(medicine.durationnumber);
+    row.find(".duration").val(medicine.duration);
+    row.find(".more-detail").val(medicine.moredetail);
+  }
   async function populateInvestigation(
     investigations,
     investigationMoreDetail

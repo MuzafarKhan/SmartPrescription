@@ -68,9 +68,9 @@
                   medicine.medicinename,
                   getTimingInEnglish(medicine),
                   medicine.quantity,
-                  (medicine.durationnumber ? medicine.durationnumber : "") +
-                    " " +
-                    medicine.duration,
+                  medicine.durationnumber && medicine.duration
+                    ? medicine.durationnumber + " " + medicine.duration
+                    : "",
                   '<button class="btn btn-warning btn-sm" onclick="openEditMedicine(' +
                     medicine.id +
                     ',event)">Update</button>' +

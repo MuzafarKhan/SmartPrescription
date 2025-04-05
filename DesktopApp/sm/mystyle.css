@@ -325,3 +325,10 @@ body {
 .ml-1 {
   margin-left: 1%;
 }
+
+#medicine-section {
+  font-size: 12px !important;
+}
+#medicine-section * {
+  font-size: inherit !important;
+}

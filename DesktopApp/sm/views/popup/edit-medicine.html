@@ -70,28 +70,55 @@
             />
           </div>
           <div class="row mb-3">
-            <div class="col">
-              <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="morning" />
-                <label class="form-check-label" for="morning">Morning</label>
-              </div>
+            <div class="col-md-6">
+              <label for="timingType" class="form-label">Timing Type</label>
+              <select id="timingType" class="form-select">
+                <option value="">Select Timing</option>
+                <option value="STAT">STAT</option>
+                <option value="OD">OD</option>
+                <option value="OW">OW</option>
+                <option value="OM">OM</option>
+                <option value="3Monthly">3 Monthly</option>
+                <option value="OnceYearly">Once Yearly</option>
+              </select>
             </div>
-            <div class="col">
-              <div class="form-check">
-                <input
-                  type="checkbox"
-                  class="form-check-input"
-                  id="afternoon"
-                />
-                <label class="form-check-label" for="afternoon"
-                  >Afternoon</label
-                >
-              </div>
-            </div>
-            <div class="col">
-              <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="night" />
-                <label class="form-check-label" for="night">Night</label>
+            <div class="col-md-6">
+              <label class="form-label">Or Specific Timings</label>
+              <div class="row">
+                <div class="col">
+                  <div class="form-check">
+                    <input
+                      type="checkbox"
+                      class="form-check-input timing-checkbox"
+                      id="morning"
+                    />
+                    <label class="form-check-label" for="morning"
+                      >Morning</label
+                    >
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-check">
+                    <input
+                      type="checkbox"
+                      class="form-check-input timing-checkbox"
+                      id="afternoon"
+                    />
+                    <label class="form-check-label" for="afternoon"
+                      >Afternoon</label
+                    >
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-check">
+                    <input
+                      type="checkbox"
+                      class="form-check-input timing-checkbox"
+                      id="night"
+                    />
+                    <label class="form-check-label" for="night">Night</label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -181,9 +208,27 @@
       }
     });
 
+    // Make timing options mutually exclusive
+    $("#timingType").change(function () {
+      if ($(this).val()) {
+        $(".timing-checkbox").prop("checked", false).prop("disabled", true);
+      } else {
+        $(".timing-checkbox").prop("disabled", false);
+      }
+    });
+
+    $(".timing-checkbox").change(function () {
+      if ($(".timing-checkbox:checked").length > 0) {
+        $("#timingType").val("").prop("disabled", true);
+      } else {
+        $("#timingType").prop("disabled", false);
+      }
+    });
+
     async function saveMedicine() {
       var id = $("#hdnId").html();
       var medicineName = $("#medicineName").val().trim();
+      var timingType = $("#timingType").val().trim();
       var morning = $("#morning").prop("checked") ? 1 : 0;
       var afternoon = $("#afternoon").prop("checked") ? 1 : 0;
       var night = $("#night").prop("checked") ? 1 : 0;
@@ -205,6 +250,7 @@
       var medicineModel = {
         id,
         medicineName,
+        timingType,
         morning,
         afternoon,
         night,
@@ -257,6 +303,20 @@
         });
         return false;
       }
+      // Check if either timing type is selected or at least one checkbox is checked (but not both)
+      const hasTimingType = $("#timingType").val();
+      const hasCheckboxTiming = $(".timing-checkbox:checked").length > 0;
+
+      if (!hasTimingType && !hasCheckboxTiming) {
+        $.toast({
+          heading: "Error",
+          text: "Please select either a Timing Type or specific timings",
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+        return false;
+      }
       return true;
     }
 
@@ -266,9 +326,14 @@
         .getMedicineById(id)
         .then((result) => {
           $("#medicineName").val(result[0].medicinename);
-          $("#morning").prop("checked", result[0].morning === 1);
-          $("#afternoon").prop("checked", result[0].afternoon === 1);
-          $("#night").prop("checked", result[0].night === 1);
+          if (result[0].timingType) {
+            $("#timingType").val(result[0].timingType);
+            $(".timing-checkbox").prop("disabled", true);
+          } else {
+            $("#morning").prop("checked", result[0].morning === 1);
+            $("#afternoon").prop("checked", result[0].afternoon === 1);
+            $("#night").prop("checked", result[0].night === 1);
+          }
           $("#isPrintableOnPrescriptionCheckChecked").prop(
             "checked",
             result[0].isPrintableOnPrescription === 1

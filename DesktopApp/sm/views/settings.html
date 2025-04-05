@@ -191,24 +191,6 @@
 
 <script>
   $(document).ready(function () {
-    function addTranslationsRow() {
-      const newRow = $(
-        "#translationsContainer .translations-row:first"
-      ).clone();
-      const rowIndex = $("#translationsContainer .translations-row").length;
-      newRow.find("input").val(""); // Clear input values
-
-      // Update dynamic IDs for the new row
-      newRow
-        .find(".translations-input")
-        .attr("id", `translations-input-${rowIndex}`);
-      newRow.find(".english-input").attr("id", `english-${rowIndex}`);
-      newRow.find(".tourdu-input").attr("id", `tourdu-${rowIndex}`);
-
-      // Append the new row
-      $("#translationsContainer tbody").append(newRow);
-    }
-
     $("#addTranslationsBtn").on("click", function (event) {
       event.preventDefault();
       addTranslationsRow();
@@ -242,93 +224,10 @@
         }
       });
 
-    async function init() {
-      await getSettings();
-      await getTranslations();
-    }
-
-    async function getSettings() {
-      await common.refreshSettings();
-      const setting = common.getSettings();
-      if (setting && setting.length > 0) {
-        $("#txtDefaultDate").datepicker({
-          dateFormat: "dd/mm/yy", //check change
-          changeMonth: true,
-          changeYear: true,
-        });
-        $("#txtDefaultDate").datepicker("setDate", setting[0].defaultdate);
-
-        $("#selectDefaultDay").val(setting[0].defaultday);
-        $(".default-complaint-unit").val(setting[0].defaultcomplaintunit);
-        $("#txtDefaultComplaintDurationSetting").val(
-          setting[0].defaultcomplaintduration
-        );
-
-        $(".default-followup-unit").val(setting[0].defaultfollowupunit);
-        $("#txtDefaultFollowUpDurationSetting").val(
-          setting[0].defaultfollowupduration
-        );
-
-        $("#txtboxInvestigationDetailValues").val(
-          setting[0].investigationDetailValues
-        );
-        $("#txtboxSurgeryDetailValues").val(setting[0].surgeryDetailValues);
-
-        if (setting[0].defaultdate)
-          toggleInputs("txtDefaultDate", "selectDefaultDay");
-        else toggleInputs("selectDefaultDay", "txtDefaultDate");
-      }
-    }
-
-    async function getTranslations() {
-      await common.refreshTranslations();
-      const translations = common.getTranslations();
-      // Clear the current rows in the table body
-      $("#translationsContainer tbody").empty();
-
-      // Iterate over the translations and create rows
-      if (translations && translations.length > 0) {
-        translations.forEach((translation, index) => {
-          const newRow = `
-        <tr class="translations-row">
-          <td>
-            <input
-              type="text"
-              class="form-control english-input"
-              id="english-${index}"
-              value="${translation.english || ""}"
-              placeholder="Enter English"
-              required
-            />
-          </td>
-          <td>
-            <input
-              type="text"
-              class="form-control tourdu-input"
-              id="tourdu-${index}"
-              value="${translation.tourdu || ""}"
-              placeholder="اردو داخل کریں"
-            />
-          </td>
-          <td>
-            <button
-              type="button"
-              class="btn btn-danger remove-translations"
-            >
-              Remove
-            </button>
-          </td>
-        </tr>`;
-          $("#translationsContainer tbody").append(newRow);
-        });
-      }
-    }
-
-    init();
-
     $("#settingForm").on("submit", async function (event) {
       event.preventDefault(); // Prevent the default form submission
       // Object to store settings
+      debugger;
       const settings = {
         defaultDay: $("#selectDefaultDay").val(),
         defaultDate: $("#txtDefaultDate").val(),
@@ -374,6 +273,7 @@
         );
         await savetranslations(translations);
         await common.refreshSettings();
+        await common.refreshTranslations();
         // Show success message after both are completed
         common.showUpdatedSuccessfullyMessage();
         await init(); // Reinitialize to refresh data
@@ -382,7 +282,107 @@
         // Handle errors, such as showing a message to the user
       }
     });
+    init();
   });
+
+  function addTranslationsRow() {
+    const newRow = $("#translationsContainer .translations-row:first").clone();
+    const rowIndex = $("#translationsContainer .translations-row").length;
+    newRow.find("input").val(""); // Clear input values
+
+    // Update dynamic IDs for the new row
+    newRow
+      .find(".translations-input")
+      .attr("id", `translations-input-${rowIndex}`);
+    newRow.find(".english-input").attr("id", `english-${rowIndex}`);
+    newRow.find(".tourdu-input").attr("id", `tourdu-${rowIndex}`);
+
+    // Append the new row
+    $("#translationsContainer tbody").append(newRow);
+  }
+
+  async function init() {
+    await getSettings();
+    await getTranslations();
+  }
+
+  async function getSettings() {
+    await common.refreshSettings();
+    const setting = await common.getSettings();
+    if (setting && setting.length > 0) {
+      $("#txtDefaultDate").datepicker({
+        dateFormat: "dd/mm/yy", //check change
+        changeMonth: true,
+        changeYear: true,
+      });
+      $("#txtDefaultDate").datepicker("setDate", setting[0].defaultdate);
+
+      $("#selectDefaultDay").val(setting[0].defaultday);
+      $(".default-complaint-unit").val(setting[0].defaultcomplaintunit);
+      $("#txtDefaultComplaintDurationSetting").val(
+        setting[0].defaultcomplaintduration
+      );
+
+      $(".default-followup-unit").val(setting[0].defaultfollowupunit);
+      $("#txtDefaultFollowUpDurationSetting").val(
+        setting[0].defaultfollowupduration
+      );
+
+      $("#txtboxInvestigationDetailValues").val(
+        setting[0].investigationDetailValues
+      );
+      $("#txtboxSurgeryDetailValues").val(setting[0].surgeryDetailValues);
+
+      if (setting[0].defaultdate)
+        toggleInputs("txtDefaultDate", "selectDefaultDay");
+      else toggleInputs("selectDefaultDay", "txtDefaultDate");
+    }
+  }
+
+  async function getTranslations() {
+    await common.refreshTranslations();
+    const translations = await common.getTranslations();
+    // Clear the current rows in the table body
+    $("#translationsContainer tbody").empty();
+
+    // Iterate over the translations and create rows
+    if (translations && translations.length > 0) {
+      translations.forEach((translation, index) => {
+        const newRow = `
+        <tr class="translations-row">
+          <td>
+            <input
+              type="text"
+              class="form-control english-input"
+              id="english-${index}"
+              value="${translation.english || ""}"
+              placeholder="Enter English"
+              required
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              class="form-control tourdu-input"
+              id="tourdu-${index}"
+              value="${translation.tourdu || ""}"
+              placeholder="اردو داخل کریں"
+            />
+          </td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-danger remove-translations"
+            >
+              Remove
+            </button>
+          </td>
+        </tr>`;
+        $("#translationsContainer tbody").append(newRow);
+      });
+    }
+  }
+
   async function updateSettings(
     defaultdate,
     defaultday,

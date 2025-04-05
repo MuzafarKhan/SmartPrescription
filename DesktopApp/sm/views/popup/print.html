@@ -750,11 +750,10 @@
     let medicineListHtml = `
     <table style="width: 100%; border-collapse: collapse; font-family: 'Nastaleeq', sans-serif;">
         <colgroup>
-            <col style="width: 50%"> <!-- Medicine name -->
+            <col style="width: 45%"> <!-- Medicine name -->
             <col style="width: 10%"> <!-- Duration -->
-            <col style="width: 10%"> <!-- Duration number -->
+            <col style="width: 15%"> <!-- Duration number -->
             <col style="width: 20%"> <!-- Timings -->
-            <col style="width: 10%"> <!-- Quantity -->
         </colgroup>
     `;
 
@@ -762,40 +761,74 @@
       (medicine, index) => {
         const bgColor = index % 2 === 0 ? "#ffffff" : "#f9f9f9";
 
-        // Prepare timings
-        const timings = [];
-        if (medicine.morning) timings.push("صبح");
-        if (medicine.afternoon) timings.push("دوپہر");
-        if (medicine.night) timings.push("رات");
-        const timingStr = timings.join("، ");
+        // Prepare timings - handle both timingType and checkbox timings
+        let timingStr = "";
+        if (medicine.timingType) {
+          const timingTypeMap = {
+            STAT: "ابھی",
+            OD: "روزانہ",
+            OW: "ہفتہ وار",
+            OM: "ماہانہ",
+            "3Monthly": "تین ماہ بعد",
+            OnceYearly: "سالانہ",
+          };
+          timingStr = timingTypeMap[medicine.timingType] || medicine.timingType;
+        } else {
+          const timings = [];
+          if (medicine.morning) timings.push("صبح");
+          if (medicine.afternoon) timings.push("دوپہر");
+          if (medicine.night) timings.push("رات");
+          timingStr = timings.join("، ");
+        }
 
+        // Handle duration - only show if both number and type exist AND number is not 0
         const durationMap = {
           day: "دن",
           week: "ہفتہ",
           month: "مہینہ",
           year: "سال",
+          continue: "جاری",
         };
-        const durationText =
-          durationMap[medicine.duration?.toLowerCase() || "day"];
+        const durationText = medicine.duration
+          ? durationMap[medicine.duration.toLowerCase()] || medicine.duration
+          : "";
+
+        // Only show duration if:
+        // 1. durationnumber exists AND is not 0
+        // 2. durationText exists
+        const showDuration =
+          medicine.durationnumber &&
+          medicine.durationnumber != 0 &&
+          durationText;
+        const durationDisplay = showDuration
+          ? `${medicine.durationnumber} ${durationText}`
+          : "";
 
         medicineListHtml += `
-        <tr style="background-color: ${bgColor}">
-            <td style="padding: 5px 0px 5px 8px; font-style: italic; font-size:small; vertical-align: middle; font-weight: bold;">
-                ${medicine.medicinename}
-            </td>
-            <td style="padding: 5px 0px 5px 8px; text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
-                ${durationText}
-            </td>
-            <td style="padding: 5px 0px 5px 8px; text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
-                ${medicine.durationnumber}
-            </td>
-            <td style="padding: 5px 0px 5px 8px; text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
-                ${timingStr}
-            </td>
-            <td style="padding: 5px 0px 5px 8px; text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
-                ${medicine.quantity}
-            </td>
-        </tr>`;
+    <tr style="background-color: ${bgColor}; height: 40px;">
+        <td style="font-style: italic; font-size:small; vertical-align: middle; font-weight: bold;">
+            ${medicine.medicinename}
+        </td>
+        <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+            ${durationDisplay}
+        </td>
+        <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+            ${timingStr}
+        </td>
+        <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+            ${medicine.quantity || ""}
+        </td>
+    </tr>`;
+
+        // Add moreDetails row if it exists
+        if (medicine.moredetail) {
+          medicineListHtml += `
+    <tr style="background-color: ${bgColor};">
+        <td colspan="4" style="padding: 0px 8px 5px 0px; text-align: right; font-size:small; font-style: italic;" class="nastaleeq">
+            ${medicine.moredetail}
+        </td>
+    </tr>`;
+        }
       }
     );
 

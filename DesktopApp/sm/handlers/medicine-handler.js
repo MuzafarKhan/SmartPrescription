@@ -52,6 +52,7 @@ ipcMain.handle("get-medicine-by-id", async (event, id) => {
 ipcMain.handle("add-medicine", async (event, medicine) => {
   const {
     medicineName,
+    timingType,
     morning,
     afternoon,
     night,
@@ -67,9 +68,10 @@ ipcMain.handle("add-medicine", async (event, medicine) => {
 
   return new Promise((resolve, reject) => {
     db.run(
-      "INSERT INTO medicine (medicinename, morning, afternoon, night, isPrintableOnPrescription, durationnumber, duration, medicinetype, injType, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)",
+      "INSERT INTO medicine (medicinename, timingType, morning, afternoon, night, isPrintableOnPrescription, durationnumber, duration, medicinetype, injType, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)",
       [
         medicineName,
+        timingType,
         morning,
         afternoon,
         night,
@@ -92,6 +94,7 @@ ipcMain.handle("add-medicine", async (event, medicine) => {
 ipcMain.handle("update-medicine-by-id", (event, id, medicine) => {
   const {
     medicineName,
+    timingType,
     morning,
     afternoon,
     night,
@@ -106,9 +109,10 @@ ipcMain.handle("update-medicine-by-id", (event, id, medicine) => {
   console.log(medicine);
   return new Promise((resolve, reject) => {
     db.run(
-      "UPDATE medicine SET medicinename = ?, morning = ?, afternoon = ?, night = ?, isPrintableOnPrescription = ?, durationnumber = ?, duration = ?, medicinetype = ?, injType = ?, quantity = ?, moredetail = ? WHERE id = ?",
+      "UPDATE medicine SET medicinename = ?, timingType = ?, morning = ?, afternoon = ?, night = ?, isPrintableOnPrescription = ?, durationnumber = ?, duration = ?, medicinetype = ?, injType = ?, quantity = ?, moredetail = ? WHERE id = ?",
       [
         medicineName,
+        timingType,
         morning,
         afternoon,
         night,
