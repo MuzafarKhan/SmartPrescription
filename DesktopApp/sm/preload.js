@@ -106,7 +106,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
     defaultfollowupunit,
     defaultfollowupduration,
     investigationDetailValues,
-    surgeryDetailValues
+    surgeryDetailValues,
+    defaultPrescriptionPrinterName,
+    defaultThermalPrinterName
   ) =>
     ipcRenderer.invoke(
       "update-settings",
@@ -117,10 +119,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
       defaultfollowupunit,
       defaultfollowupduration,
       investigationDetailValues,
-      surgeryDetailValues
+      surgeryDetailValues,
+      defaultPrescriptionPrinterName,
+      defaultThermalPrinterName
     ),
   savetranslations: (translations) =>
     ipcRenderer.invoke("save-translations", translations),
 
   print: (htmlContent) => ipcRenderer.send("print-content", htmlContent),
+  printDirect: (options) => ipcRenderer.invoke("print-direct", options),
 });

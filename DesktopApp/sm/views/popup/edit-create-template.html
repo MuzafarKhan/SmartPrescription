@@ -183,7 +183,6 @@
           } else {
             addNewComplaintRow();
           }
-
           if (
             templateData.selectedInvestigation &&
             templateData.selectedInvestigation.length > 0
@@ -390,7 +389,10 @@
         if (investigations.length > 0) {
           // Find matching investigations by ID
           const investigationsToSelect = investigationListData.filter((item) =>
-            investigations.includes(item.name)
+            investigations.some(
+              (investigation) =>
+                investigation[0].toLowerCase() === item.name.toLowerCase()
+            )
           );
 
           // Use the MagicSuggest instance to set selection
@@ -400,6 +402,7 @@
         console.error("Error loading investigations:", error);
       }
     }
+
     async function populatePlan(plans) {
       try {
         const planListData = await window.electronAPI.getPlan();
@@ -600,9 +603,10 @@
         }
       }
 
-      const selectedValues = selectedInvestigations.map(
-        (investigation) => investigation.name
-      );
+      const selectedValues = selectedInvestigations.map((investigation) => [
+        investigation.name,
+        investigation.isPrintableOnPrescription,
+      ]);
 
       return selectedValues;
     }

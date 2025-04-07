@@ -59,7 +59,6 @@
           dataList.append(`<option value="${medicine.medicinename}"></option>`); // Add to datalist
         });
       } catch (error) {
-        debugger;
         console.error("Error fetching medicines:", error);
       }
     }
@@ -85,7 +84,6 @@
 
     // Make timing options mutually exclusive
     $(document).on("change", ".timing-type", function () {
-      debugger;
       const row = $(this).closest("tr");
       if ($(this).val()) {
         row
@@ -98,7 +96,6 @@
     });
 
     $(document).on("change", ".timing-checkbox", function () {
-      debugger;
       const row = $(this).closest("tr");
       if (row.find(".timing-checkbox:checked").length > 0) {
         row.find(".timing-type").prop("disabled", true);

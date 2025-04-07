@@ -116,6 +116,32 @@
                 </div>
               </div>
             </div>
+            <br />
+
+            <div class="row">
+              <div class="col-3">
+                <div class="row">
+                  <label>Default Prescription Printer Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="txtDefaultPrescriptionPrinterName"
+                    value="1"
+                  />
+                </div>
+              </div>
+              <div class="col-3 ml-1">
+                <div class="row">
+                  <label>Default Thermal Printer Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="txtDefaultThermalPrinterName"
+                    value="1"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -240,6 +266,11 @@
 
         investigationDetailValues: $("#txtboxInvestigationDetailValues").val(),
         surgeryDetailValues: $("#txtboxSurgeryDetailValues").val(),
+
+        defaultPrescriptionPrinterName: $(
+          "#txtDefaultPrescriptionPrinterName"
+        ).val(),
+        defaultThermalPrinterName: $("#txtDefaultThermalPrinterName").val(),
       };
 
       // Array to store translations data
@@ -268,7 +299,9 @@
           settings.defaultfollowupunit,
           settings.defaultfollowupduration,
           settings.investigationDetailValues,
-          settings.surgeryDetailValues
+          settings.surgeryDetailValues,
+          settings.defaultPrescriptionPrinterName,
+          settings.defaultThermalPrinterName
         );
         await savetranslations(translations);
         // Show success message after both are completed
@@ -328,6 +361,12 @@
         setting[0].investigationDetailValues
       );
       $("#txtboxSurgeryDetailValues").val(setting[0].surgeryDetailValues);
+      $("#txtDefaultPrescriptionPrinterName").val(
+        setting[0].defaultPrescriptionPrinterName
+      );
+      $("#txtDefaultThermalPrinterName").val(
+        setting[0].defaultThermalPrinterName
+      );
 
       if (setting[0].defaultdate)
         toggleInputs("txtDefaultDate", "selectDefaultDay");
@@ -387,7 +426,9 @@
     defaultfollowupunit,
     defaultfollowupduration,
     investigationDetailValues,
-    surgeryDetailValues
+    surgeryDetailValues,
+    defaultPrescriptionPrinterName,
+    defaultThermalPrinterName
   ) {
     const results = await window.electronAPI.updateSettings(
       defaultdate,
@@ -397,7 +438,9 @@
       defaultfollowupunit,
       defaultfollowupduration,
       investigationDetailValues,
-      surgeryDetailValues
+      surgeryDetailValues,
+      defaultPrescriptionPrinterName,
+      defaultThermalPrinterName
     );
   }
 

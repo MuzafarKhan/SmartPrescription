@@ -463,6 +463,7 @@
 
 <script>
   $(document).ready(async function () {
+    common.refreshSettings();
     $("#bpTxtbox").mask("000/00");
     const settings = common.getSettings();
     const date = new Date();
@@ -683,6 +684,28 @@
       }
     });
 
+    $(document).on("keydown", async function (e) {
+      // Ctrl+P for normal print
+      if (
+        (e.ctrlKey && e.key === "p") ||
+        (e.ctrlKey && e.shiftKey && e.key === "P")
+      ) {
+        let prescriptionData = await getPrescriptionData();
+        if (validatePrescriptionData(prescriptionData)) {
+          openPrintData(prescriptionData, true, true);
+        }
+      }
+      if (
+        (e.ctrlKey && e.key === "i") ||
+        (e.ctrlKey && e.shiftKey && e.key === "I")
+      ) {
+        let prescriptionData = await getPrescriptionData();
+        if (validatePrescriptionData(prescriptionData)) {
+          openPrintData(prescriptionData, true, false);
+        }
+      }
+    });
+
     const prescriptionForm = document.getElementById("prescriptionForm");
 
     $("#prescriptionForm,#diagnosisList,.comorbidity-tab").on(
@@ -726,13 +749,20 @@
   async function printAndGeneratePrescription(prescriptionData) {
     return true;
   }
-  async function openPrintData(prescriptionData) {
+  async function openPrintData(
+    prescriptionData,
+    quickPrint,
+    isPrintPrescription
+  ) {
     $("#addEditModel").load("views/popup/print.html", function () {
       // After loading, pass the id dynamically
       $("#addEditModel").data(
         "prescriptionData",
         JSON.stringify(prescriptionData)
       );
+      $("#addEditModel").data("quickPrint", quickPrint);
+      $("#addEditModel").data("isPrintPrescription", isPrintPrescription);
+
       savesurgerytolocalstorage();
     });
   }
@@ -903,9 +933,10 @@
       }
     }
 
-    const selectedValues = selectedInvestigations.map(
-      (investigation) => investigation.name
-    );
+    const selectedValues = selectedInvestigations.map((investigation) => [
+      investigation.name,
+      investigation.isPrintableOnPrescription,
+    ]);
 
     return selectedValues;
   }
@@ -1238,7 +1269,6 @@
     }
 
     row.find(".quantity").val(medicine.quantity);
-    debugger;
     // Handle timing options (mutually exclusive)
     if (medicine.timingType) {
       row.find(".timing-type").val(medicine.timingType).trigger("change");
@@ -1272,7 +1302,10 @@
       if (investigations.length > 0) {
         // Find matching investigations by ID
         const investigationsToSelect = investigationListData.filter((item) =>
-          investigations.includes(item.name)
+          investigations.some(
+            (investigation) =>
+              investigation[0].toLowerCase() === item.name.toLowerCase()
+          )
         );
 
         // Use the MagicSuggest instance to set selection

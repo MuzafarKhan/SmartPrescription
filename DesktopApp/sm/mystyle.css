@@ -177,10 +177,20 @@ body {
   /* Rehabilitation Aids - Print Styles */
   #rehabilitationaidsDivList [style*="table-row"].rehab-odd-row {
     background-color: #ffffff !important;
+    font-style: italic !important;
+    font-size: x-small !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: bold !important;
   }
 
   #rehabilitationaidsDivList [style*="table-row"].rehab-even-row {
     background-color: #f9f9f9 !important;
+    font-style: italic !important;
+    font-size: x-small !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: bold !important;
   }
 
   /* Force background printing */
@@ -190,9 +200,30 @@ body {
     print-color-adjust: exact !important;
   }
 
-  /* Patient Information */
+  /* CRITICAL FIX - PRINTABLE GAP */
+  #printableafterGap {
+    margin-top: 50mm !important; /* 5cm gap */
+    padding-top: 1px !important; /* Force margin to render */
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  /* Modal print behavior */
+  .modal {
+    position: static !important; /* Changed from absolute */
+    overflow: visible !important;
+    display: block !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Patient header - keep existing styles */
   .patient-information {
     background-color: #aeaaa9 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Hide non-printable elements */
@@ -211,10 +242,20 @@ body {
 
 .rehab-odd-row div {
   background-color: white;
+  font-style: italic !important;
+  font-size: x-small !important;
+  font-weight: bold !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .rehab-even-row div {
   background-color: #f9f9f9;
+  font-style: italic !important;
+  font-size: x-small !important;
+  font-weight: bold !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .middle-section {

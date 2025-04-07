@@ -288,7 +288,10 @@
         if (investigations.length > 0) {
           // Find matching investigations by ID
           const investigationsToSelect = investigationListData.filter((item) =>
-            investigations.includes(item.name)
+            investigations.some(
+              (investigation) =>
+                investigation[0].toLowerCase() === item.name.toLowerCase()
+            )
           );
 
           // Use the MagicSuggest instance to set selection
@@ -392,6 +395,7 @@
       try {
         const investigationListData =
           await window.electronAPI.getInvestigation();
+
         $("#investigationList").magicSuggest({
           data: investigationListData,
           placeholder: "Type or select Investigation",

@@ -1,8 +1,9 @@
-const { ipcMain } = require("electron");
+const { ipcMain, dialog, BrowserWindow } = require("electron");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const common = require("../common");
 const db = new sqlite3.Database(common.getdbFilePath());
+const fs = require("fs");
 
 ipcMain.handle("get-settings", async () => {
   return new Promise((resolve, reject) => {
@@ -43,11 +44,13 @@ ipcMain.handle(
     defaultfollowupunit,
     defaultfollowupduration,
     investigationDetailValues,
-    surgeryDetailValues
+    surgeryDetailValues,
+    defaultPrescriptionPrinterName,
+    defaultThermalPrinterName
   ) => {
     return new Promise((resolve, reject) => {
       const stmt = db.prepare(
-        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?, defaultfollowupunit = ?, defaultfollowupduration = ?, investigationDetailValues = ?, surgeryDetailValues = ?"
+        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?, defaultfollowupunit = ?, defaultfollowupduration = ?, investigationDetailValues = ?, surgeryDetailValues = ?, defaultPrescriptionPrinterName = ? , defaultThermalPrinterName = ?"
       );
       stmt.run(
         [
@@ -59,6 +62,8 @@ ipcMain.handle(
           defaultfollowupduration,
           investigationDetailValues,
           surgeryDetailValues,
+          defaultPrescriptionPrinterName,
+          defaultThermalPrinterName,
         ],
         function (err) {
           stmt.finalize(); // Clean up the statement
@@ -121,6 +126,70 @@ ipcMain.handle("save-translations", async (event, translations) => {
     });
   });
 });
+
+ipcMain.handle(
+  "print-direct",
+  async (event, { type, data, printer, options }) => {
+    return new Promise(async (resolve, reject) => {
+      const win = new BrowserWindow({ show: false });
+
+      try {
+        await win.loadURL(
+          `data:text/html;charset=UTF-8,${encodeURIComponent(data)}`
+        );
+
+        const printers = await win.webContents.getPrintersAsync();
+        const targetPrinter = printer
+          ? printers.find((p) => p.name === printer)
+          : printers.find((p) => p.isDefault) || printers[0];
+
+        if (!targetPrinter) {
+          return reject(new Error("No printers available"));
+        }
+
+        console.log("Selected printer:", targetPrinter.name);
+        console.log("data:", data);
+
+        if (targetPrinter.name === "Microsoft Print to PDF") {
+          // Show save dialog
+          const { canceled, filePath } = await dialog.showSaveDialog({
+            title: "Save PDF",
+            defaultPath: "document.pdf",
+            filters: [{ name: "PDF Files", extensions: ["pdf"] }],
+          });
+
+          if (canceled || !filePath) {
+            return reject(new Error("Save dialog was canceled"));
+          }
+
+          // Generate PDF
+          const pdfData = await win.webContents.printToPDF({
+            printBackground: true,
+          });
+
+          fs.writeFileSync(filePath, pdfData);
+
+          resolve({ success: true, filePath });
+        } else {
+          // Direct print
+          await win.webContents.print({
+            silent: true,
+            printBackground: true,
+            deviceName: targetPrinter.name,
+            ...options,
+          });
+
+          resolve({ success: true, printer: targetPrinter.name });
+        }
+      } catch (error) {
+        console.error("Print failed:", error);
+        reject({ success: false, error: error.message });
+      } finally {
+        win.destroy();
+      }
+    });
+  }
+);
 
 // Close the database when the app exits
 process.on("exit", () => {

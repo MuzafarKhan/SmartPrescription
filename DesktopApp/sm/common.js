@@ -11,6 +11,7 @@ const common = {
       showHideTransition: "fade",
       icon: "success",
       position: "top-right",
+      hideAfter: 5000,
     });
   },
   showUpdatedSuccessfullyMessage() {
@@ -20,6 +21,7 @@ const common = {
       showHideTransition: "fade",
       icon: "success",
       position: "top-right",
+      hideAfter: 5000,
     });
   },
   showDeletedSuccessfullyMessage() {
@@ -29,6 +31,7 @@ const common = {
       showHideTransition: "fade",
       icon: "success",
       position: "top-right",
+      hideAfter: 5000,
     });
   },
   showErrorMessage(message) {
@@ -38,6 +41,7 @@ const common = {
       showHideTransition: "fade",
       icon: "error",
       position: "top-right",
+      hideAfter: 5000,
     });
   },
   getdbFilePath() {
@@ -316,32 +320,38 @@ const common = {
     localStorage.removeItem("translation");
     if (translation)
       localStorage.setItem("translation", JSON.stringify(translation));
-    debugger;
   },
   getTranslations() {
-    debugger;
     return JSON.parse(localStorage.getItem("translation"));
   },
   async refreshTranslations() {
     const translation = await window.electronAPI.getTranslations();
     await this.saveTranslations(translation);
   },
+
   applyBehaviours() {
+    const excludedIds = [
+      "txtDefaultPrescriptionPrinterName",
+      "txtDefaultThermalPrinterName",
+    ]; // List of IDs to exclude
+
+    // Build jQuery :not selectors dynamically
+    const excludedSelector = excludedIds.map((id) => `:not(#${id})`).join("");
+
     $(document).on(
       "input",
-      "input:not([type='password'], [type='email']), textarea",
+      `input:not([type='password'], [type='email'])${excludedSelector}, textarea${excludedSelector}`,
       function () {
         let value = $(this).val();
         let capitalizedValue = value.replace(/\b\w/g, (char) =>
           char.toUpperCase()
-        ); // Capitalize first letter of each word
+        );
         $(this).val(capitalizedValue);
       }
     );
     $(document).on("keydown", "input, textarea", function (e) {
       let inputs = $("input, textarea"); // Get all input fields & textareas
       let index = inputs.index(this); // Get current field index
-
       if (e.key === "PageDown") {
         e.preventDefault();
         if (index < inputs.length - 1) {
