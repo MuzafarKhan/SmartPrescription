@@ -436,16 +436,11 @@
             <option value="year">year</option>
           </select>
           <button type="submit" class="btn btn-success" id="printPrescription">
-            Print
+            Print Prescription
           </button>
 
-          <button
-            type="submit"
-            class="btn btn-secondary"
-            id="printAndGeneratePrescription"
-            disabled
-          >
-            Print & Generate
+          <button type="submit" class="btn btn-success" id="printOnThermal">
+            Print On Thermal
           </button>
           <button
             type="submit"
@@ -680,32 +675,48 @@
     $("#printPrescription").on("click", async function () {
       let prescriptionData = await getPrescriptionData();
       if (validatePrescriptionData(prescriptionData)) {
-        openPrintData(prescriptionData);
+        openPrintData(prescriptionData, false, true);
       }
     });
 
     $(document).on("keydown", async function (e) {
       // Ctrl+P for normal print
-      if (
-        (e.ctrlKey && e.key === "p") ||
-        (e.ctrlKey && e.shiftKey && e.key === "P")
-      ) {
-        let prescriptionData = await getPrescriptionData();
-        if (validatePrescriptionData(prescriptionData)) {
-          openPrintData(prescriptionData, true, true);
+      if (e.ctrlKey && e.key === "p") {
+        e.preventDefault(); // Prevent default browser behavior
+        e.stopPropagation(); // Stop event from bubbling
+
+        // Add a flag to prevent multiple executions
+        if (window.isPrinting) return;
+        window.isPrinting = true;
+
+        try {
+          let prescriptionData = await getPrescriptionData();
+          if (validatePrescriptionData(prescriptionData)) {
+            await openPrintData(prescriptionData, true, true);
+          }
+        } finally {
+          window.isPrinting = false;
         }
       }
-      if (
-        (e.ctrlKey && e.key === "i") ||
-        (e.ctrlKey && e.shiftKey && e.key === "I")
-      ) {
-        let prescriptionData = await getPrescriptionData();
-        if (validatePrescriptionData(prescriptionData)) {
-          openPrintData(prescriptionData, true, false);
+
+      // Similar for Ctrl+I
+      if (e.ctrlKey && e.key === "i") {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (window.isPrinting) return;
+        window.isPrinting = true;
+
+        try {
+          let prescriptionData = await getPrescriptionData();
+          if (validatePrescriptionData(prescriptionData)) {
+            await openPrintData(prescriptionData, true, false);
+          }
+        } finally {
+          window.isPrinting = false;
         }
       }
     });
-
     const prescriptionForm = document.getElementById("prescriptionForm");
 
     $("#prescriptionForm,#diagnosisList,.comorbidity-tab").on(
@@ -738,17 +749,14 @@
       }
     );
 
-    $("#printAndGeneratePrescription").on("click", async function () {
-      let prescriptionData = getPrescriptionData();
+    $("#printOnThermal").on("click", async function () {
+      let prescriptionData = await getPrescriptionData();
       if (validatePrescriptionData(prescriptionData)) {
-        await printAndGeneratePrescription(prescriptionData);
+        await openPrintData(prescriptionData, false, false);
       }
     });
   });
 
-  async function printAndGeneratePrescription(prescriptionData) {
-    return true;
-  }
   async function openPrintData(
     prescriptionData,
     quickPrint,
