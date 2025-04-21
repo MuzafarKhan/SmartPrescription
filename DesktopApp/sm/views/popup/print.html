@@ -48,12 +48,12 @@
                   <div class="left-section">
                     <div
                       id="divExtraDetailLikeSurgery"
-                      style="font-size: x-small; font-weight: bold"
+                      style="font-size: small; font-weight: bold"
                     ></div>
                     <div
                       id="divCOMORBIDSList"
                       class="mt-2"
-                      style="font-size: x-small"
+                      style="font-size: small"
                     ></div>
                     <br />
                     <div id="divCHIEFCOMPLAINTS">
@@ -260,12 +260,12 @@
                       <div>
                         <div
                           id="investigationsInlineList"
-                          style="font-size: x-small"
+                          style="font-size: 13px"
                         ></div>
                         <div
                           id="investigationsDetails"
                           style="
-                            font-size: x-small;
+                            font-size: 13px;
                             margin-top: 5px;
                             font-style: italic;
                           "
@@ -274,10 +274,7 @@
                     </div>
                     <div id="divDiagnosis">
                       <div class="title mt-4">DIAGNOSIS</div>
-                      <div
-                        id="divDiagnosisList"
-                        style="font-size: x-small"
-                      ></div>
+                      <div id="divDiagnosisList" style="font-size: 13px"></div>
                     </div>
                     <div id="divPlan">
                       <div class="title mt-4">PLAN</div>
@@ -285,7 +282,6 @@
                         <ul class="list-container" id="ulplanList"></ul>
                       </div>
                     </div>
-                    <div id="divNextFollowUpDate" class="nastaleeq"></div>
                   </div>
 
                   <div class="right-section">
@@ -297,6 +293,11 @@
                       style="color: #999999"
                       id="patientinstructionDivList"
                     ></div>
+                    <div
+                      class="nastaleeq"
+                      style="text-align: center; margin-top: 8px"
+                      id="divNextFollowUpDate"
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -305,7 +306,7 @@
           <div class="no-print modal-footer">
             <div class="text-center my-3">
               <button class="btn btn-primary" onclick="printPrescription()">
-                Print Prescription
+                Print
               </button>
             </div>
             <button
@@ -410,6 +411,7 @@
     setPlanPrintData(prescriptionDataInUrdu);
     setpatientinstructionPrintData(prescriptionDataInUrdu);
     setrehabilitationaidsPrintData(prescriptionDataInUrdu);
+    setNextFollowUpDateUrdu(prescriptionDataInUrdu);
   }
 
   async function translateToUrdu(data, translations) {
@@ -611,7 +613,7 @@
     // Helper function to format surgery text
     function formatSurgeryText(condition, text) {
       if (condition) {
-        return `<span style="font-size: 1.2em; font-weight: bold">${text};</span> `;
+        return `<span style="font-size: 1.3em; font-weight: bold">${text};</span> `;
       }
       return "";
     }
@@ -701,7 +703,6 @@
     $("#spanpatientcheckupdate").html(
       prescriptionDataInUrdu.patientInformation.checkupDate
     );
-    // ... (keep all other existing code)
   }
 
   function setPowerValues(prescriptionDataInUrdu) {
@@ -778,34 +779,46 @@
     }
 
     let patientinstructionListHtml = `
-            <div style="width: 100%;">
-                <div style="display: table; width: 100%;">
-        `;
+        <div style="width: 100%;">
+            <div style="display: table; width: 100%;">
+    `;
 
     prescriptionDataInUrdu.patientInformation.selectedPatientInstructions.forEach(
-      (instruction, index) => {
+      (instruction) => {
+        // Title Row
         patientinstructionListHtml += `
-                <!-- Title Row -->
-                <div style="display: table-row; width: 100%;">
-                    <div style="display: table-cell; padding: 8px; text-align: right; vertical-align: middle;">
-                        <span class="nastaleeq" style="font-weight: bold;font-size: small;">${instruction.title}</span>
-                    </div>
+            <div style="display: table-row; width: 100%;">
+                <div style="display: table-cell; padding: 8px; text-align: right; vertical-align: middle;">
+                    <span class="nastaleeq" style="font-weight: bold;font-size: 16px;color: black;">
+                      ${instruction.title}
+                    </span>
                 </div>
+            </div>
+        `;
 
-                <!-- Detail Row -->
-                <div style="display: table-row; width: 100%;">
-                    <div style="display: table-cell; padding: 8px; text-align: right; vertical-align: middle;">
-                        <span class="nastaleeq">${instruction.detail}</span>
-                    </div>
+        // Split details by "۔"
+        const detailLines = instruction.detail
+          .split("۔")
+          .map((d) => d.trim())
+          .filter((d) => d);
+
+        // Each Line as a Row
+        detailLines.forEach((line) => {
+          patientinstructionListHtml += `
+            <div style="display: table-row; width: 100%;">
+                <div style="display: table-cell; padding-right: 8px; text-align: right; vertical-align: middle;">
+                    <span class="nastaleeq">${line}۔</span>
                 </div>
-            `;
+            </div>
+        `;
+        });
       }
     );
 
     patientinstructionListHtml += `
-                </div>
             </div>
-        `;
+        </div>
+    `;
 
     $("#patientinstructionDivList").html(patientinstructionListHtml);
   }
@@ -1024,16 +1037,16 @@
 
           medicineListHtml += `
             <tr class="${bgColorClass}" style="height: 40px;">
-                <td style="font-style: italic; font-size: small; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px;">
+                <td style="font-style: italic; font-size: 15px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px;">
                     ${showMedicineName ? medicine.medicinename : ""}
                 </td>
-                <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                <td style="text-align: center; font-size:13px; vertical-align: middle;" class="nastaleeq">
                     ${durationDisplay}
                 </td>
-                <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                <td style="text-align: center; font-size:13px; vertical-align: middle;" class="nastaleeq">
                     ${timingStr}
                 </td>
-                <td style="text-align: center; font-size:small; vertical-align: middle;" class="nastaleeq">
+                <td style="text-align: center; font-size:13px; vertical-align: middle;" class="nastaleeq">
                     ${medicine.quantity || ""}
                 </td>
             </tr>`;
@@ -1043,7 +1056,7 @@
             medicineListHtml += `
                 <tr class="${bgColorClass}">
                     <td></td>
-                    <td colspan="3" style="padding: 0px 8px 10px 0px; text-align: right; font-size:small; font-style: italic; direction: rtl;" class="nastaleeq">
+                    <td colspan="3" style="padding: 0px 30px 10px 0px; text-align: right; font-size:13px;  direction: rtl;" class="nastaleeq">
                         ${medicine.moredetail}
                     </td>
                 </tr>`;
@@ -1054,6 +1067,35 @@
 
     medicineListHtml += `</table>`;
     $("#medicineDivList").html(medicineListHtml);
+  }
+
+  function setNextFollowUpDateUrdu(prescriptionDataInUrdu) {
+    const duration = parseInt(
+      prescriptionDataInUrdu?.patientInformation?.defaultfollowupduration
+    );
+    const unit =
+      prescriptionDataInUrdu?.patientInformation?.defaultfollowupunit;
+    debugger;
+    if (!duration || !unit || duration == 0) {
+      $("#divNextFollowUpDate").html(""); // Clear if any value missing
+      return;
+    }
+
+    // Urdu unit translations based on singular/plural
+    const unitTranslation = {
+      day: duration === 1 ? "دن" : "دنوں",
+      week: duration === 1 ? "ہفتے" : "ہفتوں",
+      month: duration === 1 ? "مہینے" : "مہینوں",
+      year: duration === 1 ? "سال" : "سالوں",
+    };
+
+    const unitInUrdu = unitTranslation[unit] || "";
+
+    const message = `(براہ کرم ${duration} ${unitInUrdu} کے بعد تشریف لائیں۔)`;
+
+    $("#divNextFollowUpDate").html(
+      `<span class="nastaleeq" style="font-size: 12px;">${message}</span>`
+    );
   }
 
   function printPrescription() {

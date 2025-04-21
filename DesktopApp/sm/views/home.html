@@ -895,7 +895,10 @@
         selectedMedicines: getAllMedicines(),
         selectedRehabilitationAids: getRehabilitationAids(),
         selectedPatientInstructions: getAllPatientInstructions(),
-        nextFollowUpDate: $("#txtboxNextFollowUpDate").val(),
+        defaultfollowupunit: $(".default-followup-unit-select").val(),
+        defaultfollowupduration: $(
+          "#txtDefaultFollowUpDurationSettingInput"
+        ).val(),
       },
     };
     return prescriptionData;
