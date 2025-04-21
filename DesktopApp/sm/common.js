@@ -47,8 +47,8 @@ const common = {
   getdbFilePath() {
     const path = require("path");
 
-    return path.join(__dirname, "preData.db"); // Use for development
-    //return path.join(process.resourcesPath, "preData.db"); // Use for development
+    //return path.join(__dirname, "preData.db"); // Use for development
+    return path.join(process.resourcesPath, "preData.db"); // Use for development
   },
   getMedicineRow() {
     const newRowHtml = `
@@ -64,7 +64,7 @@ const common = {
             <datalist id="medicineSuggestions"> </datalist>
           </td>
           <td>
-            <select class="form-select medicine-type" name="medicineType" required>
+            <select class="form-select medicine-type" name="medicineType">
               <option value="">Select Type</option>
               <option value="Tab">TAB</option>
               <option value="Cap">CAP</option>
@@ -76,7 +76,7 @@ const common = {
               <option value="OINT">OINT</option>
               <option value="LOTION">LOTION</option>
             </select>
-            <select class="form-select inj-type hidden mt-1" name="injType" required>
+            <select class="form-select inj-type hidden mt-1" name="injType">
               <option selected value="IV">IV</option>
               <option value="IM">IM</option>
               <option value="PO">PO</option>
@@ -87,7 +87,6 @@ const common = {
               type="text"
               class="form-control quantity"
               placeholder="1 Tab - 1 Spoon"
-              required
             />
           </td>
           <td>

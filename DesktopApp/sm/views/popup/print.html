@@ -515,7 +515,6 @@
       prescriptionData,
       translations
     );
-
     // 1. Get patient name
     const patientName =
       prescriptionDataInUrdu?.patientInformation?.patientname || "Patient";
@@ -524,7 +523,14 @@
     const nonPrintableMeds =
       prescriptionDataInUrdu?.patientInformation?.selectedMedicines
         ?.filter((medicine) => !medicine.isPrintableOnPrescription)
-        ?.map((medicine) => medicine.medicinename) || [];
+        ?.map(
+          (medicine) =>
+            medicine.medicinename +
+            " " +
+            (medicine.injType ? medicine.injType : "") +
+            " " +
+            (medicine.timingType ? medicine.timingType : "")
+        ) || [];
 
     // 3. Filter non-printable investigations
     const selectedInvestigations =
@@ -568,7 +574,6 @@
   }
   async function printOnThermalDirectly(printerName, prescriptionData) {
     try {
-      debugger;
       var thermalPrintContent = await getThemalPrinterText(prescriptionData);
 
       // 5. Send to Electron for printing
@@ -1075,7 +1080,6 @@
     );
     const unit =
       prescriptionDataInUrdu?.patientInformation?.defaultfollowupunit;
-    debugger;
     if (!duration || !unit || duration == 0) {
       $("#divNextFollowUpDate").html(""); // Clear if any value missing
       return;

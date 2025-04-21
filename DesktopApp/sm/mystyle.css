@@ -157,7 +157,8 @@ body {
 /*Print*/
 @media print {
   @page {
-    margin: 0mm;
+    size: A4; /* or 'auto' */
+    margin: 0mm !important;
   }
 
   /* Medicine Table - Print Styles */
