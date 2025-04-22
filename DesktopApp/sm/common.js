@@ -47,8 +47,8 @@ const common = {
   getdbFilePath() {
     const path = require("path");
 
-    //return path.join(__dirname, "preData.db"); // Use for development
-    return path.join(process.resourcesPath, "preData.db"); // Use for development
+    //return path.join(__dirname, "preData.db"); // Use for dev
+    return path.join(process.resourcesPath, "preData.db"); // Use for release
   },
   getMedicineRow() {
     const newRowHtml = `

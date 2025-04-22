@@ -381,6 +381,14 @@
       $(".modal-dialog").addClass("width-for-print");
     }
 
+    if (!$("#printableafterGap").html()) {
+      await new Promise((resolve) => {
+        $("#addAttachpatientinstruction").on("shown.bs.modal", resolve);
+      });
+      $("#addAttachpatientinstruction").modal("hide");
+      $("body").removeClass("modal-open");
+      $(".modal-backdrop").remove();
+    }
     // Add CSS for bold values
     $("<style>")
       .prop("type", "text/css")
@@ -391,7 +399,12 @@
   async function init(prescriptionData, isPrintPrescription) {
     if (!isPrintPrescription) {
       var thermalPrintContent = await getThemalPrinterText(prescriptionData);
-      $("#printableafterGap").html(thermalPrintContent);
+      if (!thermalPrintContent) {
+        common.showErrorMessage(
+          "There is no content to print on the thermal printer."
+        );
+        $("#printableafterGap").html("");
+      } else $("#printableafterGap").html(thermalPrintContent);
       return;
     }
     const translations = await common.getTranslations();
@@ -548,7 +561,8 @@
     }
 
     // 4. Build thermal print content
-    let thermalPrintContent = `<strong>Patient Name:</strong> ${patientName}<br><br>`;
+    let thermalPrintContent = `<div style="margin-left: 10px;"><strong>Patient Name:</strong> ${patientName}<br><br>`;
+
     let hasPreviousContent = false;
 
     // Add investigations if they exist
@@ -1095,7 +1109,7 @@
 
     const unitInUrdu = unitTranslation[unit] || "";
 
-    const message = `(براہ کرم ${duration} ${unitInUrdu} کے بعد تشریف لائیں۔)`;
+    const message = `(دوبارہ چیک اپ ${duration} ${unitInUrdu} بعد)`;
 
     $("#divNextFollowUpDate").html(
       `<span class="nastaleeq" style="font-size: 12px;">${message}</span>`

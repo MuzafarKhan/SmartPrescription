@@ -157,7 +157,6 @@ body {
 /*Print*/
 @media print {
   @page {
-    size: A4; /* or 'auto' */
     margin: 0mm !important;
   }
 
@@ -256,8 +255,8 @@ body {
 }
 
 .middle-section {
-  margin-top: 25mm;
-  height: 227mm;
+  margin-top: 40mm;
+  height: 213mm;
   display: flex;
   border-bottom: 1px solid black;
   flex-direction: column; /* Arrange children in a column */
