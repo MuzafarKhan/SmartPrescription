@@ -258,7 +258,6 @@ body {
   margin-top: 40mm;
   height: 213mm;
   display: flex;
-  border-bottom: 1px solid black;
   flex-direction: column; /* Arrange children in a column */
 }
 
