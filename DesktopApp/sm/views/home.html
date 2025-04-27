@@ -454,6 +454,7 @@
       </div>
     </div>
   </form>
+  <input type="hidden" id="hdnPrescriptionUniqueId" />
 </div>
 
 <script>
@@ -507,13 +508,16 @@
       $("#txtDefaultFollowUpDurationSettingInput").val(defaultfollowupduration);
     }
 
+    const randomId = Math.floor(Math.random() * 10000000);
+    $("#hdnPrescriptionUniqueId").val(randomId);
     //Load Full Patient Prescription_____________________________________________________
-    const patientName = $("#content").data("patientName");
-    $("#content").data("patientName", "");
+    const prescriptionUniqueId = $("#content").data("prescriptionUniqueId");
+    $("#content").data("prescriptionUniqueId", "");
 
-    if (patientName) {
+    if (prescriptionUniqueId) {
+      $("#hdnPrescriptionUniqueId").val(prescriptionUniqueId);
       const allPatients = JSON.parse(localStorage.getItem("allPatients")) || {};
-      var patientData = allPatients[patientName];
+      var patientData = allPatients[prescriptionUniqueId];
       await populateFullPatientPrescription(patientData.patientInformation);
     } else {
       // NEW: Create a promise that resolves when all sections are loaded
@@ -673,7 +677,8 @@
     });
 
     $("#printPrescription").on("click", async function () {
-      let prescriptionData = await getPrescriptionData();
+      let prescriptionData = await getPrescriptionData(true);
+      await savePendingPatient(true);
       if (validatePrescriptionData(prescriptionData)) {
         openPrintData(prescriptionData, false, true);
       }
@@ -690,7 +695,8 @@
         window.isPrinting = true;
 
         try {
-          let prescriptionData = await getPrescriptionData();
+          let prescriptionData = await getPrescriptionData(true);
+          await savePendingPatient(true);
           if (validatePrescriptionData(prescriptionData)) {
             await openPrintData(prescriptionData, true, true);
           }
@@ -708,7 +714,8 @@
         window.isPrinting = true;
 
         try {
-          let prescriptionData = await getPrescriptionData();
+          let prescriptionData = await getPrescriptionData(true);
+          await savePendingPatient(true);
           if (validatePrescriptionData(prescriptionData)) {
             await openPrintData(prescriptionData, true, false);
           }
@@ -722,35 +729,13 @@
     $("#prescriptionForm,#diagnosisList,.comorbidity-tab").on(
       "change",
       async (event) => {
-        if (event.target.id !== "txtName") {
-          try {
-            const currentPatient = await getPrescriptionData();
-            const patientName =
-              currentPatient.patientInformation.patientname?.trim();
-
-            // Skip if no patient name or name is too short (less than 3 characters)
-            if (!patientName || patientName.length < 3) return;
-
-            // Get existing patients or initialize empty object
-            const allPatients =
-              JSON.parse(localStorage.getItem("allPatients")) || {};
-
-            // Add/update current patient data
-            allPatients[patientName] = currentPatient;
-
-            // Save back to localStorage
-            localStorage.setItem("allPatients", JSON.stringify(allPatients));
-
-            console.log(`Saved data for patient: ${patientName}`);
-          } catch (error) {
-            console.error("Error saving patient data:", error);
-          }
-        }
+        savePendingPatient(false);
       }
     );
 
     $("#printOnThermal").on("click", async function () {
-      let prescriptionData = await getPrescriptionData();
+      let prescriptionData = await getPrescriptionData(true);
+      await savePendingPatient(false);
       if (validatePrescriptionData(prescriptionData)) {
         await openPrintData(prescriptionData, false, false);
       }
@@ -776,7 +761,7 @@
   }
 
   function savesurgerytolocalstorage() {
-    var dataState = getPrescriptionData();
+    var dataState = getPrescriptionData(false);
     localStorage.setItem("getPrescriptionData", JSON.stringify(dataState));
 
     var surgeryDataState = {
@@ -834,9 +819,11 @@
     }
   }
 
-  async function getPrescriptionData() {
+  async function getPrescriptionData(isPrinted) {
     var prescriptionData = {
       patientInformation: {
+        isPrinted: isPrinted,
+        prescriptionUniqueId: $("#hdnPrescriptionUniqueId").val(),
         patientname: $("#txtName").val() ? $("#txtName").val() : "",
         patientage: $("#txtAge").val() ? $("#txtAge").val() : "",
         checkupDate: $("#txtDate").val() ? $("#txtDate").val() : "",
@@ -951,19 +938,14 @@
 
     return selectedValues;
   }
+
   async function getSelectedPlan() {
     const planSuggest = $("#planList").magicSuggest();
     let selectedPlans = planSuggest.getSelection();
-    for (let i = 0; i < selectedPlans.length; i++) {
-      if (isNaN(selectedPlans[i].id)) {
-        const result = await window.electronAPI.addPlan(selectedPlans[i].name);
-      }
-    }
-
     const selectedValues = selectedPlans.map((plan) => plan.name);
-
     return selectedValues;
   }
+
   function getAllMedicines() {
     const medicines = [];
 
@@ -1136,6 +1118,33 @@
     populateAllMedicines(patientData.selectedMedicines);
     populateRehabilitationAids(patientData.selectedRehabilitationAids);
     populateAllPatientInstructions(patientData.selectedPatientInstructions);
+  }
+
+  async function savePendingPatient(isPrinted) {
+    try {
+      const currentPatient = await getPrescriptionData(isPrinted);
+
+      const prescriptionUniqueId =
+        currentPatient.patientInformation.prescriptionUniqueId?.trim();
+
+      const patientname = currentPatient.patientInformation.patientname?.trim();
+
+      if (prescriptionUniqueId && patientname) {
+        // Get existing patients or initialize empty object
+        const allPatients =
+          JSON.parse(localStorage.getItem("allPatients")) || {};
+
+        // Add/update current patient data
+        allPatients[prescriptionUniqueId] = currentPatient;
+
+        // Save back to localStorage
+        localStorage.setItem("allPatients", JSON.stringify(allPatients));
+
+        console.log(`Saved data for patient: ${prescriptionUniqueId}`);
+      }
+    } catch (error) {
+      console.error("Error saving patient data:", error);
+    }
   }
 
   function populatePatientDetails(patientData) {

@@ -127,70 +127,98 @@ ipcMain.handle("save-translations", async (event, translations) => {
   });
 });
 
-ipcMain.handle(
-  "print-direct",
-  async (event, { type, data, printer, options }) => {
-    return new Promise(async (resolve, reject) => {
-      const win = new BrowserWindow({ show: false });
+ipcMain.handle("print-direct", async (event, { data, printer }) => {
+  const win = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      sandbox: true,
+      contextIsolation: true,
+    },
+  });
 
-      try {
-        await win.loadURL(
-          `data:text/html;charset=UTF-8,${encodeURIComponent(data)}`
-        );
+  console.log("Initializing print job for printer:", printer);
 
-        const printers = await win.webContents.getPrintersAsync();
-        const targetPrinter = printer
-          ? printers.find((p) => p.name === printer)
-          : printers.find((p) => p.isDefault) || printers[0];
+  try {
+    // 1. Load content
+    await win.loadURL(
+      `data:text/html;charset=UTF-8,${encodeURIComponent(data)}`
+    );
+    await win.webContents.executeJavaScript(`
+      new Promise(resolve => document.readyState === 'complete' ? resolve() : window.addEventListener('load', resolve))
+    `);
 
-        if (!targetPrinter) {
-          return reject(new Error("No printers available"));
-        }
+    // 2. Get printers with enhanced debugging
+    const printers =
+      win.webContents.getPrinters?.() ||
+      (await win.webContents.getPrintersAsync?.()) ||
+      [];
+    console.log("Available printers:", JSON.stringify(printers, null, 2));
 
-        console.log("Selected printer:", targetPrinter.name);
-        console.log("data:", data);
+    // 3. Enhanced printer matching (exact, case-insensitive, then partial)
+    const targetPrinter = printer
+      ? printers.find((p) => p.name === printer) || // Exact match
+        printers.find((p) => p.name.toLowerCase() === printer.toLowerCase()) || // Case-insensitive
+        printers.find((p) =>
+          p.name.toLowerCase().includes(printer.toLowerCase())
+        )
+      : printers.find((p) => p.isDefault);
 
-        if (targetPrinter.name === "Microsoft Print to PDF") {
-          // Show save dialog
-          const { canceled, filePath } = await dialog.showSaveDialog({
-            title: "Save PDF",
-            defaultPath: "document.pdf",
-            filters: [{ name: "PDF Files", extensions: ["pdf"] }],
-          });
+    console.log(
+      "Selected printer details:",
+      JSON.stringify(targetPrinter, null, 2)
+    );
 
-          if (canceled || !filePath) {
-            return reject(new Error("Save dialog was canceled"));
-          }
+    if (!targetPrinter) {
+      throw new Error(
+        `Printer "${printer}" not found. Available: ${printers
+          .map((p) => p.name)
+          .join(", ")}`
+      );
+    }
 
-          // Generate PDF
-          const pdfData = await win.webContents.printToPDF({
-            printBackground: true,
-          });
+    // 4. Print with verification
+    const printSuccess = await new Promise((resolve) => {
+      const printOptions = {
+        silent: true,
+        deviceName: targetPrinter.name,
+        printBackground: true,
+        // Additional options that might help on Windows:
+        pageSize: "A4",
+        marginsType: 0, // Default margins
+        copies: 1,
+      };
 
-          fs.writeFileSync(filePath, pdfData);
+      console.log("Attempting to print with options:", printOptions);
 
-          resolve({ success: true, filePath });
-        } else {
-          // Direct print
-          await win.webContents.print({
-            silent: true,
-            printBackground: true,
-            deviceName: targetPrinter.name,
-            ...options,
-          });
-
-          resolve({ success: true, printer: targetPrinter.name });
-        }
-      } catch (error) {
-        console.error("Print failed:", error);
-        reject({ success: false, error: error.message });
-      } finally {
-        win.destroy();
-      }
+      win.webContents.print(printOptions, (success, error) => {
+        console.log(`Print result - Success: ${success}, Error: ${error}`);
+        resolve(success);
+      });
     });
-  }
-);
 
+    return {
+      success: printSuccess,
+      printerUsed: targetPrinter.name,
+      printerStatus: targetPrinter.status,
+      availablePrinters: printers.map((p) => p.name),
+    };
+  } catch (error) {
+    console.error("Print error:", error);
+    return {
+      success: false,
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    };
+  } finally {
+    setTimeout(() => win.destroy(), 1000);
+  }
+});
+// Helper to identify failure stage
+function getErrorStage() {
+  if (!console.log.toString().includes("log 3")) return "loading-content";
+  if (!console.log.toString().includes("log 5")) return "fetching-printers";
+  return "print-dialog";
+}
 // Close the database when the app exits
 process.on("exit", () => {
   db.close();

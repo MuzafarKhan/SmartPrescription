@@ -610,21 +610,14 @@
 
       return selectedValues;
     }
+
     async function getSelectedPlan() {
       const planSuggest = $("#planList").magicSuggest();
       let selectedPlans = planSuggest.getSelection();
-      for (let i = 0; i < selectedPlans.length; i++) {
-        if (isNaN(selectedPlans[i].id)) {
-          const result = await window.electronAPI.addPlan(
-            selectedPlans[i].name
-          );
-        }
-      }
-
       const selectedValues = selectedPlans.map((plan) => plan.name);
-
       return selectedValues;
     }
+
     function getAllMedicines() {
       const medicines = [];
 

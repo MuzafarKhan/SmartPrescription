@@ -22,6 +22,7 @@
                 <th>Name</th>
                 <th>Age</th>
                 <th>Date</th>
+                <th>Is Printed</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -37,7 +38,6 @@
         const table = $("#pendingPatientTable").DataTable();
         const allPatients =
           JSON.parse(localStorage.getItem("allPatients")) || {};
-
         table.clear();
         Object.entries(allPatients).forEach((pendingpatient) => {
           table.row
@@ -45,14 +45,15 @@
               pendingpatient[1].patientInformation.patientname,
               pendingpatient[1].patientInformation.patientage,
               pendingpatient[1].patientInformation.checkupDate,
+              pendingpatient[1].patientInformation.isPrinted ? "✅" : "❌",
               '<button class="btn btn-warning btn-sm" onclick="openEditPendingPatient(' +
                 "'" +
-                pendingpatient[1].patientInformation.patientname +
+                pendingpatient[1].patientInformation.prescriptionUniqueId +
                 "'" +
                 ',event)">Update</button>' +
                 '<button class="btn btn-danger btn-sm delete-row ms-1" onclick="deletePendingPatient(' +
                 "'" +
-                pendingpatient[1].patientInformation.patientname +
+                pendingpatient[1].patientInformation.prescriptionUniqueId +
                 "'" +
                 ',event)">Delete</button>',
             ])
@@ -73,11 +74,11 @@
         );
       });
 
-      function deletePendingPatient(patientName, event) {
+      function deletePendingPatient(prescriptionUniqueId, event) {
         event.preventDefault();
         const allPatients =
           JSON.parse(localStorage.getItem("allPatients")) || {};
-        delete allPatients[patientName];
+        delete allPatients[prescriptionUniqueId];
         localStorage.setItem("allPatients", JSON.stringify(allPatients));
         common.showDeletedSuccessfullyMessage();
         loadPageContent(
@@ -87,11 +88,11 @@
         );
       }
 
-      function openEditPendingPatient(patientName, event) {
+      function openEditPendingPatient(prescriptionUniqueId, event) {
         event.preventDefault();
         const allPatients =
           JSON.parse(localStorage.getItem("allPatients")) || {};
-        $("#content").data("patientName", patientName);
+        $("#content").data("prescriptionUniqueId", prescriptionUniqueId);
         $("#content").load("./views/home.html");
       }
     </script>

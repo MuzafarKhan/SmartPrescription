@@ -340,6 +340,7 @@
       common.getSettings()[0].defaultPrescriptionPrinterName;
     var defaultThermalPrinterName =
       common.getSettings()[0].defaultThermalPrinterName;
+    debugger;
     if (quickPrint) {
       if (isPrintPrescription) {
         if (!defaultPrescriptionPrinterName) {
@@ -394,6 +395,19 @@
       .prop("type", "text/css")
       .html(".bold-value { font-weight: bold !important; }")
       .appendTo("head");
+
+    $("#addAttachpatientinstruction")
+      .on("shown.bs.modal", function () {
+        $(this).on("keydown", function (e) {
+          if (e.key === "Enter" || e.keyCode === 13) {
+            printPrescription();
+            e.preventDefault();
+          }
+        });
+      })
+      .on("hidden.bs.modal", function () {
+        $(this).off("keydown");
+      });
   });
 
   async function init(prescriptionData, isPrintPrescription) {
@@ -561,7 +575,7 @@
     }
 
     // 4. Build thermal print content
-    let thermalPrintContent = `<div style="margin-left: 10px;"><strong>Patient Name:</strong> ${patientName}<br><br>`;
+    let thermalPrintContent = `<div style="margin-left: 20px;"><strong>Patient Name:</strong> ${patientName}<br><br>`;
 
     let hasPreviousContent = false;
 

@@ -265,7 +265,7 @@ body {
   border: 2px solid #aeaaa9;
   height: 10mm;
   display: flex;
-  padding: 15px;
+  padding: 10px 30px 10px 30px;
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
@@ -281,7 +281,7 @@ body {
   flex-direction: column;
   height: 100%; /* Take full height of the container */
   width: 35%; /* 25% width of the parent container */
-  padding: 15px;
+  padding: 10px 10px 10px 30px;
 }
 
 .followupStyle {
@@ -294,7 +294,7 @@ body {
 .right-section {
   height: 100%; /* Take full height of the container */
   width: 65%; /* 75% width of the parent container */
-  padding: 15px 15px 5px 15px;
+  padding: 10px 30px 10px 10px;
   box-sizing: border-box; /* Include padding in width */
   display: flex;
   flex-direction: column;
