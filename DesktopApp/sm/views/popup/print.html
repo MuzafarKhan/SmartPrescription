@@ -340,7 +340,6 @@
       common.getSettings()[0].defaultPrescriptionPrinterName;
     var defaultThermalPrinterName =
       common.getSettings()[0].defaultThermalPrinterName;
-    debugger;
     if (quickPrint) {
       if (isPrintPrescription) {
         if (!defaultPrescriptionPrinterName) {
@@ -962,12 +961,18 @@
       prescriptionDataInUrdu?.patientInformation?.selectedInvestigation
         ?.length > 0
     ) {
-      // Get all investigations and any details
       const investigations =
         prescriptionDataInUrdu.patientInformation.selectedInvestigation;
-      // Display inline list
-      container.text(investigations.map((inv) => inv[0].trim()).join("."));
 
+      // Filter for only those with true bit (inv[1] === true), then map names
+      const selectedNames = investigations
+        .filter((inv) => inv[1] !== 0) // Only include if bit is true
+        .map((inv) => inv[0].trim()); // Get the name part
+
+      // Display inline list
+      container.text(selectedNames.join(". "));
+
+      // Add additional details
       $("#investigationsDetails").html(
         prescriptionDataInUrdu.patientInformation.investigationMoreDetail
       );

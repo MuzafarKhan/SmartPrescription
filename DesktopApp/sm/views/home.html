@@ -283,7 +283,7 @@
                 <div>
                   <select id="select-reflexes" class="form-select">
                     <option select>NORMAL</option>
-                    <option>RESTRICTED</option>
+                    <option>EXAGGERATED</option>
                   </select>
                 </div>
               </div>
@@ -923,13 +923,13 @@
   async function getSelectedInvestigation() {
     const investigationSuggest = $("#investigationList").magicSuggest();
     let selectedInvestigations = investigationSuggest.getSelection();
-    for (let i = 0; i < selectedInvestigations.length; i++) {
-      if (isNaN(selectedInvestigations[i].id)) {
-        const result = await window.electronAPI.addInvestigation(
-          selectedInvestigations[i].name
-        );
-      }
-    }
+    // for (let i = 0; i < selectedInvestigations.length; i++) {
+    //   if (isNaN(selectedInvestigations[i].id)) {
+    //     const result = await window.electronAPI.addInvestigation(
+    //       selectedInvestigations[i].name
+    //     );
+    //   }
+    // }
 
     const selectedValues = selectedInvestigations.map((investigation) => [
       investigation.name,
