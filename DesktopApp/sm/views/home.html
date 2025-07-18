@@ -150,7 +150,6 @@
                 <input
                   type="number"
                   class="form-control duration-surgery-select"
-                  placeholder="Enter Complaint"
                   value="0"
                 />
               </div>
@@ -906,6 +905,9 @@
           complaint: complaintInput || null,
           duration: durationSelect || null,
           unit: unitSelect || null,
+          sourceFromDiagnosis: row.classList.contains(
+            "addedFromDiagnosisChange"
+          ),
         });
       });
 
@@ -968,6 +970,7 @@
           ? 1
           : 0, // Updated selector
         moredetail: medicineRow.find(".more-detail").val(), // Updated selector
+        sourceFromDiagnosis: medicineRow.hasClass("addedFromDiagnosisChange"),
       };
 
       // Add the object to the medicines array
@@ -992,6 +995,7 @@
           aidsData.push({
             name: rehabilitationAid,
             moreDetail: moreDetail,
+            sourceFromDiagnosis: $(this).hasClass("addedFromDiagnosisChange"),
           });
         }
       }
@@ -1010,6 +1014,9 @@
         const patientinstruction = {
           title: patientinstructionRow.find(".patient-instruction-input").val(),
           detail: patientinstructionRow.find("[id^='textPInstDetail']").val(),
+          sourceFromDiagnosis: patientinstructionRow.hasClass(
+            "addedFromDiagnosisChange"
+          ),
         };
 
         // Add the object to the patient-instructions array
@@ -1107,7 +1114,10 @@
   }
 
   async function populateFullPatientPrescription(patientData) {
+    populateAllMedicines(patientData.selectedMedicines);
     populatePatientDetails(patientData);
+    populateRehabilitationAids(patientData.selectedRehabilitationAids);
+    populateAllPatientInstructions(patientData.selectedPatientInstructions);
     await populateDiagnosis(patientData.selectedDiagnosis);
     populateAllComplaints(patientData.complaintData);
     await populateInvestigation(
@@ -1115,9 +1125,6 @@
       patientData.investigationMoreDetail
     );
     populatePlan(patientData.selectedPlan);
-    populateAllMedicines(patientData.selectedMedicines);
-    populateRehabilitationAids(patientData.selectedRehabilitationAids);
-    populateAllPatientInstructions(patientData.selectedPatientInstructions);
   }
 
   async function savePendingPatient(isPrinted) {
@@ -1202,13 +1209,17 @@
       });
 
       if (diagnosis.length > 0) {
-        // Find matching diagnosis by ID
-        const diagnosisToSelect = diagnosisListData.filter((item) =>
-          diagnosis.includes(item.name)
-        );
+        // Process both existing and new diagnoses
+        const selection = diagnosis.map((name) => {
+          // Try to find in diagnosisListData first
+          const existing = diagnosisListData.find((item) => item.name === name);
 
-        // Use the MagicSuggest instance to set selection
-        diagnosisSuggest.setSelection(diagnosisToSelect);
+          // If not found, create a new object with the name as both id and value
+          return existing || { id: name, name: name };
+        });
+
+        // Set the combined selection
+        diagnosisSuggest.setSelection(selection);
       }
     } catch (error) {
       console.error("Error loading diagnosis:", error);
@@ -1225,7 +1236,9 @@
         if (index === 0) {
           populateChiefComplaintRow(complaints); // Populate the first row
         } else {
-          const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+          const newRowHtml = common.getChiefComplaintRow(
+            complaints.sourceFromDiagnosis
+          ); // Create a new row
           $("#chiefComplaintsContainer tbody").append(newRowHtml);
           populateChiefComplaintRow(
             complaints,
@@ -1238,7 +1251,9 @@
   function populateChiefComplaintRow(complaints, row) {
     // If no row is passed, add a new one
     if (!row) {
-      const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+      const newRowHtml = common.getChiefComplaintRow(
+        complaints.sourceFromDiagnosis
+      ); // Create a new row
       $("#chiefComplaintsContainer tbody").append(newRowHtml); // Append to the container
       row = $("#chiefComplaintsContainer .complaint-row").last(); // Select the newly added row
     }
@@ -1259,7 +1274,9 @@
         if (index === 0) {
           populateMedicineRow(medicine); // Populate the first row
         } else {
-          const newRowHtml = common.getMedicineRow(); // Create a new row
+          const newRowHtml = common.getMedicineRow(
+            medicine.sourceFromDiagnosis
+          ); // Create a new row
           $("#medicineContainer tbody").append(newRowHtml);
           populateMedicineRow(
             medicine,
@@ -1272,7 +1289,7 @@
   function populateMedicineRow(medicine, row) {
     // If no row is passed, add a new one
     if (!row) {
-      const newRowHtml = common.getMedicineRow(); // Create a new row
+      const newRowHtml = common.getMedicineRow(medicine.sourceFromDiagnosis); // Create a new row
       $("#medicineContainer tbody").append(newRowHtml); // Append to the container
       row = $("#medicineContainer .medicine-row").last(); // Select the newly added row
     }
@@ -1369,7 +1386,9 @@
         if (index === 0) {
           populateRehabilitationAidRow(rehabilitationAid); // Populate the first row
         } else {
-          const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+          const newRowHtml = common.getRehabilitationAidRow(
+            rehabilitationAid.sourceFromDiagnosis
+          ); // Create a new row
           $("#rehabilitationAidsContainer tbody").append(newRowHtml);
           populateRehabilitationAidRow(
             rehabilitationAid,
@@ -1382,7 +1401,9 @@
   function populateRehabilitationAidRow(rehabilitationAid, row) {
     // If no row is passed, add a new one
     if (!row) {
-      const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+      const newRowHtml = common.getRehabilitationAidRow(
+        rehabilitationAid.sourceFromDiagnosis
+      ); // Create a new row
       $("#rehabilitationAidsContainer tbody").append(newRowHtml); // Append to the container
       row = $("#rehabilitationAidsContainer .rehabilitation-aids-row").last(); // Select the newly added row
     }
@@ -1401,7 +1422,9 @@
         if (index === 0) {
           populateAllPatientInstructionsRow(patientInstruction); // Populate the first row
         } else {
-          const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+          const newRowHtml = common.getPatientInstructionRow(
+            patientInstruction.sourceFromDiagnosis
+          ); // Create a new row
           $("#patient-instructionContainer tbody").append(newRowHtml);
           populateAllPatientInstructionsRow(
             patientInstruction,
@@ -1414,7 +1437,9 @@
   function populateAllPatientInstructionsRow(patientInstruction, row) {
     // If no row is passed, add a new one
     if (!row) {
-      const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+      const newRowHtml = common.getPatientInstructionRow(
+        patientInstruction.sourceFromDiagnosis
+      ); // Create a new row
       $("#patient-instructionContainer tbody").append(newRowHtml); // Append to the container
       row = $("#patient-instructionContainer .patient-instruction-row").last(); // Select the newly added row
     }

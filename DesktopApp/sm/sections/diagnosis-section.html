@@ -72,28 +72,32 @@
 
         // Add event listener for selection change
         $(diagnosisSuggest).on("selectionchange", function () {
+          debugger;
           const selectedDiagnoses = diagnosisSuggest.getSelection();
           if (selectedDiagnoses && selectedDiagnoses.length > 0) {
             const diagnosisIds = selectedDiagnoses
+              .filter((diagnosis) => !isNaN(parseInt(diagnosis.id))) // Keep only integer IDs
               .map((diagnosis) => diagnosis.id)
               .join(",");
             handleDiagnosisSelection(diagnosisIds);
           } else {
-            $("#chiefComplaintsContainer .complaint-row").remove();
-            $("#medicineContainer .medicine-row").remove();
-            $("#rehabilitationAidsContainer .rehabilitation-aids-row").remove();
-            $(
-              "#patient-instructionContainer .patient-instruction-row"
-            ).remove();
-            $("#investigationList").magicSuggest().clear();
-            $("#planList").magicSuggest().clear();
-            $(".investigation-detail-select").val("");
+            clearDiagnosisRelatedFields();
           }
           $("#prescriptionForm").trigger("change");
         });
       } catch (error) {
         console.error("Error fetching diagnosis:", error);
       }
+    }
+
+    function clearDiagnosisRelatedFields() {
+      $("#chiefComplaintsContainer .addedFromDiagnosisChange").remove();
+      $("#medicineContainer .addedFromDiagnosisChange").remove();
+      $("#rehabilitationAidsContainer .addedFromDiagnosisChange").remove();
+      $("#patient-instructionContainer .addedFromDiagnosisChange").remove();
+      $("#investigationList").magicSuggest().clear();
+      $("#planList").magicSuggest().clear();
+      $(".investigation-detail-select").val("");
     }
 
     async function handleDiagnosisSelection(diagnosisIds) {
@@ -164,6 +168,8 @@
           populateAllPatientInstructions(
             mergedTemplateData.selectedPatientInstructions
           );
+        } else {
+          clearDiagnosisRelatedFields();
         }
       } catch (error) {
         $.toast({
@@ -179,14 +185,14 @@
     function populateAllComplaints(complaints) {
       if (complaints && complaints.length > 0) {
         // Clear existing rows before populating
-        $("#chiefComplaintsContainer .complaint-row").remove();
+        $("#chiefComplaintsContainer .addedFromDiagnosisChange").remove();
 
         complaints.forEach((complaints, index) => {
           // For each medicine, either populate an existing row or add a new row
           if (index === 0) {
             populateChiefComplaintRow(complaints); // Populate the first row
           } else {
-            const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+            const newRowHtml = common.getChiefComplaintRow(true); // Create a new row
             $("#chiefComplaintsContainer tbody").append(newRowHtml);
             populateChiefComplaintRow(
               complaints,
@@ -194,12 +200,28 @@
             ); // Populate the new row
           }
         });
+        removeEmptyComplaintRows();
       }
     }
+    function removeEmptyComplaintRows() {
+      $("#chiefComplaintsContainer .complaint-row").each(function () {
+        const $row = $(this);
+        const inputVal = $row.find(".complaint-input").val().trim();
+
+        // Remove row if empty AND not the last remaining row
+        if (
+          inputVal === "" &&
+          $("#chiefComplaintsContainer .complaint-row").length > 1
+        ) {
+          $row.remove();
+        }
+      });
+    }
+
     function populateChiefComplaintRow(complaints, row) {
       // If no row is passed, add a new one
       if (!row) {
-        const newRowHtml = common.getChiefComplaintRow(); // Create a new row
+        const newRowHtml = common.getChiefComplaintRow(true); // Create a new row
         $("#chiefComplaintsContainer tbody").append(newRowHtml); // Append to the container
         row = $("#chiefComplaintsContainer .complaint-row").last(); // Select the newly added row
       }
@@ -213,14 +235,14 @@
     function populateAllMedicines(medicines) {
       if (medicines && medicines.length > 0) {
         // Clear existing rows before populating
-        $("#medicineContainer .medicine-row").remove();
+        $("#medicineContainer .addedFromDiagnosisChange").remove();
 
         medicines.forEach((medicine, index) => {
           // For each medicine, either populate an existing row or add a new row
           if (index === 0) {
             populateMedicineRow(medicine); // Populate the first row
           } else {
-            const newRowHtml = common.getMedicineRow(); // Create a new row
+            const newRowHtml = common.getMedicineRow(true); // Create a new row
             $("#medicineContainer tbody").append(newRowHtml);
             populateMedicineRow(
               medicine,
@@ -229,11 +251,26 @@
           }
         });
       }
+      removeEmptyMedicineRows();
+    }
+    function removeEmptyMedicineRows() {
+      $("#medicineContainer .medicine-row").each(function () {
+        const $row = $(this);
+        const inputVal = $row.find(".medicine-input").val().trim();
+
+        // Remove row if empty AND not the last remaining row
+        if (
+          inputVal === "" &&
+          $("#medicineContainer .medicine-row").length > 1
+        ) {
+          $row.remove();
+        }
+      });
     }
     function populateMedicineRow(medicine, row) {
       // If no row is passed, add a new one
       if (!row) {
-        const newRowHtml = common.getMedicineRow(); // Create a new row
+        const newRowHtml = common.getMedicineRow(true); // Create a new row
         $("#medicineContainer tbody").append(newRowHtml); // Append to the container
         row = $("#medicineContainer .medicine-row").last(); // Select the newly added row
       }
@@ -328,14 +365,14 @@
     function populateRehabilitationAids(rehabilitationAids) {
       if (rehabilitationAids && rehabilitationAids.length > 0) {
         // Clear existing rows before populating
-        $("#rehabilitationAidsContainer .rehabilitation-aids-row").remove();
+        $("#rehabilitationAidsContainer .addedFromDiagnosisChange").remove();
 
         rehabilitationAids.forEach((rehabilitationAid, index) => {
           // For each medicine, either populate an existing row or add a new row
           if (index === 0) {
             populateRehabilitationAidRow(rehabilitationAid); // Populate the first row
           } else {
-            const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+            const newRowHtml = common.getRehabilitationAidRow(true); // Create a new row
             $("#rehabilitationAidsContainer tbody").append(newRowHtml);
             populateRehabilitationAidRow(
               rehabilitationAid,
@@ -344,11 +381,29 @@
           }
         });
       }
+      removeEmptyRehabilitationAidRows();
+    }
+    function removeEmptyRehabilitationAidRows() {
+      $("#rehabilitationAidsContainer .rehabilitation-aids-row").each(
+        function () {
+          const $row = $(this);
+          const inputVal = $row.find(".rehabilitation-aids-input").val().trim();
+
+          // Remove row if empty AND not the last remaining row
+          if (
+            inputVal === "" &&
+            $("#rehabilitationAidsContainer .rehabilitation-aids-row").length >
+              1
+          ) {
+            $row.remove();
+          }
+        }
+      );
     }
     function populateRehabilitationAidRow(rehabilitationAid, row) {
       // If no row is passed, add a new one
       if (!row) {
-        const newRowHtml = common.getRehabilitationAidRow(); // Create a new row
+        const newRowHtml = common.getRehabilitationAidRow(true); // Create a new row
         $("#rehabilitationAidsContainer tbody").append(newRowHtml); // Append to the container
         row = $("#rehabilitationAidsContainer .rehabilitation-aids-row").last(); // Select the newly added row
       }
@@ -360,14 +415,14 @@
     function populateAllPatientInstructions(patientInstructions) {
       if (patientInstructions && patientInstructions.length > 0) {
         // Clear existing rows before populating
-        $("#patient-instructionContainer .patient-instruction-row").remove();
+        $("#patient-instructionContainer .addedFromDiagnosisChange").remove();
 
         patientInstructions.forEach((patientInstruction, index) => {
           // For each medicine, either populate an existing row or add a new row
           if (index === 0) {
             populateAllPatientInstructionsRow(patientInstruction); // Populate the first row
           } else {
-            const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+            const newRowHtml = common.getPatientInstructionRow(true); // Create a new row
             $("#patient-instructionContainer tbody").append(newRowHtml);
             populateAllPatientInstructionsRow(
               patientInstruction,
@@ -376,11 +431,29 @@
           }
         });
       }
+      removeEmptyPatientInstructionsRows();
+    }
+    function removeEmptyPatientInstructionsRows() {
+      $("#patient-instructionContainer .patient-instruction-row").each(
+        function () {
+          const $row = $(this);
+          const inputVal = $row.find(".patient-instruction-input").val().trim();
+
+          // Remove row if empty AND not the last remaining row
+          if (
+            inputVal === "" &&
+            $("#patient-instructionContainer .patient-instruction-row").length >
+              1
+          ) {
+            $row.remove();
+          }
+        }
+      );
     }
     function populateAllPatientInstructionsRow(patientInstruction, row) {
       // If no row is passed, add a new one
       if (!row) {
-        const newRowHtml = common.getPatientInstructionRow(); // Create a new row
+        const newRowHtml = common.getPatientInstructionRow(true); // Create a new row
         $("#patient-instructionContainer tbody").append(newRowHtml); // Append to the container
         row = $(
           "#patient-instructionContainer .patient-instruction-row"

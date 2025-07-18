@@ -50,9 +50,19 @@ const common = {
     return path.join(__dirname, "preData.db"); // Use for dev
     //return path.join(process.resourcesPath, "preData.db"); // Use for release
   },
-  getMedicineRow() {
-    const newRowHtml = `
-         <tr class="medicine-row">
+  getAddedFromDiagnosisClass(addedFromDiagnosisChange) {
+    var hiddenInputForAddedFromDiagnosisChange = "";
+    if (addedFromDiagnosisChange) {
+      hiddenInputForAddedFromDiagnosisChange = "addedFromDiagnosisChange";
+    }
+    return hiddenInputForAddedFromDiagnosisChange;
+  },
+  getMedicineRow(addedFromDiagnosisChange) {
+    const newRowHtml =
+      `
+         <tr class="medicine-row ` +
+      this.getAddedFromDiagnosisClass(addedFromDiagnosisChange) +
+      `">
           <td>
             <input
               type="text"
@@ -92,6 +102,7 @@ const common = {
           <td>
             <select class="form-select timing-type">
               <option value="">Select Timing</option>
+              <option value="SOS">SOS</option>
               <option value="STAT">STAT</option>
               <option value="OD">OD</option>
               <option value="OW">OW</option>
@@ -119,6 +130,7 @@ const common = {
             <input
               class="form-check-input printable"
               type="checkbox"
+              checked
             />
           </td>
           <td>
@@ -161,9 +173,12 @@ const common = {
     return newRowHtml;
   },
 
-  getChiefComplaintRow() {
-    const newRowHtml = `
-              <tr class="complaint-row">
+  getChiefComplaintRow(addedFromDiagnosisChange) {
+    const newRowHtml =
+      `
+              <tr class="complaint-row ` +
+      this.getAddedFromDiagnosisClass(addedFromDiagnosisChange) +
+      `">
         <!-- Complaint Input -->
         <td>
           <input
@@ -208,16 +223,19 @@ const common = {
     return newRowHtml;
   },
 
-  getRehabilitationAidRow() {
-    const newRowHtml = `
-                   <tr class="rehabilitation-aids-row">
+  getRehabilitationAidRow(addedFromDiagnosisChange) {
+    const newRowHtml =
+      `
+                   <tr class="rehabilitation-aids-row ` +
+      this.getAddedFromDiagnosisClass(addedFromDiagnosisChange) +
+      `">
         <!-- Complaint Input -->
         <td>
           <input
             type="text"
             class="form-control rehabilitation-aids-input"
             id="rehabilitation-aids-input"
-            placeholder="Enter Complaint"
+            placeholder="Enter Rehabilitation Aids"
             list="rehabilitation-aidsSuggestions"
           />
           <!-- Suggestions -->
@@ -247,9 +265,12 @@ const common = {
     return newRowHtml;
   },
 
-  getPatientInstructionRow() {
-    const newRowHtml = `
-           <tr class="patient-instruction-row">
+  getPatientInstructionRow(addedFromDiagnosisChange) {
+    const newRowHtml =
+      `
+           <tr class="patient-instruction-row ` +
+      this.getAddedFromDiagnosisClass(addedFromDiagnosisChange) +
+      `">
           <td>
             <input
               type="text"
