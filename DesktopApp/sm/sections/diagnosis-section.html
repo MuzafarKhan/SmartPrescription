@@ -72,7 +72,6 @@
 
         // Add event listener for selection change
         $(diagnosisSuggest).on("selectionchange", function () {
-          debugger;
           const selectedDiagnoses = diagnosisSuggest.getSelection();
           if (selectedDiagnoses && selectedDiagnoses.length > 0) {
             const diagnosisIds = selectedDiagnoses
@@ -312,26 +311,44 @@
       investigationMoreDetail
     ) {
       $(".investigation-detail-select").val(investigationMoreDetail);
+
       try {
         const investigationListData =
           await window.electronAPI.getInvestigation();
 
-        // Initialize MagicSuggest and store the instance
         const investigationSuggest = $("#investigationList").magicSuggest({
           data: investigationListData,
           placeholder: "Type or select Investigation",
         });
 
         if (investigations.length > 0) {
-          // Find matching investigations by ID
-          const investigationsToSelect = investigationListData.filter((item) =>
+          // 🔹 EXISTING LOGIC (unchanged)
+          let investigationsToSelect = investigationListData.filter((item) =>
             investigations.some(
               (investigation) =>
                 investigation[0].toLowerCase() === item.name.toLowerCase()
             )
           );
 
-          // Use the MagicSuggest instance to set selection
+          // 🔹 NEW LOGIC: Get custom (non-integer id) items
+          const currentSelection = investigationSuggest.getSelection();
+
+          const customInvestigations = currentSelection.filter(
+            (item) => !Number.isInteger(item.id)
+          );
+
+          // 🔹 Merge them
+          investigationsToSelect = [
+            ...investigationsToSelect,
+            ...customInvestigations,
+          ];
+
+          // 🔹 Remove duplicates (safe guard)
+          investigationsToSelect = investigationsToSelect.filter(
+            (value, index, self) =>
+              index === self.findIndex((t) => t.id === value.id)
+          );
+
           investigationSuggest.setSelection(investigationsToSelect);
         }
       } catch (error) {
@@ -343,15 +360,32 @@
         const planListData = await window.electronAPI.getPlan();
 
         // Initialize MagicSuggest and store the instance
-        const planSuggest = $("#planList").magicSuggest({
+        let planSuggest = $("#planList").magicSuggest({
           data: planListData,
           placeholder: "Type or select Investigation",
         });
 
         if (plans.length > 0) {
           // Find matching plans by ID
-          const planToSelect = planListData.filter((item) =>
+          let planToSelect = planListData.filter((item) =>
             plans.includes(item.name)
+          );
+
+          // Get selected items from MagicSuggest
+          const currentSelection = planSuggest.getSelection();
+
+          // Get items where id is NOT integer
+          const customPlans = currentSelection.filter(
+            (item) => !Number.isInteger(item.id)
+          );
+
+          // Add them to planToSelect
+          planToSelect = [...planToSelect, ...customPlans];
+
+          // Remove duplicates (optional but recommended)
+          planToSelect = planToSelect.filter(
+            (value, index, self) =>
+              index === self.findIndex((t) => t.id === value.id)
           );
 
           // Use the MagicSuggest instance to set selection
@@ -469,10 +503,13 @@
         const investigationListData =
           await window.electronAPI.getInvestigation();
 
-        $("#investigationList").magicSuggest({
+        var investigationSuggest = $("#investigationList").magicSuggest({
           data: investigationListData,
           placeholder: "Type or select Investigation",
           maxSelection: 5,
+        });
+        $(investigationSuggest).on("selectionchange", function () {
+          $("#prescriptionForm").trigger("change");
         });
       } catch (error) {
         console.error("Error fetching investigation", error);
@@ -482,10 +519,13 @@
     async function loadPlan() {
       try {
         const planListData = await window.electronAPI.getPlan();
-        $("#planList").magicSuggest({
+        var planSuggest = $("#planList").magicSuggest({
           data: planListData,
           placeholder: "Type or select Plan",
           maxSelection: 3,
+        });
+        $(planSuggest).on("selectionchange", function () {
+          $("#prescriptionForm").trigger("change");
         });
       } catch (error) {
         console.error("Error fetching plan:", error);

@@ -386,6 +386,18 @@ const common = {
     });
   },
 
+  fillPatientCountBubble() {
+    const allPatients = JSON.parse(localStorage.getItem("allPatients")) || {};
+    const patientsArray = Object.values(allPatients);
+    const patientsCount = patientsArray.length;
+    if (patientsCount > 0) {
+      $("#pendingPatientCountBubble").text(patientsCount);
+      $("#pendingPatientCountBubble").removeClass("hidden");
+    } else {
+      $("#pendingPatientCountBubble").addClass("hidden");
+    }
+  },
+
   getnastaleeqFontCSS() {
     return `
               @font-face {

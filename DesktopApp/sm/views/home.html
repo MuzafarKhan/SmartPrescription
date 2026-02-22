@@ -459,7 +459,7 @@
 <script>
   $(document).ready(async function () {
     common.refreshSettings();
-    $("#bpTxtbox").mask("000/00");
+    // $("#bpTxtbox").mask("000/00");
     const settings = common.getSettings();
     const date = new Date();
 
@@ -680,6 +680,7 @@
       await savePendingPatient(true);
       if (validatePrescriptionData(prescriptionData)) {
         openPrintData(prescriptionData, false, true);
+        common.fillPatientCountBubble();
       }
     });
 
@@ -728,6 +729,7 @@
     $("#prescriptionForm,#diagnosisList,.comorbidity-tab").on(
       "change",
       async (event) => {
+        debugger;
         savePendingPatient(false);
       }
     );
@@ -925,14 +927,6 @@
   async function getSelectedInvestigation() {
     const investigationSuggest = $("#investigationList").magicSuggest();
     let selectedInvestigations = investigationSuggest.getSelection();
-    // for (let i = 0; i < selectedInvestigations.length; i++) {
-    //   if (isNaN(selectedInvestigations[i].id)) {
-    //     const result = await window.electronAPI.addInvestigation(
-    //       selectedInvestigations[i].name
-    //     );
-    //   }
-    // }
-
     const selectedValues = selectedInvestigations.map((investigation) => [
       investigation.name,
       investigation.isPrintableOnPrescription,
@@ -1338,12 +1332,30 @@
 
       if (investigations.length > 0) {
         // Find matching investigations by ID
-        const investigationsToSelect = investigationListData.filter((item) =>
+        let investigationsToSelect = investigationListData.filter((item) =>
           investigations.some(
             (investigation) =>
               investigation[0].toLowerCase() === item.name.toLowerCase()
           )
         );
+
+        investigationsToSelect = investigationsToSelect.filter(
+          (value, index, self) =>
+            index === self.findIndex((t) => t.id === value.id)
+        );
+
+        const customInvestigations = investigations
+          .filter((item) => item[1] === null)
+          .map((item) => ({
+            id: item[0], // use name as id (like you did in Plan)
+            name: item[0],
+            isPrintableOnPrescription: null,
+          }));
+
+        investigationsToSelect = [
+          ...investigationsToSelect,
+          ...customInvestigations,
+        ];
 
         // Use the MagicSuggest instance to set selection
         investigationSuggest.setSelection(investigationsToSelect);
@@ -1356,20 +1368,19 @@
     try {
       const planListData = await window.electronAPI.getPlan();
 
-      // Initialize MagicSuggest and store the instance
       const planSuggest = $("#planList").magicSuggest({
         data: planListData,
         placeholder: "Type or select Investigation",
       });
 
       if (plans.length > 0) {
-        // Find matching plans by ID
-        const planToSelect = planListData.filter((item) =>
-          plans.includes(item.name)
-        );
+        const selection = plans.map((name) => {
+          const existing = planListData.find((item) => item.name === name);
+          return existing || { id: name, name: name };
+        });
 
-        // Use the MagicSuggest instance to set selection
-        planSuggest.setSelection(planToSelect);
+        // Set the combined selection
+        planSuggest.setSelection(selection);
       }
     } catch (error) {
       console.error("Error loading plans:", error);

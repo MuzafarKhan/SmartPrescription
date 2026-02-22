@@ -76,11 +76,32 @@
             </li>
             <li class="nav-item">
               <a
-                class="nav-link active-nav"
+                class="nav-link position-relative"
                 data-page="pending-patients"
                 href="#"
-                >Pending Patients</a
               >
+                Pending Patients
+
+                <!-- Red Bubble -->
+                <span
+                  id="pendingPatientCountBubble"
+                  class="hidden"
+                  style="
+                    position: absolute;
+                    top: -4px;
+                    right: -10px;
+                    min-width: 20px;
+                    height: 20px;
+                    background-color: red;
+                    color: white;
+                    font-size: 11px;
+                    text-align: center;
+                    border-radius: 50%;
+                    line-height: 18px;
+                  "
+                  >3</span
+                >
+              </a>
             </li>
 
             <li class="nav-item">
@@ -128,6 +149,7 @@
     <script>
       $(document).ready(function () {
         common.applyBehaviours();
+        common.fillPatientCountBubble();
 
         $("#content").load("./views/home.html");
 
@@ -151,6 +173,7 @@
         var content = "";
         $("#addEditModel").html("");
         if (tableId) common.savePageNumber(tableId, pageNumber);
+        common.fillPatientCountBubble();
         common.applyBehaviours();
         switch (page) {
           case "home":
