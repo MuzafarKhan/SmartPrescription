@@ -9,3 +9,4 @@ require("./investigation-handler"); // Import handlers
 require("./patient-instruction-handler"); // Import handlers
 require("./setting-handler"); // Import handlers
 require("./patient-information-handler"); // Import handlers
+require("./auth-handler"); // Import handlers

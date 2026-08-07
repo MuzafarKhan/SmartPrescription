@@ -1,0 +1,170 @@
+$("#medicine-section").load("./sections/medicine-section.html");
+
+$(document).ready(function () {
+    $("#addAttachMedicine").modal("show");
+    $(".modal-dialog").addClass("width-100");
+    $("#attachMedicine").on("click", function () {
+      const medicinesArray = getAllMedicines();
+      if (attachMedicineValidated(medicinesArray)) {
+        attachMedicineC(medicinesArray);
+      }
+    });
+
+    async function attachMedicineC(medicinesArray) {
+      var id = $("#hdnId").html();
+      attachMedicine(id, medicinesArray);
+      $("#addAttachMedicine").modal("hide");
+      loadPageContent(
+        "diagnosis",
+        "diagnosisTable",
+        $("#diagnosisTable").DataTable().page()
+      );
+    }
+    async function attachMedicine(id, medicinesArray) {
+      const results = await window.electronAPI.attachMedicine(
+        id,
+        medicinesArray
+      );
+      common.showSavedSuccessfullyMessage();
+    }
+
+    function attachMedicineValidated(medicinesArray) {
+      let isValid = true;
+      medicinesArray.forEach((medicine, index) => {
+        if (isValid) {
+          const error = {};
+
+          // Check if medicine name is empty
+          if (!medicine.medicinename.trim()) {
+            $.toast({
+              heading: "Error",
+              text: `Medicine name is required in ( ROW ${index + 1} )`,
+              showHideTransition: "fade",
+              icon: "error",
+              position: "top-right",
+            });
+            isValid = false;
+          }
+        }
+      });
+
+      return isValid;
+    }
+
+    function getAllMedicines() {
+      const medicines = [];
+
+      $("#medicineContainer .medicine-row").each(function () {
+        const medicineRow = $(this);
+
+        // Create an object for each medicine row
+        const medicine = {
+          medicinename: medicineRow.find(".medicine-input").val(),
+          medicinetype: medicineRow.find(".medicine-type").val(),
+          injType: medicineRow.find(".inj-type").val(),
+          quantity: medicineRow.find(".quantity").val(),
+          timingType: medicineRow.find(".timing-type").val(), // New field for timing type
+          morning: medicineRow.find(".morning").is(":checked") ? 1 : 0, // Updated selector
+          afternoon: medicineRow.find(".afternoon").is(":checked") ? 1 : 0, // Updated selector
+          night: medicineRow.find(".night").is(":checked") ? 1 : 0, // Updated selector
+          duration: medicineRow.find(".duration").val(), // Updated selector
+          durationnumber: medicineRow.find(".duration-number").val(), // Updated selector
+          isPrintableOnPrescription: medicineRow
+            .find(".printable")
+            .is(":checked")
+            ? 1
+            : 0, // Updated selector
+          moredetail: medicineRow.find(".more-detail").val(), // Updated selector
+        };
+
+        // Add the object to the medicines array
+        medicines.push(medicine);
+      });
+
+      return medicines;
+    }
+
+    async function init(id) {
+      $("#hdnId").html(id);
+      try {
+        // Fetch the medicines associated with the diagnosis ID
+        const result = await window.electronAPI.getAttachMedicineByDiagnosisIds(
+          id.toString()
+        );
+
+        if (result && result.length > 0) {
+          // Clear existing rows before populating
+          $("#medicineContainer .medicine-row").remove();
+
+          result.forEach((medicine, index) => {
+            // For each medicine, either populate an existing row or add a new row
+            if (index === 0) {
+              populateMedicineRow(medicine); // Populate the first row
+            } else {
+              const newRowHtml = common.getMedicineRow(); // Create a new row
+              $("#medicineContainer tbody").append(newRowHtml);
+              populateMedicineRow(
+                medicine,
+                $("#medicineContainer .medicine-row").last()
+              ); // Populate the new row
+            }
+          });
+        }
+      } catch (error) {
+        $.toast({
+          heading: "Error",
+          text: error,
+          showHideTransition: "fade",
+          icon: "error",
+          position: "top-right",
+        });
+      }
+    }
+
+    // Function to populate a medicine row with data
+    function populateMedicineRow(medicine, row) {
+      // If no row is passed, add a new one
+      if (!row) {
+        const newRowHtml = common.getMedicineRow(); // Create a new row
+        $("#medicineContainer tbody").append(newRowHtml); // Append to the container
+        row = $("#medicineContainer .medicine-row").last(); // Select the newly added row
+      }
+
+      // Populate the row with the medicine data
+      row.find(".medicine-input").val(medicine.medicinename);
+      row.find(".medicine-type").val(medicine.medicinetype).trigger("change");
+
+      // Handle injection type if medicine is injection
+      if (medicine.medicinetype === "Inj") {
+        row.find(".inj-type").val(medicine.injType).removeClass("hidden");
+      } else {
+        row.find(".inj-type").addClass("hidden");
+      }
+
+      row.find(".quantity").val(medicine.quantity);
+
+      // Handle timing options (mutually exclusive)
+      if (medicine.timingType) {
+        row.find(".timing-type").val(medicine.timingType).trigger("change");
+        row.find(".timing-checkbox").prop("disabled", true);
+      } else {
+        row.find(".morning").prop("checked", medicine.morning);
+        row.find(".afternoon").prop("checked", medicine.afternoon);
+        row.find(".night").prop("checked", medicine.night);
+        row.find(".timing-type").prop("disabled", true);
+      }
+
+      row
+        .find(".printable")
+        .prop("checked", medicine.isPrintableOnPrescription);
+      row.find(".duration-number").val(medicine.durationnumber);
+      row.find(".duration").val(medicine.duration);
+      row.find(".more-detail").val(medicine.moredetail);
+    }
+
+    // Trigger initialization with the ID from the modal
+    const id = $("#addEditModel").data("id");
+    if (id) {
+      init(id);
+    }
+  });

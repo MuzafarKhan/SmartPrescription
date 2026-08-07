@@ -128,4 +128,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   print: (htmlContent) => ipcRenderer.send("print-content", htmlContent),
   printDirect: (options) => ipcRenderer.invoke("print-direct", options),
+
+  login: (username, password) => ipcRenderer.invoke("login", username, password),
 });

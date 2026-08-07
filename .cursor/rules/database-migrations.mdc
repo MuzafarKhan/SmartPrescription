@@ -1,0 +1,32 @@
+---
+description: Record SQLite schema changes as migration files; never inline DDL in handlers
+alwaysApply: true
+---
+
+# Database schema changes
+
+SmartPrescription uses SQLite (`preData.db`). Schema changes are applied manually via migration scripts, not at app startup.
+
+## When changing the database
+
+1. Add a new numbered SQL file under `DesktopApp/sm/database/migrations/` (e.g. `002_add_column.sql`). Never edit an already-applied migration.
+2. Use idempotent SQL where possible (`CREATE TABLE IF NOT EXISTS`, `INSERT OR IGNORE`, etc.).
+3. Do **not** put `CREATE TABLE`, `ALTER TABLE`, or seed `INSERT` logic in handlers or startup code.
+4. Tell the user to run migrations on the target database file:
+
+```bash
+cd DesktopApp/sm
+npm run migrate
+npm run migrate -- --db "C:\path\to\production\preData.db"
+```
+
+## Migration file example
+
+```sql
+-- 002_add_user_email.sql
+ALTER TABLE users ADD COLUMN email TEXT;
+```
+
+## Handlers
+
+Handlers may only **read/write** data. They assume the schema already exists after migrations were run.

@@ -1,0 +1,79 @@
+$(document).ready(function () {
+        // Initialize DataTable with sorting by isPrinted (✅ first)
+        const table = $("#pendingPatientTable").DataTable({
+          order: [[3, "asc"]], // Sort by isPrinted column (column index 3) descending
+        });
+
+        const allPatients =
+          JSON.parse(localStorage.getItem("allPatients")) || {};
+
+        // Convert object to array and sort by isPrinted status
+        const sortedPatients = Object.entries(allPatients).sort((a, b) => {
+          const aPrinted = a[1].patientInformation.isPrinted;
+          const bPrinted = b[1].patientInformation.isPrinted;
+
+          // Printed patients (✅) come first
+          if (aPrinted && !bPrinted) return -1;
+          if (!aPrinted && bPrinted) return 1;
+          return 0;
+        });
+
+        table.clear();
+        sortedPatients.forEach((pendingpatient) => {
+          table.row
+            .add([
+              pendingpatient[1].patientInformation.patientname,
+              pendingpatient[1].patientInformation.patientage,
+              pendingpatient[1].patientInformation.checkupDate,
+              pendingpatient[1].patientInformation.isPrinted ? "✅" : "❌",
+              '<button class="btn btn-warning btn-sm" onclick="openEditPendingPatient(' +
+                "'" +
+                pendingpatient[1].patientInformation.prescriptionUniqueId +
+                "'" +
+                ',event)">Update</button>' +
+                '<button class="btn btn-danger btn-sm delete-row ms-1" onclick="deletePendingPatient(' +
+                "'" +
+                pendingpatient[1].patientInformation.prescriptionUniqueId +
+                "'" +
+                ',event)">Delete</button>',
+            ])
+            .draw(false); // Use draw(false) to prevent redrawing after each add
+        });
+
+        table.draw(); // Final draw to apply sorting
+        common.refreshTablePaging();
+      });
+
+      $("#btnClearPendingPatientsModal").click(function () {
+        localStorage.removeItem("allPatients");
+        common.refreshTablePaging();
+        common.showDeletedSuccessfullyMessage();
+
+        loadPageContent(
+          "pending-patients",
+          "pendingPatientTable",
+          $("#pendingPatientTable").DataTable().page()
+        );
+      });
+
+      function deletePendingPatient(prescriptionUniqueId, event) {
+        event.preventDefault();
+        const allPatients =
+          JSON.parse(localStorage.getItem("allPatients")) || {};
+        delete allPatients[prescriptionUniqueId];
+        localStorage.setItem("allPatients", JSON.stringify(allPatients));
+        common.showDeletedSuccessfullyMessage();
+        loadPageContent(
+          "pending-patients",
+          "pendingPatientTable",
+          $("#pendingPatientTable").DataTable().page()
+        );
+      }
+
+      function openEditPendingPatient(prescriptionUniqueId, event) {
+        event.preventDefault();
+        const allPatients =
+          JSON.parse(localStorage.getItem("allPatients")) || {};
+        $("#content").data("prescriptionUniqueId", prescriptionUniqueId);
+        $("#content").load("./views/home.html");
+      }

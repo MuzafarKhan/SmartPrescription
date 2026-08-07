@@ -1,0 +1,316 @@
+{
+  "version": 1,
+  "projectRoot": "F:\\Project\\SmartPrescription\\tools",
+  "appRoot": "DesktopApp/sm",
+  "builtAt": "2026-08-07T16:20:08.490Z",
+  "architecture": {
+    "type": "Electron desktop application (offline, monolithic)",
+    "stack": [
+      "Electron 33",
+      "Node.js",
+      "jQuery",
+      "Bootstrap",
+      "SQLite3",
+      "JavaScript (CommonJS)"
+    ],
+    "frontend": "HTML fragments in DesktopApp/sm/views + sections, jQuery.load() routing in scripts/index.js",
+    "backend": "Electron main process handlers in DesktopApp/sm/handlers/*.js (no HTTP/REST API)",
+    "database": "SQLite preData.db via raw sqlite3 queries (master/reference data only)",
+    "patientData": "Browser localStorage (allPatients, surgery templates) — not persisted to SQLite",
+    "communication": "Renderer → preload.js (contextBridge) → ipcRenderer.invoke → ipcMain.handle in handlers"
+  },
+  "files": [],
+  "ipcChannels": [
+    {
+      "channel": "print-content",
+      "handlerFile": "DesktopApp/sm/main.js",
+      "preloadMethod": "print",
+      "operation": "print",
+      "tables": [],
+      "usedBy": []
+    }
+  ],
+  "dbTables": [],
+  "localStorageKeys": [],
+  "features": [
+    {
+      "id": "chief-complaint",
+      "name": "Chief Complaint",
+      "keywords": [
+        "chief complaint",
+        "complaint",
+        "chief-complaint",
+        "chief_complaints"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js"
+      ]
+    },
+    {
+      "id": "diagnosis",
+      "name": "Diagnosis",
+      "keywords": [
+        "diagnosis",
+        "template",
+        "attach medicine",
+        "attach patient instruction",
+        "diagnosis_medicine"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js"
+      ]
+    },
+    {
+      "id": "investigation",
+      "name": "Investigation",
+      "keywords": [
+        "investigation",
+        "lab",
+        "test"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js"
+      ]
+    },
+    {
+      "id": "plan",
+      "name": "Plan",
+      "keywords": [
+        "plan",
+        "treatment plan"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js"
+      ]
+    },
+    {
+      "id": "medicine",
+      "name": "Medicine",
+      "keywords": [
+        "medicine",
+        "medication",
+        "drug",
+        "prescription medicine"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js"
+      ]
+    },
+    {
+      "id": "patient-instruction",
+      "name": "Patient Instruction",
+      "keywords": [
+        "patient instruction",
+        "instruction",
+        "advice"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js"
+      ]
+    },
+    {
+      "id": "rehabilitation-aids",
+      "name": "Rehabilitation Aids",
+      "keywords": [
+        "rehabilitation",
+        "aids",
+        "rehab"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js"
+      ]
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "keywords": [
+        "settings",
+        "translation",
+        "printer",
+        "default date",
+        "default day"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js"
+      ]
+    },
+    {
+      "id": "pending-patients",
+      "name": "Pending Patients",
+      "keywords": [
+        "pending patients",
+        "patient queue",
+        "allPatients"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js",
+        "DesktopApp/sm/scripts/index.js"
+      ]
+    },
+    {
+      "id": "home",
+      "name": "Prescription Form (Home)",
+      "keywords": [
+        "prescription",
+        "home",
+        "patient form",
+        "save patient"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "channels": [],
+        "preloadMethods": []
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js",
+        "DesktopApp/sm/scripts/index.js"
+      ]
+    },
+    {
+      "id": "print",
+      "name": "Print",
+      "keywords": [
+        "print",
+        "printer",
+        "thermal"
+      ],
+      "ui": {
+        "popups": [],
+        "popupScripts": []
+      },
+      "ipc": {
+        "handler": "DesktopApp/sm/main.js",
+        "channels": [
+          "print-content"
+        ],
+        "preloadMethods": [
+          "print"
+        ]
+      },
+      "data": {
+        "tables": [],
+        "localStorageKeys": []
+      },
+      "sharedUtilities": [
+        "DesktopApp/sm/common.js"
+      ]
+    }
+  ],
+  "routes": [],
+  "fileFingerprints": {}
+}

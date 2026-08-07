@@ -50,6 +50,11 @@
   </head>
 
   <body>
+    <!-- Login Screen (shown on app start) -->
+    <div id="loginScreen" class="login-screen"></div>
+
+    <!-- Main App (hidden until login) -->
+    <div id="mainApp" class="hidden">
     <!-- Navbar (Menu) -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
@@ -146,76 +151,8 @@
       <!-- Dynamic content will be loaded here -->
     </div>
     <div id="addEditModel"></div>
-    <script>
-      $(document).ready(function () {
-        common.applyBehaviours();
-        common.fillPatientCountBubble();
+    </div>
 
-        $("#content").load("./views/home.html");
-
-        // Function to dynamically load content based on page clicked
-        $(".navbar-nav a, .navbar-brand").click(function (e) {
-          e.preventDefault();
-
-          // Remove 'active' class from all nav links
-          $(".navbar-nav a").removeClass("active-nav");
-
-          // Add 'active' class to the clicked nav link
-          $(this).addClass("active-nav");
-
-          // Get the page to load
-          var page = $(this).data("page");
-          loadPageContent(page);
-        });
-      });
-
-      function loadPageContent(page, tableId, pageNumber) {
-        var content = "";
-        $("#addEditModel").html("");
-        if (tableId) common.savePageNumber(tableId, pageNumber);
-        common.fillPatientCountBubble();
-        common.applyBehaviours();
-        switch (page) {
-          case "home":
-            $("#content").load("./views/home.html");
-            break;
-          case "chief-complaint":
-            $("#content").load("./views/chief-complaint.html");
-            break;
-          case "investigation":
-            $("#content").load("./views/investigation.html");
-            break;
-
-          case "contact":
-            $("#content").load("./views/contact.html");
-            break;
-          case "medicine":
-            $("#content").load("./views/medicine.html");
-            break;
-          case "patient-instruction":
-            $("#content").load("./views/patient-instruction.html");
-            break;
-          case "rehabilitation-aids":
-            $("#content").load("./views/rehabilitation-aids.html");
-            break;
-          case "investigation":
-            $("#content").load("./views/investigation.html");
-            break;
-          case "plan":
-            $("#content").load("./views/plan.html");
-            break;
-          case "diagnosis":
-            $("#content").load("./views/diagnosis.html");
-            break;
-          case "settings":
-            $("#content").load("./views/settings.html");
-            break;
-          case "pending-patients":
-            $("#content").load("./views/pending-patients.html");
-          default:
-            $("#content").html("<h1>Page Not Found</h1>");
-        }
-      }
-    </script>
+      <script src="./scripts/index.js"></script>
   </body>
 </html>

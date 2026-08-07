@@ -1,0 +1,26 @@
+{
+  "name": "smartprescription-mcp",
+  "version": "1.0.0",
+  "description": "Codebase analysis MCP server for SmartPrescription",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "smartprescription-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "reindex": "node dist/index.js --reindex-only"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "fast-glob": "^3.3.3",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2"
+  }
+}

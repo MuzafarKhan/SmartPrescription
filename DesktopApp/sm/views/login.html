@@ -1,0 +1,40 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Smart Prescription</h2>
+      <p>Please sign in to continue</p>
+    </div>
+    <form id="loginForm">
+      <div class="mb-3">
+        <label for="loginUsername" class="form-label">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          id="loginUsername"
+          name="username"
+          placeholder="Enter username"
+          autocomplete="username"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="loginPassword" class="form-label">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="loginPassword"
+          name="password"
+          placeholder="Enter password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+      <div id="loginError" class="login-error hidden"></div>
+      <button type="submit" class="btn btn-success w-100" id="loginBtn">
+        Login
+      </button>
+    </form>
+  </div>
+</div>
+
+<script src="./scripts/views/login.js"></script>

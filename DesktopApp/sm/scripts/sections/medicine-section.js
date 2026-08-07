@@ -1,0 +1,136 @@
+$(document).ready(function () {
+    // Store the medicines in an object for easy lookup
+
+    $(document).on("change", "select[name='medicineType']", function () {
+      let medicineRow = $(this).closest("tr"); // Find the closest row
+      let injType = medicineRow.find("#injType"); // Find the corresponding injType in the same row
+
+      if ($(this).val() === "Inj") {
+        injType.show();
+      } else {
+        injType.hide();
+      }
+    });
+
+    let medicinesData = {};
+
+    async function init() {
+      try {
+        // Fetch medicines from the backend (Electron API)
+        const medicines = await window.electronAPI.getMedicine();
+        const dataList = $("#medicineSuggestions");
+        dataList.empty();
+
+        // Populate medicinesData object and datalist
+        medicines.forEach((medicine) => {
+          medicinesData[medicine.medicinename] = medicine; // Store medicine in object
+          dataList.append(`<option value="${medicine.medicinename}"></option>`); // Add to datalist
+        });
+      } catch (error) {
+        console.error("Error fetching medicines:", error);
+      }
+    }
+
+    // Add new medicine row when the button is clicked
+    $("#addMedicineBtn").on("click", function (event) {
+      init();
+      event.preventDefault();
+      newRowHtml = common.getMedicineRow();
+      $("#medicineContainer tbody").append(newRowHtml);
+    });
+
+    $(document).on("change", ".medicine-type", function () {
+      let medicineRow = $(this).closest("tr");
+      let injType = medicineRow.find(".inj-type");
+
+      if ($(this).val() === "Inj") {
+        injType.removeClass("hidden");
+      } else {
+        injType.addClass("hidden");
+      }
+    });
+
+    // Make timing options mutually exclusive
+    $(document).on("change", ".timing-type", function () {
+      const row = $(this).closest("tr");
+      if ($(this).val()) {
+        row
+          .find(".timing-checkbox")
+          .prop("checked", false)
+          .prop("disabled", true);
+      } else {
+        row.find(".timing-checkbox").prop("disabled", false);
+      }
+    });
+
+    $(document).on("change", ".timing-checkbox", function () {
+      const row = $(this).closest("tr");
+      if (row.find(".timing-checkbox:checked").length > 0) {
+        row.find(".timing-type").prop("disabled", true);
+        row.find(".timing-type").val("");
+      } else {
+        row.find(".timing-type").prop("disabled", false);
+      }
+    });
+    // Remove a medicine row
+    $(document).on("click", ".remove-medicine", function (event) {
+      event.preventDefault();
+      $(this).closest("tr").remove();
+    });
+
+    // Fetch medicine details when a medicine is selected
+    $(document).on("input", ".medicine-input", function () {
+      const selectedMedicine = $(this).val();
+      const medicineRow = $(this).closest("tr");
+
+      if (medicinesData[selectedMedicine]) {
+        const medicineDetails = medicinesData[selectedMedicine];
+
+        // Populate the current row with the medicine details
+        medicineRow
+          .find(".medicine-type")
+          .val(medicineDetails.medicinetype)
+          .trigger("change");
+
+        medicineRow.find(".inj-type").val(medicineDetails.injType);
+        medicineRow.find(".quantity").val(medicineDetails.quantity);
+
+        // Update timing selection
+        if (medicineDetails.timingType) {
+          medicineRow
+            .find(".timing-type")
+            .val(medicineDetails.timingType)
+            .trigger("change");
+          medicineRow.find(".timing-checkbox").prop("disabled", true);
+        } else {
+          medicineRow
+            .find(".morning")
+            .prop("checked", medicineDetails.morning === 1);
+          medicineRow
+            .find(".afternoon")
+            .prop("checked", medicineDetails.afternoon === 1);
+          medicineRow
+            .find(".night")
+            .prop("checked", medicineDetails.night === 1);
+          medicineRow.find(".timing-type").val("").prop("disabled", false);
+        }
+
+        // Update printable checkbox
+        medicineRow
+          .find(".printable")
+          .prop("checked", medicineDetails.isPrintableOnPrescription);
+
+        // Update duration fields
+        medicineRow
+          .find(".duration-number")
+          .val(medicineDetails.durationnumber);
+        medicineRow.find(".duration").val(medicineDetails.duration);
+
+        // Update more details
+        medicineRow.find(".more-detail").val(medicineDetails.moredetail);
+      }
+    });
+
+    // Initialize medicines and datalist
+    init();
+  });
