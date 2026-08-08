@@ -1,8 +1,6 @@
 const { ipcMain } = require("electron");
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
-const common = require("../common");
-const db = new sqlite3.Database(common.getdbFilePath());
+const { getDatabase } = require("../database/connection");
+const db = getDatabase();
 
 ipcMain.handle("get-rehabilitation-aids", async () => {
   return new Promise((resolve, reject) => {
@@ -58,6 +56,7 @@ ipcMain.handle("add-rehabilitation-aids", async (event, name, moredetail) => {
     "INSERT INTO rehabilitation_aids (name, moredetail) VALUES (?, ?)"
   );
   const result = stmt.run(name, moredetail);
+  stmt.finalize();
   return result.lastInsertRowid;
 });
 
@@ -68,6 +67,7 @@ ipcMain.handle(
       "UPDATE rehabilitation_aids SET name = ? , moredetail = ? WHERE id = ?"
     );
     const result = stmt.run(name, moredetail, id);
+    stmt.finalize();
     return result.changes;
   }
 );
@@ -75,5 +75,6 @@ ipcMain.handle(
 ipcMain.handle("delete-rehabilitation-aids-by-id", async (event, id) => {
   const stmt = db.prepare("DELETE FROM rehabilitation_aids WHERE id = ?");
   const result = stmt.run(id);
+  stmt.finalize();
   return result.changes;
 });

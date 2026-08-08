@@ -3,27 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>Pending Patients</title>
+    <title>Patient History</title>
   </head>
 
   <body>
     <div class="form-container">
-      <div class="d-flex justify-content-end">
-        <button id="btnClearPendingPatientsModal" class="btn btn-primary mt-1">
-          Clear All Pending Patients
-        </button>
-      </div>
       <form>
         <div class="row m-1">
-          <table id="pendingPatientTable" class="display" style="width: 100%">
+          <table id="patientHistoryTable" class="display" style="width: 100%">
             <thead>
               <tr>
                 <th>MR Number</th>
                 <th>Name</th>
                 <th>Age</th>
-                <th>Date</th>
-                <th>Is Printed</th>
+                <th>Last Visit</th>
+                <th>Visits</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -33,7 +27,7 @@
         <div class="row m-1 align-items-center">
           <div class="col-md-6">
             <label class="me-2">Show</label>
-            <select id="pendingPageSize" class="form-select form-select-sm d-inline-block w-auto">
+            <select id="historyPageSize" class="form-select form-select-sm d-inline-block w-auto">
               <option value="10">10</option>
               <option value="25">25</option>
               <option value="50">50</option>
@@ -41,15 +35,14 @@
             </select>
             <span class="ms-2">entries</span>
           </div>
-          <div class="col-md-6 text-end" id="pendingPatientsPager"></div>
+          <div class="col-md-6 text-end" id="patientHistoryPager"></div>
         </div>
         <div class="row m-1">
-          <div class="col-12" id="pendingPatientsInfo"></div>
+          <div class="col-12" id="patientHistoryInfo"></div>
         </div>
       </form>
     </div>
 
-    
-      <script src="./scripts/views/pending-patients.js"></script>
+    <script src="./scripts/views/patient-history.js"></script>
   </body>
 </html>

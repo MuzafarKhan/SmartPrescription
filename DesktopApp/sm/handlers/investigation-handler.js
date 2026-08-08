@@ -1,8 +1,6 @@
 const { ipcMain } = require("electron");
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
-const common = require("../common");
-const db = new sqlite3.Database(common.getdbFilePath());
+const { getDatabase } = require("../database/connection");
+const db = getDatabase();
 
 ipcMain.handle("get-investigation", async () => {
   return new Promise((resolve, reject) => {
@@ -60,6 +58,7 @@ ipcMain.handle(
       "INSERT INTO investigation (name, isPrintableOnPrescription) VALUES (?, ?)"
     );
     const result = stmt.run(name, isPrintableOnPrescription);
+    stmt.finalize();
     return result.lastInsertRowid;
   }
 );
@@ -71,6 +70,7 @@ ipcMain.handle(
       "UPDATE investigation SET name = ? , isPrintableOnPrescription = ? WHERE id = ?"
     );
     const result = stmt.run(name, isPrintableOnPrescription, id);
+    stmt.finalize();
     return result.changes;
   }
 );
@@ -78,5 +78,6 @@ ipcMain.handle(
 ipcMain.handle("delete-investigation-by-id", async (event, id) => {
   const stmt = db.prepare("DELETE FROM investigation WHERE id = ?");
   const result = stmt.run(id);
+  stmt.finalize();
   return result.changes;
 });

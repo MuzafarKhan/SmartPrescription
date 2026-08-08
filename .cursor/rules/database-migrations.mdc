@@ -1,6 +1,6 @@
 ---
 description: Record SQLite schema changes as migration files; never inline DDL in handlers
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Database schema changes

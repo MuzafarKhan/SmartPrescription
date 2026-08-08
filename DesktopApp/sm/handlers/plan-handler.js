@@ -1,8 +1,6 @@
 const { ipcMain } = require("electron");
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
-const common = require("../common");
-const db = new sqlite3.Database(common.getdbFilePath());
+const { getDatabase } = require("../database/connection");
+const db = getDatabase();
 
 ipcMain.handle("get-plan", async () => {
   return new Promise((resolve, reject) => {
@@ -56,17 +54,20 @@ ipcMain.handle("get-plan-by-id", async (event, id) => {
 ipcMain.handle("add-plan", async (event, name) => {
   const stmt = db.prepare("INSERT INTO plan (name) VALUES (?)");
   const result = stmt.run(name);
+  stmt.finalize();
   return result.lastInsertRowid;
 });
 
 ipcMain.handle("update-plan", async (event, id, name) => {
   const stmt = db.prepare("UPDATE plan SET name = ? WHERE id = ?");
   const result = stmt.run(name, id);
+  stmt.finalize();
   return result.changes;
 });
 
 ipcMain.handle("delete-plan-by-id", async (event, id) => {
   const stmt = db.prepare("DELETE FROM plan WHERE id = ?");
   const result = stmt.run(id);
+  stmt.finalize();
   return result.changes;
 });

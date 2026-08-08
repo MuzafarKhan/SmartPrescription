@@ -66,16 +66,59 @@ $(document).ready(async function () {
 
     const randomId = Math.floor(Math.random() * 10000000);
     $("#hdnPrescriptionUniqueId").val(randomId);
-    //Load Full Patient Prescription_____________________________________________________
+
+    const historyPatient = $("#content").data("historyPatient");
+    $("#content").data("historyPatient", null);
+
     const prescriptionUniqueId = $("#content").data("prescriptionUniqueId");
     $("#content").data("prescriptionUniqueId", "");
 
     if (prescriptionUniqueId) {
       $("#hdnPrescriptionUniqueId").val(prescriptionUniqueId);
-      const allPatients = JSON.parse(localStorage.getItem("allPatients")) || {};
-      var patientData = allPatients[prescriptionUniqueId];
-      await populateFullPatientPrescription(patientData.patientInformation);
+      const patientData = await window.electronAPI.getPendingPatientById(
+        prescriptionUniqueId
+      );
+      if (patientData?.patientInformation) {
+        await populateFullPatientPrescription(patientData.patientInformation);
+        await ensureMrNumberDisplayed();
+      }
+    } else if (historyPatient) {
+      $("#txtMrNumber").val(historyPatient.mrNumber || "");
+      $("#txtName").val(historyPatient.patientname || "");
+      $("#txtAge").val(historyPatient.patientage || "");
+      const sectionLoadPromises = [
+        new Promise((resolve) => {
+          $("#chief-complaint-section").load(
+            "./sections/chief-complaint-section.html",
+            resolve
+          );
+        }),
+        new Promise((resolve) => {
+          $("#medicine-section").load(
+            "./sections/medicine-section.html",
+            resolve
+          );
+        }),
+        new Promise((resolve) => {
+          $("#rehabilitation-aids-section").load(
+            "./sections/rehabilitation-aids-section.html",
+            resolve
+          );
+        }),
+        new Promise((resolve) => {
+          $("#patient-instruction-section").load(
+            "./sections/patient-instruction-section.html",
+            resolve
+          );
+        }),
+      ];
+      await Promise.all(sectionLoadPromises);
+      addNewComplaintRow();
+      addNewMedicineRow();
+      addNewRehabilitationAidRow();
+      addNewPatientInstructionRow();
     } else {
+      await ensureMrNumberDisplayed();
       // NEW: Create a promise that resolves when all sections are loaded
       const sectionLoadPromises = [
         new Promise((resolve) => {
@@ -234,8 +277,8 @@ $(document).ready(async function () {
 
     $("#printPrescription").on("click", async function () {
       let prescriptionData = await getPrescriptionData(true);
-      await savePendingPatient(true);
       if (validatePrescriptionData(prescriptionData)) {
+        await completePrescription(prescriptionData);
         openPrintData(prescriptionData, false, true);
         common.fillPatientCountBubble();
       }
@@ -253,8 +296,8 @@ $(document).ready(async function () {
 
         try {
           let prescriptionData = await getPrescriptionData(true);
-          await savePendingPatient(true);
           if (validatePrescriptionData(prescriptionData)) {
+            await completePrescription(prescriptionData);
             await openPrintData(prescriptionData, true, true);
           }
         } finally {
@@ -272,8 +315,8 @@ $(document).ready(async function () {
 
         try {
           let prescriptionData = await getPrescriptionData(true);
-          await savePendingPatient(true);
           if (validatePrescriptionData(prescriptionData)) {
+            await completePrescription(prescriptionData);
             await openPrintData(prescriptionData, true, false);
           }
         } finally {
@@ -381,6 +424,7 @@ $(document).ready(async function () {
     var prescriptionData = {
       patientInformation: {
         isPrinted: isPrinted,
+        mrNumber: $("#txtMrNumber").val() ? $("#txtMrNumber").val() : "",
         prescriptionUniqueId: $("#hdnPrescriptionUniqueId").val(),
         patientname: $("#txtName").val() ? $("#txtName").val() : "",
         patientage: $("#txtAge").val() ? $("#txtAge").val() : "",
@@ -678,6 +722,22 @@ $(document).ready(async function () {
     populatePlan(patientData.selectedPlan);
   }
 
+  async function ensureMrNumberDisplayed() {
+    if ($("#txtMrNumber").val()?.trim()) {
+      return;
+    }
+
+    try {
+      const { mrNumber } = await window.electronAPI.peekNextMrNumber();
+      $("#txtMrNumber").val(mrNumber);
+    } catch (error) {
+      console.error("Failed to allocate MR number:", error);
+      common.showErrorMessage(
+        "MR number could not be generated. Run database migration and restart the app."
+      );
+    }
+  }
+
   async function savePendingPatient(isPrinted) {
     try {
       const currentPatient = await getPrescriptionData(isPrinted);
@@ -688,16 +748,12 @@ $(document).ready(async function () {
       const patientname = currentPatient.patientInformation.patientname?.trim();
 
       if (prescriptionUniqueId && patientname) {
-        // Get existing patients or initialize empty object
-        const allPatients =
-          JSON.parse(localStorage.getItem("allPatients")) || {};
-
-        // Add/update current patient data
-        allPatients[prescriptionUniqueId] = currentPatient;
-
-        // Save back to localStorage
-        localStorage.setItem("allPatients", JSON.stringify(allPatients));
-
+        const result = await window.electronAPI.savePendingPatient(currentPatient);
+        if (result?.mrNumber) {
+          $("#txtMrNumber").val(result.mrNumber);
+          currentPatient.patientInformation.mrNumber = result.mrNumber;
+        }
+        common.fillPatientCountBubble();
         console.log(`Saved data for patient: ${prescriptionUniqueId}`);
       }
     } catch (error) {
@@ -705,7 +761,15 @@ $(document).ready(async function () {
     }
   }
 
+  async function completePrescription(prescriptionData) {
+    const result = await window.electronAPI.completePrescription(prescriptionData);
+    if (result?.mrNumber) {
+      $("#txtMrNumber").val(result.mrNumber);
+    }
+  }
+
   function populatePatientDetails(patientData) {
+    $("#txtMrNumber").val(patientData.mrNumber || "");
     $("#txtName").val(patientData.patientname);
     $("#txtAge").val(patientData.patientage);
     $("#txtDate").val(patientData.checkupDate);

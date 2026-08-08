@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "build": "electron-builder",
-    "migrate": "node database/migrate.js"
+    "migrate": "node database/migrate.js",
+    "vacuum": "node database/vacuum-if-needed.js"
   },
   "author": "",
   "license": "ISC",

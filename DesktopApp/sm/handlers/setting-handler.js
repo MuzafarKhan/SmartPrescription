@@ -1,9 +1,9 @@
 const { ipcMain, dialog, BrowserWindow } = require("electron");
-const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
-const common = require("../common");
-const db = new sqlite3.Database(common.getdbFilePath());
 const fs = require("fs");
+const common = require("../common");
+const { getDatabase, compactDatabase, getFreeBytes } = require("../database/connection");
+const db = getDatabase();
 
 ipcMain.handle("get-settings", async () => {
   return new Promise((resolve, reject) => {
@@ -219,7 +219,11 @@ function getErrorStage() {
   if (!console.log.toString().includes("log 5")) return "fetching-printers";
   return "print-dialog";
 }
-// Close the database when the app exits
-process.on("exit", () => {
-  db.close();
+ipcMain.handle("get-database-free-space", async () => {
+  const freeBytes = await getFreeBytes();
+  return { freeBytes };
+});
+
+ipcMain.handle("compact-database", async () => {
+  return compactDatabase();
 });

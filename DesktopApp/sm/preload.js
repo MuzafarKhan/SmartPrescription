@@ -130,4 +130,26 @@ contextBridge.exposeInMainWorld("electronAPI", {
   printDirect: (options) => ipcRenderer.invoke("print-direct", options),
 
   login: (username, password) => ipcRenderer.invoke("login", username, password),
+
+  savePendingPatient: (prescriptionData) =>
+    ipcRenderer.invoke("save-pending-patient", prescriptionData),
+  getPendingPatients: (options) =>
+    ipcRenderer.invoke("get-pending-patients", options),
+  getPendingPatientById: (prescriptionUniqueId) =>
+    ipcRenderer.invoke("get-pending-patient-by-id", prescriptionUniqueId),
+  deletePendingPatient: (prescriptionUniqueId) =>
+    ipcRenderer.invoke("delete-pending-patient", prescriptionUniqueId),
+  clearPendingPatients: () => ipcRenderer.invoke("clear-pending-patients"),
+  getPendingPatientCount: () => ipcRenderer.invoke("get-pending-patient-count"),
+
+  allocateMrNumber: () => ipcRenderer.invoke("peek-next-mr-number"),
+  peekNextMrNumber: () => ipcRenderer.invoke("peek-next-mr-number"),
+  completePrescription: (prescriptionData) =>
+    ipcRenderer.invoke("complete-prescription", prescriptionData),
+  getPatientHistory: (options) => ipcRenderer.invoke("get-patient-history", options),
+  getPatientVisits: (mrNumber) => ipcRenderer.invoke("get-patient-visits", mrNumber),
+  getPatientVisitById: (visitId) => ipcRenderer.invoke("get-patient-visit-by-id", visitId),
+
+  getDatabaseFreeSpace: () => ipcRenderer.invoke("get-database-free-space"),
+  compactDatabase: () => ipcRenderer.invoke("compact-database"),
 });

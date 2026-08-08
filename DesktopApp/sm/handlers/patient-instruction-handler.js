@@ -1,8 +1,6 @@
 const { ipcMain } = require("electron");
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
-const common = require("../common");
-const db = new sqlite3.Database(common.getdbFilePath());
+const { getDatabase } = require("../database/connection");
+const db = getDatabase();
 
 ipcMain.handle("get-patient-instruction", async () => {
   return new Promise((resolve, reject) => {
@@ -58,6 +56,7 @@ ipcMain.handle("add-patient-instruction", async (event, title, detail) => {
     "INSERT INTO patient_instruction (title, detail) VALUES (?, ?)"
   );
   const result = stmt.run(title, detail);
+  stmt.finalize();
   return result.lastInsertRowid;
 });
 
@@ -68,6 +67,7 @@ ipcMain.handle(
       "UPDATE patient_instruction SET title = ?, detail = ? WHERE id = ?"
     );
     const result = stmt.run(title, detail, id);
+    stmt.finalize();
     return result.changes;
   }
 );
@@ -75,5 +75,6 @@ ipcMain.handle(
 ipcMain.handle("delete-patient-instruction-by-id", async (event, id) => {
   const stmt = db.prepare("DELETE FROM patient_instruction WHERE id = ?");
   const result = stmt.run(id);
+  stmt.finalize();
   return result.changes;
 });

@@ -1,8 +1,7 @@
 const { ipcMain } = require("electron");
-const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
-const common = require("../common");
-const db = new sqlite3.Database(common.getdbFilePath());
+const { getDatabase } = require("../database/connection");
+const db = getDatabase();
 
 ipcMain.handle("get-chief-complaint", async () => {
   return new Promise((resolve, reject) => {
@@ -58,6 +57,7 @@ ipcMain.handle("add-chief-complaint", async (event, complaint) => {
     "INSERT INTO chief_complaints (complaint) VALUES (?)"
   );
   const result = stmt.run(complaint);
+  stmt.finalize();
   return result.lastInsertRowid;
 });
 
@@ -67,11 +67,13 @@ ipcMain.handle("update-chief-complaint", async (event, id, complaint) => {
     "UPDATE chief_complaints SET complaint = ? WHERE id = ?"
   );
   const result = stmt.run(complaint, id);
+  stmt.finalize();
   return result.changes;
 });
 
 ipcMain.handle("delete-chief-complaint-by-id", async (event, id) => {
   const stmt = db.prepare("DELETE FROM chief_complaints WHERE id = ?");
   const result = stmt.run(id);
+  stmt.finalize();
   return result.changes;
 });

@@ -204,6 +204,19 @@
           </div>
         </div>
       </div>
+      <div class="section-container">
+        <div class="section-header">Database Maintenance</div>
+        <div class="section-body">
+          <p class="text-muted mb-2">
+            After deleting many pending patients, the database file may stay large.
+            Use this to reclaim unused disk space.
+          </p>
+          <p id="databaseFreeSpaceInfo" class="mb-3"></p>
+          <button type="button" id="btnCompactDatabase" class="btn btn-warning">
+            Clean Database File
+          </button>
+        </div>
+      </div>
     </div>
     <!-- Save Prescription -->
     <div class="sticky-footer">

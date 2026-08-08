@@ -75,6 +75,10 @@ function loadPageContent(page, tableId, pageNumber) {
       break;
     case "pending-patients":
       $("#content").load("./views/pending-patients.html");
+      break;
+    case "patient-history":
+      $("#content").load("./views/patient-history.html");
+      break;
     default:
       $("#content").html("<h1>Page Not Found</h1>");
   }

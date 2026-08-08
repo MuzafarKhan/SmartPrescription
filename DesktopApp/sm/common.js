@@ -312,13 +312,27 @@ const common = {
     var tableId = localStorage.getItem("tableId");
     var lastSelectedPage = localStorage.getItem("lastSelectedPage");
     localStorage.removeItem("lastSelectedPage");
+    localStorage.removeItem("tableId");
     return { tableId, lastSelectedPage };
   },
   refreshTablePaging() {
-    var lastSelectedPage = common.getAndDeletePageNumber();
-    if (lastSelectedPage) {
-      const tableReloaded = $("#" + lastSelectedPage.tableId).DataTable();
-      tableReloaded.page(Number(lastSelectedPage.lastSelectedPage)).draw(false);
+    var saved = common.getAndDeletePageNumber();
+    if (
+      !saved.tableId ||
+      saved.lastSelectedPage === null ||
+      saved.lastSelectedPage === ""
+    ) {
+      return;
+    }
+
+    const table = $("#" + saved.tableId).DataTable();
+    const pageNumber = Number(saved.lastSelectedPage);
+    const isServerSide = table.settings()[0].oFeatures.bServerSide;
+
+    if (isServerSide) {
+      table.page(pageNumber).draw("page");
+    } else {
+      table.page(pageNumber).draw(false);
     }
   },
 
@@ -387,15 +401,14 @@ const common = {
   },
 
   fillPatientCountBubble() {
-    const allPatients = JSON.parse(localStorage.getItem("allPatients")) || {};
-    const patientsArray = Object.values(allPatients);
-    const patientsCount = patientsArray.length;
-    if (patientsCount > 0) {
-      $("#pendingPatientCountBubble").text(patientsCount);
-      $("#pendingPatientCountBubble").removeClass("hidden");
-    } else {
-      $("#pendingPatientCountBubble").addClass("hidden");
-    }
+    window.electronAPI.getPendingPatientCount().then((patientsCount) => {
+      if (patientsCount > 0) {
+        $("#pendingPatientCountBubble").text(patientsCount);
+        $("#pendingPatientCountBubble").removeClass("hidden");
+      } else {
+        $("#pendingPatientCountBubble").addClass("hidden");
+      }
+    });
   },
 
   getnastaleeqFontCSS() {

@@ -1,8 +1,7 @@
 const { ipcMain } = require("electron");
-const sqlite3 = require("sqlite3").verbose();
-const common = require("../common");
+const { getDatabase } = require("../database/connection");
 
-const db = new sqlite3.Database(common.getdbFilePath());
+const db = getDatabase();
 
 ipcMain.handle("login", async (event, username, password) => {
   return new Promise((resolve, reject) => {
@@ -20,8 +19,4 @@ ipcMain.handle("login", async (event, username, password) => {
       }
     });
   });
-});
-
-process.on("exit", () => {
-  db.close();
 });

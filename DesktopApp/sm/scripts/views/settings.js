@@ -94,6 +94,47 @@ $(document).ready(function () {
       }
     });
     init();
+    loadDatabaseFreeSpaceInfo();
+
+    $("#btnCompactDatabase")
+      .off("click")
+      .on("click", async function () {
+        const confirm = await Swal.fire({
+          title: "Clean database file?",
+          text: "This compacts the database and reclaims unused space. It may take a moment on large files.",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Yes, clean it",
+          cancelButtonText: "Cancel",
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        Swal.fire({
+          title: "Cleaning...",
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading(),
+        });
+
+        try {
+          const result = await window.electronAPI.compactDatabase();
+          const reclaimedMb = ((result.freeBytes || 0) / (1024 * 1024)).toFixed(1);
+          await Swal.fire({
+            title: result.vacuumed ? "Done" : "Already compact",
+            text: result.vacuumed
+              ? `Reclaimed ~${reclaimedMb} MB of disk space.`
+              : "No significant unused space was found.",
+            icon: "success",
+          });
+          loadDatabaseFreeSpaceInfo();
+        } catch (error) {
+          Swal.fire({
+            title: "Failed",
+            text: error.message || "Could not compact the database.",
+            icon: "error",
+          });
+        }
+      });
   });
 
   function addTranslationsRow() {
@@ -115,6 +156,20 @@ $(document).ready(function () {
   async function init() {
     await getSettings();
     await getTranslations();
+  }
+
+  async function loadDatabaseFreeSpaceInfo() {
+    try {
+      const { freeBytes } = await window.electronAPI.getDatabaseFreeSpace();
+      const freeMb = (freeBytes / (1024 * 1024)).toFixed(1);
+      if (freeBytes >= 1024 * 1024) {
+        $("#databaseFreeSpaceInfo").text(`Reclaimable space: ~${freeMb} MB`);
+      } else {
+        $("#databaseFreeSpaceInfo").text("Database file is already compact.");
+      }
+    } catch (error) {
+      $("#databaseFreeSpaceInfo").text("");
+    }
   }
 
   async function getSettings() {
