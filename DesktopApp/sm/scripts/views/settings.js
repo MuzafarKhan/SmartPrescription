@@ -69,6 +69,8 @@ $(document).ready(function () {
           ? 1
           : 0,
         appZoomLevel: Number($("#selectAppZoomLevel").val()) || 100,
+        patientHistoryRetention:
+          Number($("#txtPatientHistoryRetention").val()) || 3,
       };
 
       // Array to store translations data
@@ -101,7 +103,8 @@ $(document).ready(function () {
           settings.defaultPrescriptionPrinterName,
           settings.defaultThermalPrinterName,
           settings.alwaysAskCredentials,
-          settings.appZoomLevel
+          settings.appZoomLevel,
+          settings.patientHistoryRetention
         );
         await savetranslations(translations);
         await common.refreshSettings();
@@ -233,6 +236,10 @@ $(document).ready(function () {
       const zoomLevel = setting[0].appZoomLevel || 100;
       $("#selectAppZoomLevel").val(String(zoomLevel));
 
+      $("#txtPatientHistoryRetention").val(
+        String(setting[0].patientHistoryRetention || 3)
+      );
+
       if (setting[0].defaultdate)
         toggleInputs("txtDefaultDate", "selectDefaultDay");
       else toggleInputs("selectDefaultDay", "txtDefaultDate");
@@ -295,7 +302,8 @@ $(document).ready(function () {
     defaultPrescriptionPrinterName,
     defaultThermalPrinterName,
     alwaysAskCredentials,
-    appZoomLevel
+    appZoomLevel,
+    patientHistoryRetention
   ) {
     const results = await window.electronAPI.updateSettings(
       defaultdate,
@@ -309,7 +317,8 @@ $(document).ready(function () {
       defaultPrescriptionPrinterName,
       defaultThermalPrinterName,
       alwaysAskCredentials,
-      appZoomLevel
+      appZoomLevel,
+      patientHistoryRetention
     );
   }
 

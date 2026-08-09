@@ -127,6 +127,48 @@ function buildPatientSearchClause(search) {
   };
 }
 
+const VISIT_DATE_ORDER_SQL =
+  "substr(visit_date, 7, 4) || substr(visit_date, 4, 2) || substr(visit_date, 1, 2) DESC, id DESC";
+
+async function getPatientHistoryRetentionLimit() {
+  const row = await runGet(
+    "SELECT patientHistoryRetention FROM settings ORDER BY id DESC LIMIT 1"
+  );
+  const value = Number(row?.patientHistoryRetention);
+  if (!Number.isFinite(value) || value < 1) {
+    return 3;
+  }
+  return Math.min(Math.max(Math.floor(value), 1), 10);
+}
+
+async function trimPatientHistory(mrNumber, retentionLimit) {
+  if (!mrNumber || retentionLimit < 1) {
+    return;
+  }
+
+  await runExec(
+    `DELETE FROM patient_history
+     WHERE mr_number = ?
+     AND id IN (
+       SELECT id FROM (
+         SELECT id FROM patient_history
+         WHERE mr_number = ?
+         ORDER BY ${VISIT_DATE_ORDER_SQL}
+         LIMIT -1 OFFSET ?
+       )
+     )`,
+    [mrNumber, mrNumber, retentionLimit]
+  );
+
+  await runExec(
+    `UPDATE patients SET
+       visit_count = (SELECT COUNT(*) FROM patient_history WHERE mr_number = ?),
+       updated_at = datetime('now')
+     WHERE mr_number = ?`,
+    [mrNumber, mrNumber]
+  );
+}
+
 ipcMain.handle("peek-next-mr-number", async () => {
   const mrNumber = await peekNextMrNumber();
   return { mrNumber };
@@ -230,6 +272,9 @@ ipcMain.handle("complete-prescription", async (event, prescriptionData) => {
       "DELETE FROM pending_patients WHERE prescription_unique_id = ?",
       [prescriptionUniqueId]
     );
+
+    const retentionLimit = await getPatientHistoryRetentionLimit();
+    await trimPatientHistory(mrNumber, retentionLimit);
 
     await runExec("COMMIT");
     return { success: true, mrNumber };

@@ -48,11 +48,12 @@ ipcMain.handle(
     defaultPrescriptionPrinterName,
     defaultThermalPrinterName,
     alwaysAskCredentials = 1,
-    appZoomLevel = 100
+    appZoomLevel = 100,
+    patientHistoryRetention = 3
   ) => {
     return new Promise((resolve, reject) => {
       const stmt = db.prepare(
-        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?, defaultfollowupunit = ?, defaultfollowupduration = ?, investigationDetailValues = ?, surgeryDetailValues = ?, defaultPrescriptionPrinterName = ? , defaultThermalPrinterName = ?, alwaysAskCredentials = ?, appZoomLevel = ?"
+        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?, defaultfollowupunit = ?, defaultfollowupduration = ?, investigationDetailValues = ?, surgeryDetailValues = ?, defaultPrescriptionPrinterName = ? , defaultThermalPrinterName = ?, alwaysAskCredentials = ?, appZoomLevel = ?, patientHistoryRetention = ?"
       );
       stmt.run(
         [
@@ -68,6 +69,7 @@ ipcMain.handle(
           defaultThermalPrinterName,
           alwaysAskCredentials ? 1 : 0,
           Math.min(Math.max(Number(appZoomLevel) || 100, 50), 200),
+          Math.min(Math.max(Number(patientHistoryRetention) || 3, 1), 10),
         ],
         function (err) {
           stmt.finalize(); // Clean up the statement

@@ -1,0 +1,1 @@
+ALTER TABLE settings ADD COLUMN patientHistoryRetention INTEGER NOT NULL DEFAULT 3;
