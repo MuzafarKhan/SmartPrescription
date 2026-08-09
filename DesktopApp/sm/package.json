@@ -1,17 +1,19 @@
 {
-  "name": "sm",
+  "name": "smart-prescription",
   "version": "1.0.0",
+  "description": "Smart Prescription desktop app for clinical prescription management",
   "main": "main.js",
+  "author": "Smart Prescription",
+  "license": "ISC",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
-    "build": "electron-builder",
+    "build": "electron-builder --win",
+    "build:dir": "electron-builder --win --dir",
     "migrate": "node database/migrate.js",
-    "vacuum": "node database/vacuum-if-needed.js"
+    "vacuum": "node database/vacuum-if-needed.js",
+    "postinstall": "electron-builder install-app-deps"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
@@ -25,25 +27,49 @@
     "sequelize-cli": "^6.6.2",
     "sqlite3": "^5.1.7"
   },
-  "files": [
-    "src/**/*",
-    "main.js",
-    "package.json"
-  ],
   "build": {
+    "appId": "com.smartprescription.desktop",
+    "productName": "Smart Prescription",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!**/*.md",
+      "!.git/**"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "**/*.node"
+    ],
     "extraResources": [
       {
         "from": "preData.db",
         "to": "preData.db"
+      },
+      {
+        "from": "database/migrations",
+        "to": "migrations"
       }
     ],
     "win": {
-      "target": "nsis",
-      "icon": "resources/icon.ico"
+      "target": [
+        "nsis"
+      ],
+      "icon": "resources/icon.ico",
+      "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "installerIcon": "resources/icon.ico",
+      "uninstallerIcon": "resources/icon.ico",
+      "installerHeaderIcon": "resources/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Smart Prescription"
     }
   }
 }

@@ -57,10 +57,407 @@
     ];
   }
 
+  function escapeHtml(value) {
+    return common.escapeHtml(value);
+  }
+
   function escapeHtmlAttr(value) {
     return String(value || "")
       .replace(/\\/g, "\\\\")
       .replace(/'/g, "\\'");
+  }
+
+  function displayValue(value) {
+    const text = String(value ?? "").trim();
+    return text ? escapeHtml(text) : '<span class="text-muted">-</span>';
+  }
+
+  function buildVisitDetailSection(title, bodyHtml) {
+    if (!bodyHtml) {
+      return "";
+    }
+
+    return (
+      '<div class="visit-detail-section mb-3">' +
+      '<div class="visit-detail-section-title">' +
+      escapeHtml(title) +
+      "</div>" +
+      '<div class="visit-detail-section-body">' +
+      bodyHtml +
+      "</div></div>"
+    );
+  }
+
+  function formatComorbidities(comorbidities) {
+    if (!comorbidities || typeof comorbidities !== "object") {
+      return "";
+    }
+
+    const labels = {
+      dm: "DM",
+      htn: "HTN",
+      cva: "CVA",
+      cad: "CAD",
+      hepatitis: "HEPATITIS",
+      trauma: "TRAUMA",
+    };
+
+    const items = Object.entries(labels)
+      .map(([key, label]) => {
+        const positive = !!comorbidities[key];
+        return (
+          '<span class="visit-detail-chip ' +
+          (positive ? "visit-detail-chip-positive" : "visit-detail-chip-negative") +
+          '">' +
+          escapeHtml(label) +
+          " " +
+          (positive ? "+VE" : "-VE") +
+          "</span>"
+        );
+      })
+      .join("");
+
+    return items ? '<div class="visit-detail-chip-row">' + items + "</div>" : "";
+  }
+
+  function formatComplaints(complaints) {
+    if (!Array.isArray(complaints) || complaints.length === 0) {
+      return "";
+    }
+
+    const rows = complaints
+      .filter((item) => item?.complaint)
+      .map((item) => {
+        let duration = "";
+        if (item.duration && item.unit && item.duration !== "0" && item.duration !== 0) {
+          const unit = item.duration === "1" || item.duration === 1 ? item.unit : item.unit + "s";
+          duration = ` <span class="text-muted">(${escapeHtml(item.duration)} ${escapeHtml(unit)})</span>`;
+        }
+
+        return (
+          "<li>" + escapeHtml(item.complaint) + duration + "</li>"
+        );
+      });
+
+    return rows.length ? '<ul class="visit-detail-list mb-0">' + rows.join("") + "</ul>" : "";
+  }
+
+  function formatClinicalExam(exam) {
+    if (!exam || typeof exam !== "object") {
+      return "";
+    }
+
+    const rows = [
+      ["GCS", exam.gcs ? `${exam.gcs}/15` : ""],
+      ["BP", exam.bp],
+      ["Power UL", [exam.powerUL1, exam.powerUL2].filter(Boolean).join(" / ")],
+      ["Power LL", [exam.powerLL1, exam.powerLL2].filter(Boolean).join(" / ")],
+      ["Sensations", exam.sensations],
+      ["Reflexes", exam.reflexes],
+      ["SLR", exam.slr],
+      ["Sphincter", exam.sphincter],
+      ["Faber", exam.feber],
+      ["Phalen Sign", exam.PHALLENSIGN ? "+VE" : exam.PHALLENSIGN === false ? "-VE" : ""],
+      ["Tinnel Sign", exam.TINNELSIGN ? "+VE" : exam.TINNELSIGN === false ? "-VE" : ""],
+      ["Sperling Sign", exam.SPERLINGSIGN ? "+VE" : exam.SPERLINGSIGN === false ? "-VE" : ""],
+      ["Hoff Sign", exam.HOFFSIGN ? "+VE" : exam.HOFFSIGN === false ? "-VE" : ""],
+    ].filter(([, value]) => String(value ?? "").trim());
+
+    if (!rows.length) {
+      return "";
+    }
+
+    return (
+      '<div class="row g-2">' +
+      rows
+        .map(
+          ([label, value]) =>
+            '<div class="col-md-4 col-sm-6">' +
+            '<div class="visit-detail-kv"><span class="visit-detail-kv-label">' +
+            escapeHtml(label) +
+            '</span><span class="visit-detail-kv-value">' +
+            displayValue(value) +
+            "</span></div></div>"
+        )
+        .join("") +
+      "</div>"
+    );
+  }
+
+  function formatDiagnosisList(diagnosis) {
+    if (!Array.isArray(diagnosis) || diagnosis.length === 0) {
+      return "";
+    }
+
+    return (
+      '<ul class="visit-detail-list mb-0">' +
+      diagnosis.map((item) => "<li>" + escapeHtml(item) + "</li>").join("") +
+      "</ul>"
+    );
+  }
+
+  function formatInvestigations(investigations, investigationDetail) {
+    let html = "";
+
+    if (Array.isArray(investigations) && investigations.length > 0) {
+      const names = investigations
+        .map((item) => (Array.isArray(item) ? item[0] : item))
+        .filter(Boolean);
+
+      if (names.length) {
+        html +=
+          '<ul class="visit-detail-list mb-2">' +
+          names.map((name) => "<li>" + escapeHtml(name) + "</li>").join("") +
+          "</ul>";
+      }
+    }
+
+    if (investigationDetail && String(investigationDetail).trim()) {
+      html +=
+        '<div class="visit-detail-note"><strong>Details:</strong> ' +
+        displayValue(investigationDetail) +
+        "</div>";
+    }
+
+    return html;
+  }
+
+  function formatPlan(plan) {
+    if (!Array.isArray(plan) || plan.length === 0) {
+      return "";
+    }
+
+    return (
+      '<ul class="visit-detail-list mb-0">' +
+      plan.map((item) => "<li>" + escapeHtml(item) + "</li>").join("") +
+      "</ul>"
+    );
+  }
+
+  function formatMedicineTimings(medicine) {
+    if (medicine.timingType) {
+      return medicine.timingType;
+    }
+
+    const parts = [];
+    if (medicine.morning) parts.push("Morning");
+    if (medicine.afternoon) parts.push("Afternoon");
+    if (medicine.night) parts.push("Night");
+    return parts.join(", ");
+  }
+
+  function formatMedicineDuration(medicine) {
+    if (!medicine.durationnumber || !medicine.duration) {
+      return "";
+    }
+
+    const number = medicine.durationnumber;
+    const unit = medicine.duration;
+    const suffix =
+      number === "1" || number === 1 ? unit : String(unit).endsWith("s") ? unit : unit + "s";
+    return `${number} ${suffix}`;
+  }
+
+  function formatMedicines(medicines) {
+    if (!Array.isArray(medicines) || medicines.length === 0) {
+      return "";
+    }
+
+    const rows = medicines
+      .filter((medicine) => medicine?.medicinename)
+      .map((medicine) => {
+        const brandName = common.normalizeMedicineBrandName(medicine.medicinename);
+        const genericName = medicine.medicinegenericname || "";
+        const timings = formatMedicineTimings(medicine);
+        const duration = formatMedicineDuration(medicine);
+        const extra = medicine.moredetail ? `<div class="visit-detail-subtext">${escapeHtml(medicine.moredetail)}</div>` : "";
+
+        return (
+          "<tr>" +
+          "<td><strong>" +
+          escapeHtml(brandName) +
+          "</strong>" +
+          (genericName
+            ? '<div class="visit-detail-subtext">' + escapeHtml(genericName) + "</div>"
+            : "") +
+          extra +
+          "</td>" +
+          "<td>" +
+          displayValue(medicine.medicinetype) +
+          "</td>" +
+          "<td>" +
+          displayValue(timings) +
+          "</td>" +
+          "<td>" +
+          displayValue(duration) +
+          "</td>" +
+          "<td>" +
+          displayValue(medicine.quantity) +
+          "</td></tr>"
+        );
+      });
+
+    if (!rows.length) {
+      return "";
+    }
+
+    return (
+      '<div class="table-responsive">' +
+      '<table class="table table-sm table-bordered visit-detail-table mb-0">' +
+      "<thead><tr><th>Medicine</th><th>Type</th><th>Timings</th><th>Duration</th><th>Qty</th></tr></thead>" +
+      "<tbody>" +
+      rows.join("") +
+      "</tbody></table></div>"
+    );
+  }
+
+  function formatRehabilitationAids(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+      return "";
+    }
+
+    return (
+      '<ul class="visit-detail-list mb-0">' +
+      items
+        .filter((item) => item?.name)
+        .map((item) => {
+          const detail = item.moreDetail
+            ? ' <span class="text-muted">- ' + escapeHtml(item.moreDetail) + "</span>"
+            : "";
+          return "<li>" + escapeHtml(item.name) + detail + "</li>";
+        })
+        .join("") +
+      "</ul>"
+    );
+  }
+
+  function formatPatientInstructions(instructions) {
+    if (!Array.isArray(instructions) || instructions.length === 0) {
+      return "";
+    }
+
+    return instructions
+      .filter((item) => item?.title || item?.detail)
+      .map(
+        (item) =>
+          '<div class="visit-detail-instruction mb-2">' +
+          (item.title ? "<strong>" + escapeHtml(item.title) + "</strong>" : "") +
+          (item.detail ? '<div class="visit-detail-subtext">' + escapeHtml(item.detail) + "</div>" : "") +
+          "</div>"
+      )
+      .join("");
+  }
+
+  function formatSurgery(surgery) {
+    if (!surgery || typeof surgery !== "object") {
+      return "";
+    }
+
+    const procedures = [];
+    if (surgery.laminectomy) procedures.push("Laminectomy");
+    if (surgery.tpf) procedures.push("TPF");
+    if (surgery.craniotomy) procedures.push("Craniotomy");
+    if (surgery.vpshunt) procedures.push("VP Shunt");
+    if (surgery.mmc) procedures.push("MMC");
+
+    let html = "";
+    if (procedures.length) {
+      html +=
+        '<div class="mb-2"><strong>Procedures:</strong> ' +
+        escapeHtml(procedures.join(", ")) +
+        "</div>";
+    }
+
+    if (surgery.unitsurgery || surgery.durationsurgery) {
+      html +=
+        '<div class="mb-2"><strong>Post-op duration:</strong> ' +
+        displayValue(
+          [surgery.durationsurgery, surgery.unitsurgery].filter(Boolean).join(" ")
+        ) +
+        "</div>";
+    }
+
+    if (surgery.patientSurgeryFurtherDetail) {
+      html +=
+        '<div class="visit-detail-note">' +
+        displayValue(surgery.patientSurgeryFurtherDetail) +
+        "</div>";
+    }
+
+    return html;
+  }
+
+  function formatFollowUp(duration, unit) {
+    if (!duration && !unit) {
+      return "";
+    }
+
+    return displayValue([duration, unit].filter(Boolean).join(" "));
+  }
+
+  function buildVisitDetailHtml(visit) {
+    const sections = [
+      buildVisitDetailSection("Comorbidities", formatComorbidities(visit.comorbidities)),
+      buildVisitDetailSection("Chief Complaints", formatComplaints(visit.complaints)),
+      buildVisitDetailSection("Clinical Examination", formatClinicalExam(visit.clinicalExam)),
+      buildVisitDetailSection("Diagnosis", formatDiagnosisList(visit.diagnosis)),
+      buildVisitDetailSection(
+        "Investigations",
+        formatInvestigations(visit.investigations, visit.investigationDetail)
+      ),
+      buildVisitDetailSection("Plan", formatPlan(visit.plan)),
+      buildVisitDetailSection("Medicines", formatMedicines(visit.medicines)),
+      buildVisitDetailSection(
+        "Rehabilitation Aids",
+        formatRehabilitationAids(visit.rehabilitationAids)
+      ),
+      buildVisitDetailSection(
+        "Patient Instructions",
+        formatPatientInstructions(visit.patientInstructions)
+      ),
+      buildVisitDetailSection("Surgery / Post-op", formatSurgery(visit.surgery)),
+      buildVisitDetailSection(
+        "Follow Up",
+        formatFollowUp(visit.followupDuration, visit.followupUnit)
+      ),
+    ].filter(Boolean);
+
+    return (
+      '<style>' +
+      ".visit-detail-wrap{max-height:70vh;overflow-y:auto;text-align:left;padding-right:4px;}" +
+      ".visit-detail-header{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding:12px;background:#f8f9fa;border:1px solid #dee2e6;border-radius:8px;}" +
+      ".visit-detail-header-item{min-width:120px;}" +
+      ".visit-detail-header-label{display:block;font-size:12px;color:#6c757d;text-transform:uppercase;letter-spacing:.03em;}" +
+      ".visit-detail-header-value{font-size:15px;font-weight:600;color:#212529;}" +
+      ".visit-detail-section{border:1px solid #e9ecef;border-radius:8px;overflow:hidden;}" +
+      ".visit-detail-section-title{background:#eef2f7;padding:8px 12px;font-weight:600;font-size:14px;border-bottom:1px solid #e9ecef;}" +
+      ".visit-detail-section-body{padding:12px;}" +
+      ".visit-detail-list{padding-left:18px;margin-bottom:0;}" +
+      ".visit-detail-list li{margin-bottom:4px;}" +
+      ".visit-detail-chip-row{display:flex;flex-wrap:wrap;gap:8px;}" +
+      ".visit-detail-chip{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:600;}" +
+      ".visit-detail-chip-positive{background:#d1e7dd;color:#0f5132;}" +
+      ".visit-detail-chip-negative{background:#f8f9fa;color:#495057;border:1px solid #dee2e6;}" +
+      ".visit-detail-kv{background:#f8f9fa;border:1px solid #edf0f2;border-radius:6px;padding:8px;height:100%;}" +
+      ".visit-detail-kv-label{display:block;font-size:11px;color:#6c757d;text-transform:uppercase;margin-bottom:2px;}" +
+      ".visit-detail-kv-value{font-size:13px;font-weight:600;color:#212529;}" +
+      ".visit-detail-subtext{font-size:12px;color:#6c757d;margin-top:2px;}" +
+      ".visit-detail-note{font-size:13px;line-height:1.5;}" +
+      ".visit-detail-table th{font-size:12px;white-space:nowrap;}" +
+      ".visit-detail-instruction{padding:8px 10px;background:#f8f9fa;border-radius:6px;}" +
+      "</style>" +
+      '<div class="visit-detail-wrap">' +
+      '<div class="visit-detail-header">' +
+      '<div class="visit-detail-header-item"><span class="visit-detail-header-label">MR Number</span><span class="visit-detail-header-value">' +
+      displayValue(visit.mrNumber) +
+      '</span></div><div class="visit-detail-header-item"><span class="visit-detail-header-label">Visit Date</span><span class="visit-detail-header-value">' +
+      displayValue(visit.visitDate) +
+      '</span></div><div class="visit-detail-header-item"><span class="visit-detail-header-label">Age</span><span class="visit-detail-header-value">' +
+      displayValue(visit.patientAge) +
+      "</span></div></div>" +
+      (sections.length ? sections.join("") : '<p class="text-muted mb-0">No detailed visit data saved.</p>') +
+      "</div>"
+    );
   }
 
   function updateSortIndicators() {
@@ -306,23 +703,10 @@
         return;
       }
 
-      const medicineLines = (visit.medicines || [])
-        .map((m) => m.medicinename)
-        .filter(Boolean)
-        .slice(0, 10)
-        .join(", ");
-
       Swal.fire({
-        title: `${visit.mrNumber} — ${visit.visitDate}`,
-        width: 700,
-        html: `
-          <p><strong>Age:</strong> ${visit.patientAge || "-"}</p>
-          <p><strong>Diagnosis:</strong> ${(visit.diagnosis || []).join(", ") || "-"}</p>
-          <p><strong>Complaints:</strong> ${(visit.complaints || []).map((c) => c.complaint).filter(Boolean).join(", ") || "-"}</p>
-          <p><strong>Medicines:</strong> ${medicineLines || "-"}</p>
-          <p><strong>GCS / BP:</strong> ${visit.clinicalExam?.gcs || "-"} / ${visit.clinicalExam?.bp || "-"}</p>
-          <p><strong>Follow up:</strong> ${visit.followupDuration || "-"} ${visit.followupUnit || ""}</p>
-        `,
+        title: "Visit Details",
+        width: 920,
+        html: buildVisitDetailHtml(visit),
         confirmButtonText: "Close",
       });
     } catch (error) {

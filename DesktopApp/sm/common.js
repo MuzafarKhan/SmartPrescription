@@ -75,9 +75,25 @@ const common = {
   },
   getdbFilePath() {
     const path = require("path");
+    const fs = require("fs");
 
-    return path.join(__dirname, "preData.db"); // Use for dev
-    //return path.join(process.resourcesPath, "preData.db"); // Use for release
+    try {
+      const { app } = require("electron");
+      if (app.isPackaged) {
+        const userDbPath = path.join(app.getPath("userData"), "preData.db");
+        if (!fs.existsSync(userDbPath)) {
+          const seedDbPath = path.join(process.resourcesPath, "preData.db");
+          if (fs.existsSync(seedDbPath)) {
+            fs.copyFileSync(seedDbPath, userDbPath);
+          }
+        }
+        return userDbPath;
+      }
+    } catch (error) {
+      // Not running in the Electron main process.
+    }
+
+    return path.join(__dirname, "preData.db");
   },
   getAddedFromDiagnosisClass(addedFromDiagnosisChange) {
     var hiddenInputForAddedFromDiagnosisChange = "";

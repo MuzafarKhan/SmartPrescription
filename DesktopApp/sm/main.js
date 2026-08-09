@@ -20,7 +20,10 @@ function createWindow() {
   // if (process.env.ELECTRON_IS_DEV) win.webContents.openDevTools();
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  app.setName("Smart Prescription");
+  createWindow();
+});
 
 ipcMain.on("print-content", (event, htmlContent) => {
   console.log("Received HTML Content:", htmlContent);

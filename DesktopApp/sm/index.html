@@ -77,10 +77,14 @@
           <span class="navbar-toggler-icon"></span>
         </button> -->
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
-          <ul class="navbar-nav">
+          <ul class="navbar-nav app-main-nav">
             <li class="nav-item">
-              <a class="nav-link active-nav" data-page="home" href="#"
-                >Patient Prescription</a
+              <a
+                class="nav-link active-nav"
+                data-page="home"
+                href="#"
+                title="Patient Prescription"
+                >Prescription</a
               >
             </li>
             <li class="nav-item">
@@ -88,72 +92,91 @@
                 class="nav-link position-relative"
                 data-page="pending-patients"
                 href="#"
+                title="Pending Patients"
               >
-                Pending Patients
-
-                <!-- Red Bubble -->
+                Pending
                 <span
                   id="pendingPatientCountBubble"
-                  class="hidden"
-                  style="
-                    position: absolute;
-                    top: -4px;
-                    right: -10px;
-                    min-width: 20px;
-                    height: 20px;
-                    background-color: red;
-                    color: white;
-                    font-size: 11px;
-                    text-align: center;
-                    border-radius: 50%;
-                    line-height: 18px;
-                  "
+                  class="hidden pending-count-bubble"
                   >3</span
                 >
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-page="patient-history" href="#"
-                >Patient History</a
+              <a
+                class="nav-link"
+                data-page="patient-history"
+                href="#"
+                title="Patient History"
+                >History</a
               >
             </li>
 
             <li class="nav-item">
-              <a class="nav-link" data-page="chief-complaint" href="#"
-                >Chief Complaint</a
+              <a
+                class="nav-link"
+                data-page="chief-complaint"
+                href="#"
+                title="Chief Complaint"
+                >Complaint</a
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-page="diagnosis" href="#">Diagnosis </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-page="investigation" href="#"
-                >Investigation</a
+              <a class="nav-link" data-page="diagnosis" href="#" title="Diagnosis"
+                >Diagnosis</a
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-page="plan" href="#">Plan</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-page="medicine" href="#">Medicine</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-page="patient-instruction" href="#"
-                >Patient Instruction</a
+              <a
+                class="nav-link"
+                data-page="investigation"
+                href="#"
+                title="Investigation"
+                >Invest.</a
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-page="rehabilitation-aids" href="#"
-                >Rehabilitation Aids</a
+              <a class="nav-link" data-page="plan" href="#" title="Plan">Plan</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-page="medicine" href="#" title="Medicine"
+                >Medicine</a
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-page="settings" href="#">Settings</a>
+              <a
+                class="nav-link"
+                data-page="patient-instruction"
+                href="#"
+                title="Patient Instruction"
+                >Advice</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                data-page="rehabilitation-aids"
+                href="#"
+                title="Rehabilitation Aids"
+                >Rehab</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-page="settings" href="#" title="Settings"
+                >Settings</a
+              >
             </li>
           </ul>
-          <ul class="navbar-nav ms-auto" id="logoutNav" style="display: none;">
+          <ul class="navbar-nav ms-auto align-items-center" id="logoutNav" style="display: none;">
             <li class="nav-item">
-              <a class="nav-link text-danger" href="#" id="logoutBtn">Logout</a>
+              <button
+                type="button"
+                class="btn btn-logout"
+                id="logoutBtn"
+                title="Logout"
+              >
+                Logout
+              </button>
             </li>
           </ul>
         </div>

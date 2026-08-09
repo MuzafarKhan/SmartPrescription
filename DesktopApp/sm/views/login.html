@@ -1,39 +1,67 @@
 <div class="login-wrapper">
-  <div class="login-card">
-    <div class="login-header">
-      <h2>Smart Prescription</h2>
-      <p>Please sign in to continue</p>
+  <div class="login-shell">
+    <div class="login-brand-panel">
+      <div class="login-brand-content">
+        <div class="login-logo-wrap" aria-hidden="true">
+          <div class="login-logo-badge">
+            <img
+              class="login-app-icon"
+              src="./resources/icon.ico"
+              alt=""
+              onerror="this.classList.add('hidden')"
+            />
+            <span class="login-logo-rx">Rx</span>
+          </div>
+        </div>
+        <h1 class="login-brand-title">Smart Prescription</h1>
+        <p class="login-brand-tagline">
+          Clinical prescription management for your practice
+        </p>
+        <ul class="login-brand-features">
+          <li>Patient records &amp; visit history</li>
+          <li>Fast prescription printing</li>
+          <li>Medicine templates &amp; diagnosis support</li>
+        </ul>
+      </div>
+      <div class="login-brand-footer">Secure clinic desktop app</div>
     </div>
-    <form id="loginForm">
-      <div class="mb-3">
-        <label for="loginUsername" class="form-label">Username</label>
-        <input
-          type="text"
-          class="form-control"
-          id="loginUsername"
-          name="username"
-          placeholder="Enter username"
-          autocomplete="username"
-          required
-        />
+
+    <div class="login-card">
+      <div class="login-header">
+        <h2>Welcome back</h2>
+        <p>Sign in to continue to your workspace</p>
       </div>
-      <div class="mb-3">
-        <label for="loginPassword" class="form-label">Password</label>
-        <input
-          type="password"
-          class="form-control"
-          id="loginPassword"
-          name="password"
-          placeholder="Enter password"
-          autocomplete="current-password"
-          required
-        />
-      </div>
-      <div id="loginError" class="login-error hidden"></div>
-      <button type="submit" class="btn btn-success w-100" id="loginBtn">
-        Login
-      </button>
-    </form>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="loginUsername" class="form-label">Username</label>
+          <input
+            type="text"
+            class="form-control login-input"
+            id="loginUsername"
+            name="username"
+            placeholder="Enter username"
+            autocomplete="username"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="loginPassword" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control login-input"
+            id="loginPassword"
+            name="password"
+            placeholder="Enter password"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+        <div id="loginError" class="login-error hidden"></div>
+        <button type="submit" class="btn btn-success w-100 login-submit-btn" id="loginBtn">
+          Login
+        </button>
+      </form>
+    </div>
   </div>
 </div>
 
