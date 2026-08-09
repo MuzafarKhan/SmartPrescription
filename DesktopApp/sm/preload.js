@@ -108,7 +108,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
     investigationDetailValues,
     surgeryDetailValues,
     defaultPrescriptionPrinterName,
-    defaultThermalPrinterName
+    defaultThermalPrinterName,
+    alwaysAskCredentials,
+    appZoomLevel
   ) =>
     ipcRenderer.invoke(
       "update-settings",
@@ -121,8 +123,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
       investigationDetailValues,
       surgeryDetailValues,
       defaultPrescriptionPrinterName,
-      defaultThermalPrinterName
+      defaultThermalPrinterName,
+      alwaysAskCredentials,
+      appZoomLevel
     ),
+  setAppZoom: (appZoomLevel) =>
+    ipcRenderer.invoke("set-app-zoom", appZoomLevel),
   savetranslations: (translations) =>
     ipcRenderer.invoke("save-translations", translations),
 

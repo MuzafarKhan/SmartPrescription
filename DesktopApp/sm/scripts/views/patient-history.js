@@ -8,11 +8,13 @@
   ];
 
   let historyTable = null;
+  let searchDebounceTimer = null;
   let historyState = {
     page: 1,
     pageSize: 10,
     sortField: "last_visit_date",
     sortDir: "desc",
+    search: "",
   };
 
   function resetHistoryTableInstance() {
@@ -63,18 +65,60 @@
 
   function updateSortIndicators() {
     $("#patientHistoryTable thead th").each(function (index) {
+      const $th = $(this);
+      $th.removeClass("sorting sorting_asc sorting_desc");
+
       if (index >= SORT_FIELDS.length) {
-        $(this).removeClass("sorting sorting_asc sorting_desc");
         return;
       }
 
-      $(this).addClass("sorting");
       if (SORT_FIELDS[index] === historyState.sortField) {
-        $(this)
-          .removeClass("sorting")
-          .addClass(historyState.sortDir === "asc" ? "sorting_asc" : "sorting_desc");
+        $th.addClass(historyState.sortDir === "asc" ? "sorting_asc" : "sorting_desc");
+      } else {
+        $th.addClass("sorting");
       }
     });
+  }
+
+  function buildPageButton(page, currentPage) {
+    return (
+      '<button type="button" class="btn btn-sm ' +
+      (page === currentPage ? "btn-primary" : "btn-light") +
+      ' history-page-btn me-1" data-page="' +
+      page +
+      '">' +
+      page +
+      "</button>"
+    );
+  }
+
+  function buildPageNumberButtons(currentPage, totalPages) {
+    if (totalPages <= 10) {
+      let html = "";
+      for (let page = 1; page <= totalPages; page++) {
+        html += buildPageButton(page, currentPage);
+      }
+      return html;
+    }
+
+    let html = buildPageButton(1, currentPage);
+    const start = Math.max(2, currentPage - 2);
+    const end = Math.min(totalPages - 1, currentPage + 2);
+
+    if (start > 2) {
+      html += '<span class="mx-1 align-middle">...</span>';
+    }
+
+    for (let page = start; page <= end; page++) {
+      html += buildPageButton(page, currentPage);
+    }
+
+    if (end < totalPages - 1) {
+      html += '<span class="mx-1 align-middle">...</span>';
+    }
+
+    html += buildPageButton(totalPages, currentPage);
+    return html;
   }
 
   function renderPagination(total) {
@@ -97,25 +141,7 @@
         '">Previous</button>';
     }
 
-    if (totalPages <= 10) {
-      for (let page = 1; page <= totalPages; page++) {
-        pagerHtml +=
-          '<button type="button" class="btn btn-sm ' +
-          (page === historyState.page ? "btn-primary" : "btn-light") +
-          ' history-page-btn me-1" data-page="' +
-          page +
-          '">' +
-          page +
-          "</button>";
-      }
-    } else {
-      pagerHtml +=
-        '<span class="mx-2 align-middle">Page ' +
-        historyState.page +
-        " of " +
-        totalPages +
-        "</span>";
-    }
+    pagerHtml += buildPageNumberButtons(historyState.page, totalPages);
 
     if (historyState.page < totalPages) {
       pagerHtml +=
@@ -134,6 +160,7 @@
       pageSize: historyState.pageSize,
       sortField: historyState.sortField,
       sortDir: historyState.sortDir,
+      search: historyState.search,
     });
 
     const rows = (result.rows || []).map(buildHistoryRow);
@@ -145,6 +172,7 @@
         searching: false,
         ordering: false,
         info: false,
+        order: [],
       });
     } else {
       historyTable.clear();
@@ -168,7 +196,10 @@
       $(this)
         .css("cursor", "pointer")
         .off("click")
-        .on("click", function () {
+        .on("click", function (event) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
           const field = SORT_FIELDS[index];
 
           if (historyState.sortField === field) {
@@ -179,6 +210,7 @@
           }
 
           historyState.page = 1;
+          updateSortIndicators();
           loadPatientHistoryTable().catch(showHistoryError);
         });
     });
@@ -190,6 +222,19 @@
         historyState.pageSize = parseInt($(this).val(), 10) || 10;
         historyState.page = 1;
         loadPatientHistoryTable().catch(showHistoryError);
+      });
+
+    $("#historySearch")
+      .val(historyState.search)
+      .off("input")
+      .on("input", function () {
+        clearTimeout(searchDebounceTimer);
+        const value = $(this).val();
+        searchDebounceTimer = setTimeout(() => {
+          historyState.search = value;
+          historyState.page = 1;
+          loadPatientHistoryTable().catch(showHistoryError);
+        }, 300);
       });
 
     $("#patientHistoryPager")

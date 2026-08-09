@@ -44,6 +44,35 @@ const common = {
       hideAfter: 5000,
     });
   },
+  confirmDelete(options = {}) {
+    const {
+      title = "Are you sure?",
+      text = "You won't be able to revert this!",
+      confirmButtonText = "Yes, delete it!",
+      cancelButtonText = "Cancel",
+      icon = "warning",
+    } = options;
+
+    return Swal.fire({
+      title,
+      text,
+      icon,
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText,
+      cancelButtonText,
+    }).then((result) => result.isConfirmed);
+  },
+  debounce(fn, delayMs = 600) {
+    let timerId = null;
+    return function (...args) {
+      clearTimeout(timerId);
+      timerId = setTimeout(() => {
+        fn.apply(this, args);
+      }, delayMs);
+    };
+  },
   getdbFilePath() {
     const path = require("path");
 
@@ -57,6 +86,171 @@ const common = {
     }
     return hiddenInputForAddedFromDiagnosisChange;
   },
+  escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  },
+  normalizeMedicineBrandName(value) {
+    return String(value || "")
+      .trim()
+      .replace(/\s*[🟢🟠🔵][123]\s*$/, "")
+      .replace(/\s*\([123]\)\s*[🟢🟠🔵]?\s*$/, "")
+      .replace(/\s*[🟢🟠🔵]\s*$/, "")
+      .replace(/\s*\([123]\)\s*$/, "")
+      .replace(/\s*\((Last Visit|2nd Last Visit|3rd Last Visit)\)\s*$/, "");
+  },
+  buildMedicineBrandVisitMap(recentVisits) {
+    const map = {};
+
+    (recentVisits || []).slice(0, 3).forEach((visit, index) => {
+      const rank = index + 1;
+      (visit.medicines || []).forEach((medicine) => {
+        const brandName = this.normalizeMedicineBrandName(medicine.medicinename);
+        if (!brandName) {
+          return;
+        }
+
+        const key = brandName.toLowerCase();
+        if (!map[key] || map[key].rank > rank) {
+          map[key] = {
+            brandName,
+            rank,
+            label: String(rank),
+            visitDate: visit.visitDate || "",
+          };
+        }
+      });
+    });
+
+    return map;
+  },
+  getMedicineVisitStyle(rank) {
+    const styles = {
+      1: {
+        rowClass: "medicine-visit-last",
+        badgeClass: "medicine-visit-badge-last",
+      },
+      2: {
+        rowClass: "medicine-visit-second",
+        badgeClass: "medicine-visit-badge-second",
+      },
+      3: {
+        rowClass: "medicine-visit-third",
+        badgeClass: "medicine-visit-badge-third",
+      },
+    };
+
+    return styles[rank] || null;
+  },
+  buildMedicineVisitBadgeHtml(visitInfo) {
+    if (!visitInfo) {
+      return "";
+    }
+
+    const style = this.getMedicineVisitStyle(visitInfo.rank);
+    if (!style) {
+      return "";
+    }
+
+    return (
+      '<span class="medicine-visit-label ' +
+      style.badgeClass +
+      '">' +
+      this.escapeHtml(visitInfo.label) +
+      "</span>"
+    );
+  },
+  getMedicineGenericKey(medicine) {
+    return (medicine.medicinegenericname || "").trim();
+  },
+  getMedicineGenericLabel(key) {
+    return key || "No Generic Name";
+  },
+  sortMedicinesForGenericGrouping(medicines) {
+    return [...medicines].sort((a, b) => {
+      const ga = this.getMedicineGenericKey(a).toLowerCase() || "\uffff";
+      const gb = this.getMedicineGenericKey(b).toLowerCase() || "\uffff";
+      if (ga !== gb) {
+        return ga.localeCompare(gb);
+      }
+      return a.medicinename.localeCompare(b.medicinename);
+    });
+  },
+  groupMedicinesByGeneric(medicines) {
+    const groups = [];
+    let currentGroup = null;
+
+    this.sortMedicinesForGenericGrouping(medicines).forEach((medicine) => {
+      const key = this.getMedicineGenericKey(medicine);
+      if (!currentGroup || currentGroup.key !== key) {
+        currentGroup = {
+          key,
+          label: this.getMedicineGenericLabel(key),
+          items: [],
+        };
+        groups.push(currentGroup);
+      }
+      currentGroup.items.push(medicine);
+    });
+
+    return groups;
+  },
+  getMedicineFromRow(medicineRow) {
+    const row = $(medicineRow);
+    const medicineId = row.find(".medicine-id").val();
+
+    if (medicineId && window.medicineCatalogById?.[medicineId]) {
+      return window.medicineCatalogById[medicineId];
+    }
+
+    const brandName = this.normalizeMedicineBrandName(
+      row.find(".medicine-input").not(".flexdatalist-alias").first().val()
+    );
+    if (brandName && window.medicineCatalogByName?.[brandName]) {
+      return window.medicineCatalogByName[brandName];
+    }
+
+    if (brandName && window.medicineCatalogByName) {
+      const match = Object.values(window.medicineCatalogByName).find(
+        (medicine) => medicine.medicinename.toLowerCase() === brandName.toLowerCase()
+      );
+      if (match) {
+        return match;
+      }
+    }
+
+    return null;
+  },
+  buildMedicineSaveObject(medicineRow) {
+    const row = $(medicineRow);
+    const catalogMedicine = this.getMedicineFromRow(row);
+    const medicineId = row.find(".medicine-id").val();
+    const plainName =
+      catalogMedicine?.medicinename ||
+      this.normalizeMedicineBrandName(
+        row.find(".medicine-input").not(".flexdatalist-alias").first().val()
+      );
+
+    return {
+      medicineId: medicineId ? parseInt(medicineId, 10) : catalogMedicine?.id || null,
+      medicinename: plainName,
+      medicinetype: row.find(".medicine-type").val(),
+      injType: row.find(".inj-type").val(),
+      quantity: row.find(".quantity").val(),
+      timingType: row.find(".timing-type").val(),
+      morning: row.find(".morning").is(":checked") ? 1 : 0,
+      afternoon: row.find(".afternoon").is(":checked") ? 1 : 0,
+      night: row.find(".night").is(":checked") ? 1 : 0,
+      duration: row.find(".duration").val(),
+      durationnumber: row.find(".duration-number").val(),
+      isPrintableOnPrescription: row.find(".printable").is(":checked") ? 1 : 0,
+      moredetail: row.find(".more-detail").val(),
+      sourceFromDiagnosis: row.hasClass("addedFromDiagnosisChange"),
+    };
+  },
   getMedicineRow(addedFromDiagnosisChange) {
     const newRowHtml =
       `
@@ -67,11 +261,15 @@ const common = {
             <input
               type="text"
               class="form-control medicine-input"
-              placeholder="Enter Medicine"
+              placeholder="Enter Medicine Brand Name"
               list="medicineSuggestions"
               required
             />
-            <datalist id="medicineSuggestions"> </datalist>
+            <div class="medicine-brand-select-wrap mt-1 d-none">
+              <small class="text-muted d-block mb-1">Same generic — choose brand</small>
+              <select class="form-select medicine-brand-select"></select>
+            </div>
+            <input type="hidden" class="medicine-id" value="" />
           </td>
           <td>
             <select class="form-select medicine-type" name="medicineType">
@@ -341,12 +539,29 @@ const common = {
     localStorage.removeItem("settings");
     if (settings) localStorage.setItem("settings", JSON.stringify(settings));
   },
+  shouldAskForCredentials() {
+    const settings = this.getSettings();
+    const value = settings?.[0]?.alwaysAskCredentials;
+    if (value === undefined || value === null) {
+      return true;
+    }
+    return Number(value) !== 0;
+  },
   getSettings() {
     return JSON.parse(localStorage.getItem("settings"));
   },
   async refreshSettings() {
     const settings = await window.electronAPI.getSettings();
     await this.saveSettings(settings);
+  },
+  async applyAppZoom() {
+    try {
+      const settings = this.getSettings();
+      const zoomLevel = settings?.[0]?.appZoomLevel ?? 100;
+      await window.electronAPI.setAppZoom(zoomLevel);
+    } catch (error) {
+      console.error("Failed to apply zoom level:", error);
+    }
   },
 
   /*translation*/
@@ -367,14 +582,17 @@ const common = {
     const excludedIds = [
       "txtDefaultPrescriptionPrinterName",
       "txtDefaultThermalPrinterName",
+      "loginUsername",
+      "loginPassword",
     ]; // List of IDs to exclude
 
     // Build jQuery :not selectors dynamically
     const excludedSelector = excludedIds.map((id) => `:not(#${id})`).join("");
 
+    $(document).off("input.spCapitalize");
     $(document).on(
-      "input",
-      `input:not([type='password'], [type='email'])${excludedSelector}, textarea${excludedSelector}`,
+      "input.spCapitalize",
+      `input:not([type='password'], [type='email']):not(#loginForm input)${excludedSelector}, textarea${excludedSelector}`,
       function () {
         let value = $(this).val();
         let capitalizedValue = value.replace(/\b\w/g, (char) =>
@@ -383,7 +601,8 @@ const common = {
         $(this).val(capitalizedValue);
       }
     );
-    $(document).on("keydown", "input, textarea", function (e) {
+    $(document).off("keydown.spNav");
+    $(document).on("keydown.spNav", "input, textarea", function (e) {
       let inputs = $("input, textarea"); // Get all input fields & textareas
       let index = inputs.index(this); // Get current field index
       if (e.key === "PageDown") {
@@ -430,4 +649,11 @@ const common = {
           `;
   },
 };
-module.exports = common;
+
+if (typeof window !== "undefined") {
+  window.common = common;
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = common;
+}

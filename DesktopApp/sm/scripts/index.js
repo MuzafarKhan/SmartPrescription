@@ -1,4 +1,16 @@
-$(document).ready(function () {
+$(document).ready(async function () {
+  try {
+    await common.refreshSettings();
+    await common.applyAppZoom();
+  } catch (error) {
+    console.error("Failed to load settings on startup:", error);
+  }
+
+  if (!common.shouldAskForCredentials()) {
+    startApp();
+    return;
+  }
+
   if (sessionStorage.getItem("isLoggedIn") === "true") {
     startApp();
   } else {
@@ -15,19 +27,50 @@ function showLoginScreen() {
     });
 }
 
+function logout() {
+  Swal.fire({
+    title: "Logout?",
+    text: "Are you sure you want to logout?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Logout",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (!result.isConfirmed) return;
+
+    sessionStorage.removeItem("isLoggedIn");
+    sessionStorage.removeItem("loggedInUser");
+    $("#content").empty();
+    $("#addEditModel").empty();
+    showLoginScreen();
+  });
+}
+
 function startApp() {
   $("#loginScreen").addClass("hidden").empty();
   $("#mainApp").removeClass("hidden");
+
+  if (common.shouldAskForCredentials()) {
+    $("#logoutNav").show();
+    $("#logoutBtn").off("click").on("click", function (e) {
+      e.preventDefault();
+      logout();
+    });
+  } else {
+    $("#logoutNav").hide();
+  }
 
   common.applyBehaviours();
   common.fillPatientCountBubble();
   $("#content").load("./views/home.html");
 
-  $(".navbar-nav a, .navbar-brand").click(function (e) {
+  $(".navbar-nav a:not(#logoutBtn), .navbar-brand").click(function (e) {
     e.preventDefault();
+    var page = $(this).data("page");
+    if (!page) return;
+
     $(".navbar-nav a").removeClass("active-nav");
     $(this).addClass("active-nav");
-    var page = $(this).data("page");
     loadPageContent(page);
   });
 }

@@ -263,6 +263,12 @@ $(document).ready(function () {
       row.find(".duration-number").val(medicine.durationnumber);
       row.find(".duration").val(medicine.duration);
       row.find(".more-detail").val(medicine.moredetail);
+
+      if (typeof window.initMedicineBrandRow === "function") {
+        window.initMedicineBrandRow(row, medicine);
+      } else if (typeof window.applyMedicineVisitHighlightToRow === "function") {
+        window.applyMedicineVisitHighlightToRow(row);
+      }
     }
 
     async function populateInvestigation(

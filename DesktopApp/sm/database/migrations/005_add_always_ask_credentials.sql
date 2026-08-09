@@ -1,0 +1,1 @@
+ALTER TABLE settings ADD COLUMN alwaysAskCredentials INTEGER NOT NULL DEFAULT 1;

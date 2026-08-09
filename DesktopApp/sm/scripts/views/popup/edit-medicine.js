@@ -36,6 +36,7 @@ $(document).ready(function () {
     async function saveMedicine() {
       var id = $("#hdnId").html();
       var medicineName = $("#medicineName").val().trim();
+      var medicineGenericName = $("#medicineGenericName").val().trim();
       var timingType = $("#timingType").val().trim();
       var morning = $("#morning").prop("checked") ? 1 : 0;
       var afternoon = $("#afternoon").prop("checked") ? 1 : 0;
@@ -58,6 +59,7 @@ $(document).ready(function () {
       var medicineModel = {
         id,
         medicineName,
+        medicineGenericName,
         timingType,
         morning,
         afternoon,
@@ -76,11 +78,8 @@ $(document).ready(function () {
         addMedicine(medicineModel);
       }
       $("#addMedicineModal").modal("hide");
-      loadPageContent(
-        "medicine",
-        "medicineTable",
-        $("#medicineTable").DataTable().page()
-      );
+      $("#addEditModel").removeData("copyFromId");
+      loadPageContent("medicine");
     }
 
     async function updateMedicine(id, medicineModel) {
@@ -104,7 +103,7 @@ $(document).ready(function () {
       if (!$("#medicineName").val().trim()) {
         $.toast({
           heading: "Error",
-          text: "Medicine Name is required",
+          text: "Medicine Brand Name is required",
           showHideTransition: "fade",
           icon: "error",
           position: "top-right",
@@ -128,34 +127,72 @@ $(document).ready(function () {
       return true;
     }
 
+    function populateForm(result) {
+      const medicine = result[0];
+      $("#medicineGenericName").val(medicine.medicinegenericname || "");
+      if (medicine.timingType) {
+        $("#timingType").val(medicine.timingType);
+        $(".timing-checkbox").prop("checked", false).prop("disabled", true);
+      } else {
+        $("#timingType").val("").prop("disabled", false);
+        $("#morning").prop("checked", medicine.morning === 1);
+        $("#afternoon").prop("checked", medicine.afternoon === 1);
+        $("#night").prop("checked", medicine.night === 1);
+        $(".timing-checkbox").prop("disabled", false);
+      }
+      $("#isPrintableOnPrescriptionCheckChecked").prop(
+        "checked",
+        medicine.isPrintableOnPrescription === 1
+      );
+      $("#durationnumber").val(medicine.durationnumber);
+      $("#slctDuration").val(medicine.duration);
+      $("#medicineType").val(medicine.medicinetype).trigger("change");
+      if (medicine.medicinetype == "Inj") {
+        $("#divinjType").show();
+        $("#injType").val(medicine.injType);
+      } else {
+        $("#divinjType").hide();
+      }
+      $("#quantity").val(medicine.quantity);
+      $("#moreDetails").val(medicine.moredetail);
+    }
+
     function init(id) {
       $("#hdnId").html(id);
+      $("#addMedicineModalLabel").text("Update Medicine");
       window.electronAPI
         .getMedicineById(id)
         .then((result) => {
           $("#medicineName").val(result[0].medicinename);
-          if (result[0].timingType) {
-            $("#timingType").val(result[0].timingType);
-            $(".timing-checkbox").prop("disabled", true);
-          } else {
-            $("#morning").prop("checked", result[0].morning === 1);
-            $("#afternoon").prop("checked", result[0].afternoon === 1);
-            $("#night").prop("checked", result[0].night === 1);
-          }
-          $("#isPrintableOnPrescriptionCheckChecked").prop(
-            "checked",
-            result[0].isPrintableOnPrescription === 1
-          );
-          $("#durationnumber").val(result[0].durationnumber);
-          $("#slctDuration").val(result[0].duration);
-          $("#medicineType").val(result[0].medicinetype);
-          if (result[0].medicinetype == "Inj") {
-            $("#divinjType").show();
-            $("#injType").val(result[0].injType);
-          }
+          populateForm(result);
+        })
+        .catch((error) => {
+          $.toast({
+            heading: "Error",
+            text: "Error fetching data:",
+            showHideTransition: "fade",
+            icon: "error",
+            position: "top-right",
+          });
+        });
+    }
 
-          $("#quantity").val(result[0].quantity);
-          $("#moreDetails").val(result[0].moredetail);
+    function initCopy(sourceId) {
+      $("#hdnId").html("");
+      $("#addMedicineModalLabel").text("Copy Medicine");
+      window.electronAPI
+        .getMedicineById(sourceId)
+        .then((result) => {
+          const source = result[0];
+          $("#medicineName").val("");
+          $("#medicineName").attr(
+            "placeholder",
+            source.medicinegenericname
+              ? `New brand for ${source.medicinegenericname}`
+              : "Enter new medicine brand name"
+          );
+          populateForm(result);
+          $("#medicineName").focus();
         })
         .catch((error) => {
           $.toast({
@@ -169,7 +206,12 @@ $(document).ready(function () {
     }
 
     const id = $("#addEditModel").data("id");
-    if (id) {
+    const copyFromId = $("#addEditModel").data("copyFromId");
+    if (copyFromId) {
+      initCopy(copyFromId);
+    } else if (id) {
       init(id);
+    } else {
+      $("#addMedicineModalLabel").text("Add New Medicine");
     }
   });

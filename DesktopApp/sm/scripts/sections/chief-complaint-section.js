@@ -18,8 +18,18 @@ $(document).ready(function () {
     }
 
     // Remove complaint row
-    $(document).on("click", ".remove-complaint", function () {
+    $(document).on("click", ".remove-complaint", async function (event) {
       event.preventDefault();
+      if (
+        !(await common.confirmDelete({
+          title: "Remove complaint?",
+          text: "This complaint will be removed from the prescription.",
+          confirmButtonText: "Yes, remove it!",
+        }))
+      ) {
+        return;
+      }
+
       $(this).closest("tr").remove();
     });
 

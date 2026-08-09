@@ -39,8 +39,10 @@ $(document).ready(function () {
         });
       });
 
-      function deleteRehabilitationAids(id, event) {
+      async function deleteRehabilitationAids(id, event) {
         event.preventDefault();
+        if (!(await common.confirmDelete())) return;
+
         window.electronAPI.deleteRehabilitationAidsById(id);
         common.showDeletedSuccessfullyMessage();
         loadPageContent(

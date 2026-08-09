@@ -2,11 +2,13 @@
   const SORT_FIELDS = ["mr_number", "patient_name", "patient_age", "checkup_date", "is_printed"];
 
   let pendingTable = null;
+  let searchDebounceTimer = null;
   let pendingState = {
     page: 1,
     pageSize: 10,
     sortField: "is_printed",
     sortDir: "desc",
+    search: "",
   };
 
   function resetPendingTableInstance() {
@@ -53,18 +55,60 @@
 
   function updateSortIndicators() {
     $("#pendingPatientTable thead th").each(function (index) {
+      const $th = $(this);
+      $th.removeClass("sorting sorting_asc sorting_desc");
+
       if (index >= SORT_FIELDS.length) {
-        $(this).removeClass("sorting sorting_asc sorting_desc");
         return;
       }
 
-      $(this).addClass("sorting");
       if (SORT_FIELDS[index] === pendingState.sortField) {
-        $(this)
-          .removeClass("sorting")
-          .addClass(pendingState.sortDir === "asc" ? "sorting_asc" : "sorting_desc");
+        $th.addClass(pendingState.sortDir === "asc" ? "sorting_asc" : "sorting_desc");
+      } else {
+        $th.addClass("sorting");
       }
     });
+  }
+
+  function buildPageButton(page, currentPage) {
+    return (
+      '<button type="button" class="btn btn-sm ' +
+      (page === currentPage ? "btn-primary" : "btn-light") +
+      ' pending-page-btn me-1" data-page="' +
+      page +
+      '">' +
+      page +
+      "</button>"
+    );
+  }
+
+  function buildPageNumberButtons(currentPage, totalPages) {
+    if (totalPages <= 10) {
+      let html = "";
+      for (let page = 1; page <= totalPages; page++) {
+        html += buildPageButton(page, currentPage);
+      }
+      return html;
+    }
+
+    let html = buildPageButton(1, currentPage);
+    const start = Math.max(2, currentPage - 2);
+    const end = Math.min(totalPages - 1, currentPage + 2);
+
+    if (start > 2) {
+      html += '<span class="mx-1 align-middle">...</span>';
+    }
+
+    for (let page = start; page <= end; page++) {
+      html += buildPageButton(page, currentPage);
+    }
+
+    if (end < totalPages - 1) {
+      html += '<span class="mx-1 align-middle">...</span>';
+    }
+
+    html += buildPageButton(totalPages, currentPage);
+    return html;
   }
 
   function renderPagination(total) {
@@ -87,25 +131,7 @@
         '">Previous</button>';
     }
 
-    if (totalPages <= 10) {
-      for (let page = 1; page <= totalPages; page++) {
-        pagerHtml +=
-          '<button type="button" class="btn btn-sm ' +
-          (page === pendingState.page ? "btn-primary" : "btn-light") +
-          ' pending-page-btn me-1" data-page="' +
-          page +
-          '">' +
-          page +
-          "</button>";
-      }
-    } else {
-      pagerHtml +=
-        '<span class="mx-2 align-middle">Page ' +
-        pendingState.page +
-        " of " +
-        totalPages +
-        "</span>";
-    }
+    pagerHtml += buildPageNumberButtons(pendingState.page, totalPages);
 
     if (pendingState.page < totalPages) {
       pagerHtml +=
@@ -124,6 +150,7 @@
       pageSize: pendingState.pageSize,
       sortField: pendingState.sortField,
       sortDir: pendingState.sortDir,
+      search: pendingState.search,
     });
 
     const rows = (result.rows || []).map(buildPendingPatientRow);
@@ -135,6 +162,7 @@
         searching: false,
         ordering: false,
         info: false,
+        order: [],
       });
     } else {
       pendingTable.clear();
@@ -158,7 +186,10 @@
       $(this)
         .css("cursor", "pointer")
         .off("click")
-        .on("click", function () {
+        .on("click", function (event) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
           const field = SORT_FIELDS[index];
 
           if (pendingState.sortField === field) {
@@ -169,6 +200,7 @@
           }
 
           pendingState.page = 1;
+          updateSortIndicators();
           loadPendingPatientsTable().catch(showPendingPatientsError);
         });
     });
@@ -182,6 +214,19 @@
         loadPendingPatientsTable().catch(showPendingPatientsError);
       });
 
+    $("#pendingSearch")
+      .val(pendingState.search)
+      .off("input")
+      .on("input", function () {
+        clearTimeout(searchDebounceTimer);
+        const value = $(this).val();
+        searchDebounceTimer = setTimeout(() => {
+          pendingState.search = value;
+          pendingState.page = 1;
+          loadPendingPatientsTable().catch(showPendingPatientsError);
+        }, 300);
+      });
+
     $("#pendingPatientsPager")
       .off("click", ".pending-page-btn")
       .on("click", ".pending-page-btn", function () {
@@ -192,6 +237,16 @@
     $("#btnClearPendingPatientsModal")
       .off("click")
       .on("click", async function () {
+        if (
+          !(await common.confirmDelete({
+            title: "Clear all pending patients?",
+            text: "All pending prescriptions will be permanently removed.",
+            confirmButtonText: "Yes, clear all!",
+          }))
+        ) {
+          return;
+        }
+
         await window.electronAPI.clearPendingPatients();
         pendingState.page = 1;
         common.showDeletedSuccessfullyMessage();
@@ -235,6 +290,14 @@
 
   window.deletePendingPatient = async function (prescriptionUniqueId, event) {
     event.preventDefault();
+    if (
+      !(await common.confirmDelete({
+        text: "This pending prescription will be permanently removed.",
+      }))
+    ) {
+      return;
+    }
+
     await window.electronAPI.deletePendingPatient(prescriptionUniqueId);
     common.showDeletedSuccessfullyMessage();
     common.fillPatientCountBubble();

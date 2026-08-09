@@ -9,6 +9,19 @@
   <body>
     <div class="form-container">
       <form>
+        <div class="row m-1 align-items-center">
+          <div class="col-md-6"></div>
+          <div class="col-md-6 text-end">
+            <label for="historySearch" class="me-2">Search:</label>
+            <input
+              type="search"
+              id="historySearch"
+              class="form-control form-control-sm d-inline-block"
+              style="width: auto; min-width: 220px"
+              placeholder="MR number, name, age..."
+            />
+          </div>
+        </div>
         <div class="row m-1">
           <table id="patientHistoryTable" class="display" style="width: 100%">
             <thead>

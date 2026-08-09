@@ -1,31 +1,106 @@
 <div>
+
+  <style>
+
+    #medicineContainer table th:first-child,
+    #medicineContainer table td:first-child {
+      min-width: 160px;
+      width: 14%;
+    }
+
+    #medicineContainer .medicine-input {
+      min-width: 150px;
+    }
+
+
+
+    .medicine-input.medicine-visit-last {
+
+      color: #198754 !important;
+
+    }
+
+
+
+    .medicine-input.medicine-visit-second {
+
+      color: #fd7e14 !important;
+
+    }
+
+
+
+    .medicine-input.medicine-visit-third {
+
+      color: #0d6efd !important;
+
+    }
+
+  </style>
+
+
+
+  <datalist id="medicineSuggestions"></datalist>
+
+
+
   <!-- Medicine Table -->
+
   <div id="medicineContainer">
+
     <table class="table table-bordered">
+
       <thead>
+
         <tr>
-          <th scope="col">Medicine Name</th>
+
+          <th scope="col">Medicine Brand Name</th>
+
           <th scope="col">Type</th>
+
           <th scope="col">Quantity</th>
+
           <th scope="col">Timing Type</th>
+
           <th scope="col">Morning/Afternoon/Night</th>
+
           <th scope="col">Printable</th>
+
           <th scope="col">Duration</th>
+
           <th scope="col">More Details</th>
+
           <th scope="col">Action</th>
+
         </tr>
+
       </thead>
+
       <tbody>
+
         <!-- Medicine Row Template -->
+
       </tbody>
+
     </table>
+
   </div>
 
+
+
   <!-- Button to add new medicine -->
+
   <div class="d-flex justify-content-end">
+
     <button id="addMedicineBtn" class="btn btn-primary mt-1">
+
       Add Medicine
+
     </button>
+
   </div>
+
 </div>
+
     <script src="./scripts/sections/medicine-section.js"></script>
+

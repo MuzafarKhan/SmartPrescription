@@ -7,11 +7,11 @@ require("./handlers/main-handler");
 
 function createWindow() {
   const win = new BrowserWindow({
+    icon: path.join(__dirname, "resources", "icon.ico"),
     webPreferences: {
       nodeIntegration: false, // Disable nodeIntegration for security
       contextIsolation: true, // Enable context isolation
       preload: path.join(__dirname, "preload.js"), // Specify the path to preload.js
-      icon: path.join(__dirname, "resources", "app-icon.png"),
     },
     autoHideMenuBar: true,
   });

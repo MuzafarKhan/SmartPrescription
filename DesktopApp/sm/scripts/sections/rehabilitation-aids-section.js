@@ -20,8 +20,18 @@ $(document).ready(function () {
       }
     }
 
-    $(document).on("click", ".remove-rehabilitation-aids", function () {
+    $(document).on("click", ".remove-rehabilitation-aids", async function (event) {
       event.preventDefault();
+      if (
+        !(await common.confirmDelete({
+          title: "Remove rehabilitation aid?",
+          text: "This item will be removed from the prescription.",
+          confirmButtonText: "Yes, remove it!",
+        }))
+      ) {
+        return;
+      }
+
       $(this).closest("tr").remove();
     });
 

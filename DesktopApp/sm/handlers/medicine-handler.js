@@ -19,8 +19,10 @@ ipcMain.handle("get-medicine-by-name", async (event, name) => {
   console.log("Query received:", name);
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT id as Id, medicine as Name FROM medicine WHERE medicine LIKE ?",
-      [`%${name}%`],
+      `SELECT id as Id, medicinename as Name
+       FROM medicine
+       WHERE medicinename LIKE ? OR medicinegenericname LIKE ?`,
+      [`%${name}%`, `%${name}%`],
       (err, rows) => {
         if (err) {
           console.error("Database error:", err);
@@ -50,6 +52,7 @@ ipcMain.handle("get-medicine-by-id", async (event, id) => {
 ipcMain.handle("add-medicine", async (event, medicine) => {
   const {
     medicineName,
+    medicineGenericName,
     timingType,
     morning,
     afternoon,
@@ -66,9 +69,10 @@ ipcMain.handle("add-medicine", async (event, medicine) => {
 
   return new Promise((resolve, reject) => {
     db.run(
-      "INSERT INTO medicine (medicinename, timingType, morning, afternoon, night, isPrintableOnPrescription, durationnumber, duration, medicinetype, injType, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)",
+      "INSERT INTO medicine (medicinename, medicinegenericname, timingType, morning, afternoon, night, isPrintableOnPrescription, durationnumber, duration, medicinetype, injType, quantity, moredetail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         medicineName,
+        medicineGenericName || "",
         timingType,
         morning,
         afternoon,
@@ -92,6 +96,7 @@ ipcMain.handle("add-medicine", async (event, medicine) => {
 ipcMain.handle("update-medicine-by-id", (event, id, medicine) => {
   const {
     medicineName,
+    medicineGenericName,
     timingType,
     morning,
     afternoon,
@@ -107,9 +112,10 @@ ipcMain.handle("update-medicine-by-id", (event, id, medicine) => {
   console.log(medicine);
   return new Promise((resolve, reject) => {
     db.run(
-      "UPDATE medicine SET medicinename = ?, timingType = ?, morning = ?, afternoon = ?, night = ?, isPrintableOnPrescription = ?, durationnumber = ?, duration = ?, medicinetype = ?, injType = ?, quantity = ?, moredetail = ? WHERE id = ?",
+      "UPDATE medicine SET medicinename = ?, medicinegenericname = ?, timingType = ?, morning = ?, afternoon = ?, night = ?, isPrintableOnPrescription = ?, durationnumber = ?, duration = ?, medicinetype = ?, injType = ?, quantity = ?, moredetail = ? WHERE id = ?",
       [
         medicineName,
+        medicineGenericName || "",
         timingType,
         morning,
         afternoon,

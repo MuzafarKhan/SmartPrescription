@@ -61,7 +61,7 @@ $(document).ready(function () {
             if (!medicine.medicinename.trim()) {
               $.toast({
                 heading: "Error",
-                text: `Medicine name is required in ( ROW ${index + 1} )`,
+                text: `Medicine brand name is required in ( ROW ${index + 1} )`,
                 showHideTransition: "fade",
                 icon: "error",
                 position: "top-right",
@@ -284,6 +284,10 @@ $(document).ready(function () {
       row.find(".duration-number").val(medicine.durationnumber);
       row.find(".duration").val(medicine.duration);
       row.find(".more-detail").val(medicine.moredetail);
+
+      if (typeof window.initMedicineBrandRow === "function") {
+        window.initMedicineBrandRow(row, medicine);
+      }
     }
 
     async function populateInvestigation(
@@ -572,30 +576,7 @@ $(document).ready(function () {
       const medicines = [];
 
       $("#medicineContainer .medicine-row").each(function () {
-        const medicineRow = $(this);
-
-        // Create an object for each medicine row
-        const medicine = {
-          medicinename: medicineRow.find(".medicine-input").val(),
-          medicinetype: medicineRow.find(".medicine-type").val(),
-          injType: medicineRow.find(".inj-type").val(),
-          quantity: medicineRow.find(".quantity").val(),
-          timingType: medicineRow.find(".timing-type").val(), // New field for timing type
-          morning: medicineRow.find(".morning").is(":checked") ? 1 : 0, // Updated selector
-          afternoon: medicineRow.find(".afternoon").is(":checked") ? 1 : 0, // Updated selector
-          night: medicineRow.find(".night").is(":checked") ? 1 : 0, // Updated selector
-          duration: medicineRow.find(".duration").val(), // Updated selector
-          durationnumber: medicineRow.find(".duration-number").val(), // Updated selector
-          isPrintableOnPrescription: medicineRow
-            .find(".printable")
-            .is(":checked")
-            ? 1
-            : 0, // Updated selector
-          moredetail: medicineRow.find(".more-detail").val(), // Updated selector
-        };
-
-        // Add the object to the medicines array
-        medicines.push(medicine);
+        medicines.push(common.buildMedicineSaveObject($(this)));
       });
 
       return medicines;

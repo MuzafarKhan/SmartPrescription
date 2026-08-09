@@ -46,11 +46,13 @@ ipcMain.handle(
     investigationDetailValues,
     surgeryDetailValues,
     defaultPrescriptionPrinterName,
-    defaultThermalPrinterName
+    defaultThermalPrinterName,
+    alwaysAskCredentials = 1,
+    appZoomLevel = 100
   ) => {
     return new Promise((resolve, reject) => {
       const stmt = db.prepare(
-        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?, defaultfollowupunit = ?, defaultfollowupduration = ?, investigationDetailValues = ?, surgeryDetailValues = ?, defaultPrescriptionPrinterName = ? , defaultThermalPrinterName = ?"
+        "UPDATE settings SET defaultdate = ?, defaultday = ?, defaultcomplaintunit = ?, defaultcomplaintduration = ?, defaultfollowupunit = ?, defaultfollowupduration = ?, investigationDetailValues = ?, surgeryDetailValues = ?, defaultPrescriptionPrinterName = ? , defaultThermalPrinterName = ?, alwaysAskCredentials = ?, appZoomLevel = ?"
       );
       stmt.run(
         [
@@ -64,6 +66,8 @@ ipcMain.handle(
           surgeryDetailValues,
           defaultPrescriptionPrinterName,
           defaultThermalPrinterName,
+          alwaysAskCredentials ? 1 : 0,
+          Math.min(Math.max(Number(appZoomLevel) || 100, 50), 200),
         ],
         function (err) {
           stmt.finalize(); // Clean up the statement
@@ -77,6 +81,15 @@ ipcMain.handle(
     });
   }
 );
+
+ipcMain.handle("set-app-zoom", (event, appZoomLevel) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win) return { success: false };
+
+  const zoomPercent = Math.min(Math.max(Number(appZoomLevel) || 100, 50), 200);
+  win.webContents.setZoomFactor(zoomPercent / 100);
+  return { success: true, appZoomLevel: zoomPercent };
+});
 
 ipcMain.handle("save-translations", async (event, translations) => {
   if (!Array.isArray(translations)) {

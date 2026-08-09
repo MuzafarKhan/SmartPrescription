@@ -1,12 +1,94 @@
+function plainMedicineName(name) {
+  return common.normalizeMedicineBrandName(name);
+}
+
 $(document).ready(async function () {
     const prescriptionData = JSON.parse(
       $("#addEditModel").data("prescriptionData")
     );
     const quickPrint = $("#addEditModel").data("quickPrint");
     const isPrintPrescription = $("#addEditModel").data("isPrintPrescription");
+    const shouldReloadHomeAfterPrint = !!$("#addEditModel").data(
+      "shouldReloadHomeAfterPrint"
+    );
+    const shouldCompleteOnPrint = !!$("#addEditModel").data("shouldCompleteOnPrint");
+    let homeReloadDone = false;
+    let prescriptionPrinted = false;
+    let prescriptionCompleted = !!$("#addEditModel").data("prescriptionCompleted");
 
     $("#addEditModel").data("quickPrint", false);
     $("#addEditModel").data("isPrintPrescription", false);
+    $("#addEditModel").data("shouldReloadHomeAfterPrint", false);
+    $("#addEditModel").data("shouldCompleteOnPrint", false);
+    $("#addEditModel").data("prescriptionPrinted", false);
+
+    async function finalizePrescriptionAfterPrint() {
+      if (!shouldCompleteOnPrint || prescriptionCompleted) {
+        return;
+      }
+
+      try {
+        const result = await window.electronAPI.completePrescription(prescriptionData);
+        prescriptionCompleted = true;
+        $("#addEditModel").data("prescriptionCompleted", true);
+        if (result?.mrNumber) {
+          prescriptionData.patientInformation.mrNumber = result.mrNumber;
+          $("#addEditModel").data(
+            "prescriptionData",
+            JSON.stringify(prescriptionData)
+          );
+        }
+        common.fillPatientCountBubble();
+      } catch (error) {
+        console.error("Failed to complete prescription:", error);
+        common.showErrorMessage(
+          "Failed to save patient history. Please try again."
+        );
+        throw error;
+      }
+    }
+
+    function markPrescriptionPrinted() {
+      prescriptionPrinted = true;
+      $("#addEditModel").data("prescriptionPrinted", true);
+    }
+
+    function wasPrescriptionPrinted() {
+      return prescriptionPrinted || !!$("#addEditModel").data("prescriptionPrinted");
+    }
+
+    function reloadPrescriptionHomePage() {
+      $("#addEditModel").html("");
+      $("#addEditModel").removeData("prescriptionData");
+      $("#addEditModel").removeData("quickPrint");
+      $("#addEditModel").removeData("isPrintPrescription");
+      $("#addEditModel").removeData("shouldReloadHomeAfterPrint");
+      $("#addEditModel").removeData("shouldCompleteOnPrint");
+      $("#addEditModel").removeData("prescriptionCompleted");
+      $("#addEditModel").removeData("prescriptionPrinted");
+      delete window.finalizePrescriptionAfterPrintFromPopup;
+      delete window.markPrescriptionPrintedFromPopup;
+      common.fillPatientCountBubble();
+      $("#content").load("./views/home.html");
+    }
+
+    function maybeReloadHomePage() {
+      if (!shouldReloadHomeAfterPrint || homeReloadDone || !wasPrescriptionPrinted()) {
+        return;
+      }
+      homeReloadDone = true;
+      reloadPrescriptionHomePage();
+    }
+
+    $("#addAttachpatientinstruction")
+      .off("hidden.bs.modal.reloadHome")
+      .on("hidden.bs.modal.reloadHome", function () {
+        $(this).off("keydown");
+        maybeReloadHomePage();
+      });
+
+    window.finalizePrescriptionAfterPrintFromPopup = finalizePrescriptionAfterPrint;
+    window.markPrescriptionPrintedFromPopup = markPrescriptionPrinted;
 
     await init(prescriptionData, isPrintPrescription);
 
@@ -38,18 +120,25 @@ $(document).ready(async function () {
         $("#addAttachpatientinstruction").on("shown.bs.modal", resolve);
       });
 
-      if (isPrintPrescription) {
-        await printPrescriptionDirectly(defaultPrescriptionPrinterName);
-      } else {
-        await printOnThermalDirectly(
-          defaultThermalPrinterName,
-          prescriptionData
-        );
-      }
+      try {
+        if (isPrintPrescription) {
+          await printPrescriptionDirectly(defaultPrescriptionPrinterName);
+        } else {
+          await printOnThermalDirectly(
+            defaultThermalPrinterName,
+            prescriptionData
+          );
+        }
 
-      $("#addAttachpatientinstruction").modal("hide");
-      $("body").removeClass("modal-open");
-      $(".modal-backdrop").remove();
+        await finalizePrescriptionAfterPrint();
+        markPrescriptionPrinted();
+        $("#addAttachpatientinstruction").modal("hide");
+        $("body").removeClass("modal-open");
+        $(".modal-backdrop").remove();
+        maybeReloadHomePage();
+      } catch (error) {
+        console.error("Quick print flow failed:", error);
+      }
     } else {
       $("#addAttachpatientinstruction").modal("show");
       $(".modal-dialog").addClass("width-for-print");
@@ -72,14 +161,16 @@ $(document).ready(async function () {
     $("#addAttachpatientinstruction")
       .on("shown.bs.modal", function () {
         $(this).on("keydown", function (e) {
+          if (e.ctrlKey && (e.key === "p" || e.keyCode === 80)) {
+            e.preventDefault();
+            printPrescription().catch(() => {});
+            return;
+          }
           if (e.key === "Enter" || e.keyCode === 13) {
-            printPrescription();
+            printPrescription().catch(() => {});
             e.preventDefault();
           }
         });
-      })
-      .on("hidden.bs.modal", function () {
-        $(this).off("keydown");
       });
   });
 
@@ -207,6 +298,7 @@ $(document).ready(async function () {
       });
     } catch (error) {
       common.showErrorMessage("Printing failed: " + error);
+      throw error;
     }
   }
   async function getThemalPrinterText(prescriptionData) {
@@ -218,6 +310,8 @@ $(document).ready(async function () {
     // 1. Get patient name
     const patientName =
       prescriptionDataInUrdu?.patientInformation?.patientname || "Patient";
+    const mrNumber =
+      prescriptionData?.patientInformation?.mrNumber?.trim() || "";
 
     // 2. Filter non-printable medicines
     const nonPrintableMeds =
@@ -225,7 +319,7 @@ $(document).ready(async function () {
         ?.filter((medicine) => !medicine.isPrintableOnPrescription)
         ?.map(
           (medicine) =>
-            medicine.medicinename +
+            plainMedicineName(medicine.medicinename) +
             " " +
             (medicine.injType ? medicine.injType : "") +
             " " +
@@ -248,7 +342,11 @@ $(document).ready(async function () {
     }
 
     // 4. Build thermal print content
-    let thermalPrintContent = `<div style="margin-left: 20px;"><strong>Patient Name:</strong> ${patientName}<br><br>`;
+    let thermalPrintContent = `<div style="margin-left: 20px;">`;
+    if (mrNumber) {
+      thermalPrintContent += `<strong>MR No:</strong> ${mrNumber}<br>`;
+    }
+    thermalPrintContent += `<strong>Patient Name:</strong> ${patientName}<br><br>`;
 
     let hasPreviousContent = false;
 
@@ -291,6 +389,7 @@ $(document).ready(async function () {
     } catch (error) {
       console.error("Thermal printing failed:", error);
       common.showErrorMessage("Thermal printing failed: " + error.message);
+      throw error;
     }
   }
 
@@ -409,6 +508,15 @@ $(document).ready(async function () {
     $("#spanpatientcheckupdate").html(
       prescriptionDataInUrdu.patientInformation.checkupDate
     );
+
+    const mrNumber = prescriptionDataInUrdu.patientInformation.mrNumber?.trim();
+    if (mrNumber) {
+      $("#spanpatientmrnumber").text(mrNumber);
+      $("#divPatientMrNumber").show();
+    } else {
+      $("#spanpatientmrnumber").text("");
+      $("#divPatientMrNumber").hide();
+    }
   }
 
   function setPowerValues(prescriptionDataInUrdu) {
@@ -693,11 +801,12 @@ $(document).ready(async function () {
     prescriptionDataInUrdu.patientInformation.selectedMedicines.forEach(
       (medicine, index) => {
         // Change color only when medicine name changes
-        if (medicine.isPrintableOnPrescription) {
-          if (currentMedicineName !== medicine.medicinename) {
+          const medicineName = plainMedicineName(medicine.medicinename);
+          if (medicine.isPrintableOnPrescription) {
+          if (currentMedicineName !== medicineName) {
             bgColorClass = bgColorClass === "odd-row" ? "even-row" : "odd-row";
           }
-          currentMedicineName = medicine.medicinename;
+          currentMedicineName = medicineName;
 
           // Prepare timings
           let timingStr = "";
@@ -743,15 +852,17 @@ $(document).ready(async function () {
           // Only show medicine name if it's different from previous medicine
           const showMedicineName =
             index === 0 ||
-            medicine.medicinename !==
-              prescriptionDataInUrdu.patientInformation.selectedMedicines[
-                index - 1
-              ].medicinename;
+            medicineName !==
+              plainMedicineName(
+                prescriptionDataInUrdu.patientInformation.selectedMedicines[
+                  index - 1
+                ].medicinename
+              );
 
           medicineListHtml += `
             <tr class="${bgColorClass}" style="height: 40px;">
                 <td style="font-style: italic; font-size: 15px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px;">
-                    ${showMedicineName ? medicine.medicinename : ""}
+                    ${showMedicineName ? medicineName : ""}
                 </td>
                 <td style="text-align: center; font-size:13px; vertical-align: middle;" class="nastaleeq">
                     ${durationDisplay}
@@ -810,7 +921,21 @@ $(document).ready(async function () {
     );
   }
 
-  function printPrescription() {
+  async function printPrescription() {
+    if (typeof window.finalizePrescriptionAfterPrintFromPopup === "function") {
+      try {
+        await window.finalizePrescriptionAfterPrintFromPopup();
+      } catch (error) {
+        return;
+      }
+    }
+
+    if (typeof window.markPrescriptionPrintedFromPopup === "function") {
+      window.markPrescriptionPrintedFromPopup();
+    } else {
+      $("#addEditModel").data("prescriptionPrinted", true);
+    }
+
     const printContent = document.getElementById("printableArea").innerHTML;
 
     // Get all stylesheets (including external ones)

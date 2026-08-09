@@ -40,8 +40,10 @@ $(document).ready(function () {
         });
       });
 
-      function deletePatientInstruction(id, event) {
+      async function deletePatientInstruction(id, event) {
         event.preventDefault();
+        if (!(await common.confirmDelete())) return;
+
         window.electronAPI.deletePatientInstructionById(id);
         common.showDeletedSuccessfullyMessage();
         loadPageContent(

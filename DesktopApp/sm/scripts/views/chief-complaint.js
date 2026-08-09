@@ -39,8 +39,10 @@ $(document).ready(function () {
         });
       });
 
-      function deleteChiefComplaint(id, event) {
+      async function deleteChiefComplaint(id, event) {
         event.preventDefault();
+        if (!(await common.confirmDelete())) return;
+
         window.electronAPI.deleteChiefComplaintById(id);
         common.showDeletedSuccessfullyMessage();
         loadPageContent(

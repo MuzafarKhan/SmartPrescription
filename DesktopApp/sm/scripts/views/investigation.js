@@ -39,8 +39,10 @@ $(document).ready(function () {
         });
       });
 
-      function deleteInvestigation(id, event) {
+      async function deleteInvestigation(id, event) {
         event.preventDefault();
+        if (!(await common.confirmDelete())) return;
+
         window.electronAPI.deleteInvestigationById(id);
         common.showDeletedSuccessfullyMessage();
         loadPageContent(

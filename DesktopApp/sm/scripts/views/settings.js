@@ -20,15 +20,27 @@ $(document).ready(function () {
 
     $(document)
       .off("click", ".remove-translations")
-      .on("click", ".remove-translations", function () {
-        if ($("#translationsContainer .translations-row").length > 1) {
-          $(this).closest("tr").remove();
-        } else {
-          const selectedRehabilitationAids = $(this).val();
-          const rehabilitationRow = $(this).closest("tr");
+      .on("click", ".remove-translations", async function () {
+        const $row = $(this).closest("tr");
+        const isLastRow = $("#translationsContainer .translations-row").length <= 1;
 
-          rehabilitationRow.find("[id^='english']").val("");
-          rehabilitationRow.find("[id^='tourdu']").val("");
+        if (
+          !(await common.confirmDelete({
+            title: isLastRow ? "Clear translation?" : "Remove translation row?",
+            text: isLastRow
+              ? "The translation fields on this row will be cleared."
+              : "This translation row will be removed.",
+            confirmButtonText: isLastRow ? "Yes, clear it!" : "Yes, remove it!",
+          }))
+        ) {
+          return;
+        }
+
+        if (!isLastRow) {
+          $row.remove();
+        } else {
+          $row.find("[id^='english']").val("");
+          $row.find("[id^='tourdu']").val("");
         }
       });
 
@@ -53,6 +65,10 @@ $(document).ready(function () {
           "#txtDefaultPrescriptionPrinterName"
         ).val(),
         defaultThermalPrinterName: $("#txtDefaultThermalPrinterName").val(),
+        alwaysAskCredentials: $("#chkAlwaysAskCredentials").is(":checked")
+          ? 1
+          : 0,
+        appZoomLevel: Number($("#selectAppZoomLevel").val()) || 100,
       };
 
       // Array to store translations data
@@ -83,9 +99,13 @@ $(document).ready(function () {
           settings.investigationDetailValues,
           settings.surgeryDetailValues,
           settings.defaultPrescriptionPrinterName,
-          settings.defaultThermalPrinterName
+          settings.defaultThermalPrinterName,
+          settings.alwaysAskCredentials,
+          settings.appZoomLevel
         );
         await savetranslations(translations);
+        await common.refreshSettings();
+        await common.applyAppZoom();
         // Show success message after both are completed
         common.showUpdatedSuccessfullyMessage();
       } catch (error) {
@@ -205,6 +225,14 @@ $(document).ready(function () {
         setting[0].defaultThermalPrinterName
       );
 
+      $("#chkAlwaysAskCredentials").prop(
+        "checked",
+        setting[0].alwaysAskCredentials !== 0
+      );
+
+      const zoomLevel = setting[0].appZoomLevel || 100;
+      $("#selectAppZoomLevel").val(String(zoomLevel));
+
       if (setting[0].defaultdate)
         toggleInputs("txtDefaultDate", "selectDefaultDay");
       else toggleInputs("selectDefaultDay", "txtDefaultDate");
@@ -265,7 +293,9 @@ $(document).ready(function () {
     investigationDetailValues,
     surgeryDetailValues,
     defaultPrescriptionPrinterName,
-    defaultThermalPrinterName
+    defaultThermalPrinterName,
+    alwaysAskCredentials,
+    appZoomLevel
   ) {
     const results = await window.electronAPI.updateSettings(
       defaultdate,
@@ -277,7 +307,9 @@ $(document).ready(function () {
       investigationDetailValues,
       surgeryDetailValues,
       defaultPrescriptionPrinterName,
-      defaultThermalPrinterName
+      defaultThermalPrinterName,
+      alwaysAskCredentials,
+      appZoomLevel
     );
   }
 

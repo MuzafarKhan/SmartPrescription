@@ -32,8 +32,18 @@ $(document).ready(function () {
     });
 
     // Remove a patient-instruction row
-    $(document).on("click", ".remove-patient-instruction", function (event) {
+    $(document).on("click", ".remove-patient-instruction", async function (event) {
       event.preventDefault();
+      if (
+        !(await common.confirmDelete({
+          title: "Remove instruction?",
+          text: "This patient instruction will be removed from the prescription.",
+          confirmButtonText: "Yes, remove it!",
+        }))
+      ) {
+        return;
+      }
+
       $(this).closest("tr").remove();
     });
 

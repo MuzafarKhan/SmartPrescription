@@ -39,8 +39,10 @@ $(document).ready(function () {
         });
       });
 
-      function deletePlan(id, event) {
+      async function deletePlan(id, event) {
         event.preventDefault();
+        if (!(await common.confirmDelete())) return;
+
         window.electronAPI.deletePlanById(id);
         common.showDeletedSuccessfullyMessage();
         loadPageContent(

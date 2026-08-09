@@ -81,6 +81,9 @@ $(document).ready(async function () {
       if (patientData?.patientInformation) {
         await populateFullPatientPrescription(patientData.patientInformation);
         await ensureMrNumberDisplayed();
+        if (typeof window.refreshMedicineVisitHistory === "function") {
+          await window.refreshMedicineVisitHistory();
+        }
       }
     } else if (historyPatient) {
       $("#txtMrNumber").val(historyPatient.mrNumber || "");
@@ -117,6 +120,9 @@ $(document).ready(async function () {
       addNewMedicineRow();
       addNewRehabilitationAidRow();
       addNewPatientInstructionRow();
+      if (typeof window.refreshMedicineVisitHistory === "function") {
+        await window.refreshMedicineVisitHistory();
+      }
     } else {
       await ensureMrNumberDisplayed();
       // NEW: Create a promise that resolves when all sections are loaded
@@ -278,13 +284,15 @@ $(document).ready(async function () {
     $("#printPrescription").on("click", async function () {
       let prescriptionData = await getPrescriptionData(true);
       if (validatePrescriptionData(prescriptionData)) {
-        await completePrescription(prescriptionData);
-        openPrintData(prescriptionData, false, true);
-        common.fillPatientCountBubble();
+        openPrintData(prescriptionData, false, true, true);
       }
     });
 
     $(document).on("keydown", async function (e) {
+      if ($("#addAttachpatientinstruction").hasClass("show")) {
+        return;
+      }
+
       // Ctrl+P for normal print
       if (e.ctrlKey && e.key === "p") {
         e.preventDefault(); // Prevent default browser behavior
@@ -297,8 +305,7 @@ $(document).ready(async function () {
         try {
           let prescriptionData = await getPrescriptionData(true);
           if (validatePrescriptionData(prescriptionData)) {
-            await completePrescription(prescriptionData);
-            await openPrintData(prescriptionData, true, true);
+            await openPrintData(prescriptionData, true, true, true);
           }
         } finally {
           window.isPrinting = false;
@@ -316,8 +323,7 @@ $(document).ready(async function () {
         try {
           let prescriptionData = await getPrescriptionData(true);
           if (validatePrescriptionData(prescriptionData)) {
-            await completePrescription(prescriptionData);
-            await openPrintData(prescriptionData, true, false);
+            await openPrintData(prescriptionData, true, false, true);
           }
         } finally {
           window.isPrinting = false;
@@ -328,9 +334,8 @@ $(document).ready(async function () {
 
     $("#prescriptionForm,#diagnosisList,.comorbidity-tab").on(
       "change",
-      async (event) => {
-        debugger;
-        savePendingPatient(false);
+      () => {
+        window.debouncedSavePendingPatient(false);
       }
     );
 
@@ -346,7 +351,8 @@ $(document).ready(async function () {
   async function openPrintData(
     prescriptionData,
     quickPrint,
-    isPrintPrescription
+    isPrintPrescription,
+    shouldReloadHomeAfterPrint = false
   ) {
     $("#addEditModel").load("views/popup/print.html", function () {
       // After loading, pass the id dynamically
@@ -356,6 +362,15 @@ $(document).ready(async function () {
       );
       $("#addEditModel").data("quickPrint", quickPrint);
       $("#addEditModel").data("isPrintPrescription", isPrintPrescription);
+      $("#addEditModel").data(
+        "shouldReloadHomeAfterPrint",
+        shouldReloadHomeAfterPrint
+      );
+      $("#addEditModel").data(
+        "shouldCompleteOnPrint",
+        shouldReloadHomeAfterPrint
+      );
+      $("#addEditModel").data("prescriptionCompleted", false);
 
       savesurgerytolocalstorage();
     });
@@ -547,29 +562,7 @@ $(document).ready(async function () {
     const medicines = [];
 
     $("#medicineContainer .medicine-row").each(function () {
-      const medicineRow = $(this);
-
-      // Create an object for each medicine row
-      const medicine = {
-        medicinename: medicineRow.find(".medicine-input").val(),
-        medicinetype: medicineRow.find(".medicine-type").val(),
-        injType: medicineRow.find(".inj-type").val(),
-        quantity: medicineRow.find(".quantity").val(),
-        timingType: medicineRow.find(".timing-type").val(), // New field for timing type
-        morning: medicineRow.find(".morning").is(":checked") ? 1 : 0, // Updated selector
-        afternoon: medicineRow.find(".afternoon").is(":checked") ? 1 : 0, // Updated selector
-        night: medicineRow.find(".night").is(":checked") ? 1 : 0, // Updated selector
-        duration: medicineRow.find(".duration").val(), // Updated selector
-        durationnumber: medicineRow.find(".duration-number").val(), // Updated selector
-        isPrintableOnPrescription: medicineRow.find(".printable").is(":checked")
-          ? 1
-          : 0, // Updated selector
-        moredetail: medicineRow.find(".more-detail").val(), // Updated selector
-        sourceFromDiagnosis: medicineRow.hasClass("addedFromDiagnosisChange"),
-      };
-
-      // Add the object to the medicines array
-      medicines.push(medicine);
+      medicines.push(common.buildMedicineSaveObject($(this)));
     });
 
     return medicines;
@@ -761,6 +754,10 @@ $(document).ready(async function () {
     }
   }
 
+  window.debouncedSavePendingPatient = common.debounce((isPrinted) => {
+    savePendingPatient(isPrinted);
+  }, 600);
+
   async function completePrescription(prescriptionData) {
     const result = await window.electronAPI.completePrescription(prescriptionData);
     if (result?.mrNumber) {
@@ -936,6 +933,12 @@ $(document).ready(async function () {
     row.find(".duration-number").val(medicine.durationnumber);
     row.find(".duration").val(medicine.duration);
     row.find(".more-detail").val(medicine.moredetail);
+
+    if (typeof window.initMedicineBrandRow === "function") {
+      window.initMedicineBrandRow(row, medicine);
+    } else if (typeof window.applyMedicineVisitHighlightToRow === "function") {
+      window.applyMedicineVisitHighlightToRow(row);
+    }
   }
   async function populateInvestigation(
     investigations,
@@ -1092,7 +1095,7 @@ $(document).ready(async function () {
         if (!medicine.medicinename.trim()) {
           $.toast({
             heading: "Error",
-            text: `Medicine name is required in ( ROW ${index + 1} )`,
+            text: `Medicine brand name is required in ( ROW ${index + 1} )`,
             showHideTransition: "fade",
             icon: "error",
             position: "top-right",

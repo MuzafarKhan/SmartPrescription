@@ -89,21 +89,48 @@ function buildOrderByClause(sortField, sortDir) {
   return `${expr} ${direction}, updated_at DESC`;
 }
 
+function escapeLikeTerm(term) {
+  return String(term).replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
+
+function buildPendingSearchClause(search) {
+  const term = String(search || "").trim();
+  if (!term) {
+    return { clause: "", params: [] };
+  }
+
+  const like = `%${escapeLikeTerm(term)}%`;
+  return {
+    clause: ` WHERE (
+      mr_number LIKE ? ESCAPE '\\'
+      OR patient_name LIKE ? ESCAPE '\\'
+      OR patient_age LIKE ? ESCAPE '\\'
+      OR checkup_date LIKE ? ESCAPE '\\'
+    )`,
+    params: [like, like, like, like],
+  };
+}
+
 ipcMain.handle(
   "get-pending-patients",
-  async (event, { page = 1, pageSize = 25, sortField, sortDir } = {}) => {
+  async (event, { page = 1, pageSize = 25, sortField, sortDir, search } = {}) => {
   const safePage = Math.max(1, Number(page) || 1);
   const safePageSize = Math.min(100, Math.max(1, Number(pageSize) || 25));
   const offset = (safePage - 1) * safePageSize;
   const orderBy = buildOrderByClause(sortField, sortDir);
+  const { clause, params } = buildPendingSearchClause(search);
 
-  const countRow = await runGet("SELECT COUNT(*) AS total FROM pending_patients");
+  const countRow = await runGet(
+    `SELECT COUNT(*) AS total FROM pending_patients${clause}`,
+    params
+  );
   const rows = await runAll(
     `SELECT prescription_unique_id, mr_number, patient_name, patient_age, checkup_date, is_printed
      FROM pending_patients
+     ${clause}
      ORDER BY ${orderBy}
      LIMIT ? OFFSET ?`,
-    [safePageSize, offset]
+    [...params, safePageSize, offset]
   );
 
   return {

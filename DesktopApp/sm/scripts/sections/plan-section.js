@@ -25,10 +25,23 @@ $(document).ready(function () {
     }
 
     // Remove plan row
-    $(document).on("click", ".remove-plan", function () {
-      if ($("#planContainer .plan-row").length > 1) {
-        $(this).closest("tr").remove();
+    $(document).on("click", ".remove-plan", async function (event) {
+      event.preventDefault();
+      if ($("#planContainer .plan-row").length <= 1) {
+        return;
       }
+
+      if (
+        !(await common.confirmDelete({
+          title: "Remove plan?",
+          text: "This plan will be removed from the prescription.",
+          confirmButtonText: "Yes, remove it!",
+        }))
+      ) {
+        return;
+      }
+
+      $(this).closest("tr").remove();
     });
 
     // Add new row button

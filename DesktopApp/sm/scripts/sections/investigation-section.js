@@ -27,10 +27,23 @@ $(document).ready(function () {
     }
 
     // Remove investigation row
-    $(document).on("click", ".remove-investigation", function () {
-      if ($("#investigationContainer .investigation-row").length > 1) {
-        $(this).closest("tr").remove();
+    $(document).on("click", ".remove-investigation", async function (event) {
+      event.preventDefault();
+      if ($("#investigationContainer .investigation-row").length <= 1) {
+        return;
       }
+
+      if (
+        !(await common.confirmDelete({
+          title: "Remove investigation?",
+          text: "This investigation will be removed from the prescription.",
+          confirmButtonText: "Yes, remove it!",
+        }))
+      ) {
+        return;
+      }
+
+      $(this).closest("tr").remove();
     });
 
     // Add new row button

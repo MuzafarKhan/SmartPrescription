@@ -85,13 +85,16 @@ function extractHistoryFields(prescriptionData) {
   };
 }
 
+const VISIT_COUNT_EXPR =
+  "(SELECT COUNT(*) FROM patient_history ph WHERE ph.mr_number = p.mr_number)";
+
 const PATIENT_SORT_EXPRESSIONS = {
   mr_number: "p.mr_number",
   patient_name: "p.patient_name",
   patient_age: "CAST(NULLIF(p.patient_age, '') AS INTEGER)",
   last_visit_date:
     "substr(p.last_visit_date, 7, 4) || substr(p.last_visit_date, 4, 2) || substr(p.last_visit_date, 1, 2)",
-  visit_count: "p.visit_count",
+  visit_count: VISIT_COUNT_EXPR,
 };
 
 function buildPatientOrderBy(sortField, sortDir) {
@@ -101,6 +104,27 @@ function buildPatientOrderBy(sortField, sortDir) {
   }
   const direction = String(sortDir).toLowerCase() === "asc" ? "ASC" : "DESC";
   return `${expr} ${direction}, p.updated_at DESC`;
+}
+
+function escapeLikeTerm(term) {
+  return String(term).replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
+
+function buildPatientSearchClause(search) {
+  const term = String(search || "").trim();
+  if (!term) {
+    return { clause: "", params: [] };
+  }
+
+  const like = `%${escapeLikeTerm(term)}%`;
+  return {
+    clause: ` WHERE (
+      p.mr_number LIKE ? ESCAPE '\\'
+      OR p.patient_name LIKE ? ESCAPE '\\'
+      OR p.patient_age LIKE ? ESCAPE '\\'
+    )`,
+    params: [like, like, like],
+  };
 }
 
 ipcMain.handle("peek-next-mr-number", async () => {
@@ -130,6 +154,22 @@ ipcMain.handle("complete-prescription", async (event, prescriptionData) => {
   const prescriptionUniqueId = info.prescriptionUniqueId.trim();
   const patientName = info.patientname.trim();
   const patientAge = info.patientage || "";
+
+  const existingVisit = await runGet(
+    "SELECT mr_number FROM patient_history WHERE prescription_unique_id = ?",
+    [prescriptionUniqueId]
+  );
+  if (existingVisit) {
+    await runExec(
+      "DELETE FROM pending_patients WHERE prescription_unique_id = ?",
+      [prescriptionUniqueId]
+    );
+    return {
+      success: true,
+      mrNumber: existingVisit.mr_number,
+      alreadyCompleted: true,
+    };
+  }
 
   await runExec("BEGIN TRANSACTION");
   try {
@@ -201,19 +241,25 @@ ipcMain.handle("complete-prescription", async (event, prescriptionData) => {
 
 ipcMain.handle(
   "get-patient-history",
-  async (event, { page = 1, pageSize = 25, sortField, sortDir } = {}) => {
+  async (event, { page = 1, pageSize = 25, sortField, sortDir, search } = {}) => {
     const safePage = Math.max(1, Number(page) || 1);
     const safePageSize = Math.min(100, Math.max(1, Number(pageSize) || 25));
     const offset = (safePage - 1) * safePageSize;
     const orderBy = buildPatientOrderBy(sortField, sortDir);
+    const { clause, params } = buildPatientSearchClause(search);
 
-    const countRow = await runGet("SELECT COUNT(*) AS total FROM patients");
+    const countRow = await runGet(
+      `SELECT COUNT(*) AS total FROM patients p${clause}`,
+      params
+    );
     const rows = await runAll(
-      `SELECT mr_number, patient_name, patient_age, last_visit_date, visit_count
+      `SELECT mr_number, patient_name, patient_age, last_visit_date,
+              ${VISIT_COUNT_EXPR} AS visit_count
        FROM patients p
+       ${clause}
        ORDER BY ${orderBy}
        LIMIT ? OFFSET ?`,
-      [safePageSize, offset]
+      [...params, safePageSize, offset]
     );
 
     return {
@@ -236,7 +282,7 @@ ipcMain.handle("get-patient-visits", async (event, mrNumber) => {
     `SELECT id, visit_date, patient_age, diagnosis, medicines, created_at
      FROM patient_history
      WHERE mr_number = ?
-     ORDER BY visit_date DESC, id DESC`,
+     ORDER BY substr(visit_date, 7, 4) || substr(visit_date, 4, 2) || substr(visit_date, 1, 2) DESC, id DESC`,
     [mrNumber]
   );
 

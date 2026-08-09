@@ -20,29 +20,74 @@
       .nastaleeq {
         font-family: "NotoNastaliqUrdu-VariableFont_wght", cursive;
         font-size: 1.5rem;
-        direction: rtl; /* Right-to-left for Urdu text */
+        direction: rtl;
+      }
+
+      .medicine-grouped-table tr.medicine-group-start td {
+        border-top: 2px solid #dee2e6;
+      }
+
+     
+
+      .medicine-generic-cell {
+        vertical-align: middle !important;
+        text-align: center;
+        background: #f8f9fa;
+        border-left: 2px solid #dee2e6;
+        min-width: 150px;
+      }
+
+      .medicine-generic-cell-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100%;
+      }
+
+      .medicine-generic-name {
+        font-weight: 600;
+        color: #212529;
+        line-height: 1.3;
+      }
+
+      .medicine-generic-count {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
       }
     </style>
   </head>
 
   <body>
     <div class="form-container">
-      <div class="d-flex justify-content-end">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+        <div>
+          <label for="medicineSearch" class="me-2">Search:</label>
+          <input
+            type="search"
+            id="medicineSearch"
+            class="form-control form-control-sm d-inline-block"
+            style="width: auto; min-width: 260px"
+            placeholder="Brand name, generic name, type..."
+          />
+        </div>
         <button id="btnAddMedicineModal" class="btn btn-primary mt-1">
           Add Medicine
         </button>
       </div>
       <form>
         <div class="row m-1">
-          <table id="medicineTable" class="display" style="width: 100%">
+          <table id="medicineTable" class="display medicine-grouped-table" style="width: 100%">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Medicine</th>
+                <th>Medicine Brand Name</th>
                 <th>Timing</th>
                 <th>Quantity</th>
                 <th>Duration</th>
                 <th>Actions</th>
+                <th>Medicine Generic Name</th>
               </tr>
             </thead>
             <tbody></tbody>
