@@ -531,31 +531,48 @@ $(document).ready(async function () {
 
     return complaints;
   }
+  function getMagicSuggestInstance(selector) {
+    const $el = $(selector);
+    if (!$el.length) {
+      return null;
+    }
+    const instance = $el.data("magicSuggest");
+    if (!instance || typeof instance.getSelection !== "function") {
+      return null;
+    }
+    return instance;
+  }
+
   function getSelectedDiagnosis() {
-    const diagnosisSuggest = $("#diagnosisList").magicSuggest();
-    const selectedDiagnoses = diagnosisSuggest.getSelection();
+    const diagnosisSuggest = getMagicSuggestInstance("#diagnosisList");
+    if (!diagnosisSuggest) {
+      return [];
+    }
 
-    // Map the selected diagnoses to an array of values
-    const selectedValues = selectedDiagnoses.map((diagnosis) => diagnosis.name);
-
-    return selectedValues;
+    const selectedDiagnoses = diagnosisSuggest.getSelection() || [];
+    return selectedDiagnoses.map((diagnosis) => diagnosis.name);
   }
   async function getSelectedInvestigation() {
-    const investigationSuggest = $("#investigationList").magicSuggest();
-    let selectedInvestigations = investigationSuggest.getSelection();
-    const selectedValues = selectedInvestigations.map((investigation) => [
+    const investigationSuggest = getMagicSuggestInstance("#investigationList");
+    if (!investigationSuggest) {
+      return [];
+    }
+
+    const selectedInvestigations = investigationSuggest.getSelection() || [];
+    return selectedInvestigations.map((investigation) => [
       investigation.name,
       investigation.isPrintableOnPrescription,
     ]);
-
-    return selectedValues;
   }
 
   async function getSelectedPlan() {
-    const planSuggest = $("#planList").magicSuggest();
-    let selectedPlans = planSuggest.getSelection();
-    const selectedValues = selectedPlans.map((plan) => plan.name);
-    return selectedValues;
+    const planSuggest = getMagicSuggestInstance("#planList");
+    if (!planSuggest) {
+      return [];
+    }
+
+    const selectedPlans = planSuggest.getSelection() || [];
+    return selectedPlans.map((plan) => plan.name);
   }
 
   function getAllMedicines() {

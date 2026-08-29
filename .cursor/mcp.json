@@ -2,16 +2,16 @@
   "mcpServers": {
     "smartprescription-codebase": {
       "command": "node",
-      "args": ["F:/Project/SmartPrescription/tools/smartprescription-mcp/dist/index.js"],
+      "args": ["D:/Projects/Smart Prescribtion/tools/smartprescription-mcp/dist/index.js"],
       "env": {
-        "SMARTPRESCRIPTION_ROOT": "F:/Project/SmartPrescription"
+        "SMARTPRESCRIPTION_ROOT": "D:/Projects/Smart Prescribtion"
       }
     },
     "smartprescription-database": {
       "command": "node",
-      "args": ["F:/Project/SmartPrescription/tools/smartprescription-db-mcp/dist/index.js"],
+      "args": ["D:/Projects/Smart Prescribtion/tools/smartprescription-db-mcp/dist/index.js"],
       "env": {
-        "SMARTPRESCRIPTION_ROOT": "F:/Project/SmartPrescription",
+        "SMARTPRESCRIPTION_ROOT": "D:/Projects/Smart Prescribtion",
         "DB_PATH": "DesktopApp/sm/preData.db",
         "DB_READ_ONLY": "false",
         "DB_MAX_ROWS": "500"

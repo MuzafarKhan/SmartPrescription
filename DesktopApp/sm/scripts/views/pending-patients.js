@@ -236,7 +236,8 @@
 
     $("#btnClearPendingPatientsModal")
       .off("click")
-      .on("click", async function () {
+      .on("click", async function (event) {
+        event.preventDefault();
         if (
           !(await common.confirmDelete({
             title: "Clear all pending patients?",

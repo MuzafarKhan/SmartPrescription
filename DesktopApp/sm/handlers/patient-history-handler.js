@@ -169,6 +169,58 @@ async function trimPatientHistory(mrNumber, retentionLimit) {
   );
 }
 
+async function markPendingPatientPrinted(prescriptionUniqueId, mrNumber) {
+  await runExec(
+    `UPDATE pending_patients SET
+       is_printed = 1,
+       mr_number = COALESCE(?, mr_number),
+       updated_at = datetime('now')
+     WHERE prescription_unique_id = ?`,
+    [mrNumber || null, prescriptionUniqueId]
+  );
+}
+
+async function upsertPrintedPendingPatient(prescriptionData, mrNumber) {
+  const info = prescriptionData?.patientInformation;
+  if (!info?.prescriptionUniqueId || !info?.patientname) {
+    return;
+  }
+
+  const prescriptionUniqueId = info.prescriptionUniqueId.trim();
+  const updatedInfo = {
+    ...info,
+    mrNumber,
+    isPrinted: true,
+  };
+  const dataToStore = {
+    ...prescriptionData,
+    patientInformation: updatedInfo,
+  };
+
+  await runExec(
+    `INSERT INTO pending_patients (
+      prescription_unique_id, mr_number, patient_name, patient_age, checkup_date,
+      is_printed, prescription_data, updated_at
+    ) VALUES (?, ?, ?, ?, ?, 1, ?, datetime('now'))
+    ON CONFLICT(prescription_unique_id) DO UPDATE SET
+      mr_number = excluded.mr_number,
+      patient_name = excluded.patient_name,
+      patient_age = excluded.patient_age,
+      checkup_date = excluded.checkup_date,
+      is_printed = 1,
+      prescription_data = excluded.prescription_data,
+      updated_at = datetime('now')`,
+    [
+      prescriptionUniqueId,
+      mrNumber,
+      info.patientname.trim(),
+      info.patientage || "",
+      info.checkupDate || "",
+      JSON.stringify(dataToStore),
+    ]
+  );
+}
+
 ipcMain.handle("peek-next-mr-number", async () => {
   const mrNumber = await peekNextMrNumber();
   return { mrNumber };
@@ -202,10 +254,7 @@ ipcMain.handle("complete-prescription", async (event, prescriptionData) => {
     [prescriptionUniqueId]
   );
   if (existingVisit) {
-    await runExec(
-      "DELETE FROM pending_patients WHERE prescription_unique_id = ?",
-      [prescriptionUniqueId]
-    );
+    await markPendingPatientPrinted(prescriptionUniqueId, existingVisit.mr_number);
     return {
       success: true,
       mrNumber: existingVisit.mr_number,
@@ -268,10 +317,7 @@ ipcMain.handle("complete-prescription", async (event, prescriptionData) => {
       ]
     );
 
-    await runExec(
-      "DELETE FROM pending_patients WHERE prescription_unique_id = ?",
-      [prescriptionUniqueId]
-    );
+    await upsertPrintedPendingPatient(prescriptionData, mrNumber);
 
     const retentionLimit = await getPatientHistoryRetentionLimit();
     await trimPatientHistory(mrNumber, retentionLimit);
